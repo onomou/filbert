@@ -1,0 +1,62 @@
+/* Styling for sidebar */
+.topbar {
+    float: top;
+    position: relative;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    min-height: 70px;
+    background-color: #e05b5b;
+    padding: 0px;
+    /* z-index: 1; */
+}
+
+.topbar a {
+    /* display: block; */
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    font-family: math;
+}
+
+.topbar a.active {
+    font-weight: bold;
+    background-color: lightblue;
+}
+
+.topbar ul {
+    /* list-style-type: none; */
+    white-space: nowrap;
+    display: flex;
+    /* overflow-x: scroll; */
+    /* width: inherit; */
+    /* overflow-x: hidden; */
+    /* overflow-y: scroll; */
+    /* margin: inherit; */
+    vertical-align: middle;
+    /* float: right; */
+    flex-wrap: wrap;
+    margin: 0px;
+}
+
+.topbar li {
+    display: inline-block;
+    /* float: left; */
+    /* box-sizing: border-box; */
+    /* width: 10%; */
+    vertical-align: middle;
+    transition: 0.25s;
+    /* line-height: 18px; */
+    /* height: 18px; */
+    /* align-items: center; */
+    display: flex;
+}
+
+.topbar li:hover {
+    background-color: #919191;
+}
+
+.topbar li a {
+    /* display: block; */
+    color: white;
+}

@@ -1,0 +1,14 @@
+<div class="quiz-questions-sidebar">
+  <ul>
+    {% for for_quiz_question in quiz_questions %}
+
+
+    {% if for_quiz_question.id == quiz_question.id %}
+    <li><a href="/course/{{ active_course.id }}/quiz/{{ quiz.id }}/question/{{ for_quiz_question.id }}" class="active">{{ for_quiz_question.question_name }}</a></li>
+    {% else %}
+    <li><a href="/course/{{ active_course.id }}/quiz/{{ quiz.id }}/question/{{ for_quiz_question.id }}">{{ for_quiz_question.question_name }}</a></li>
+    {% endif %}
+
+    {% endfor %}
+  </ul>
+</div>  

@@ -1,0 +1,11 @@
+<div class="assignments-sidebar">
+  <!-- <h1>Assignments</h1> -->
+
+  <ul>
+    {% for for_assignment in assignments %}
+    
+    <li><a href="/course/{{ active_course.id }}/assignment/{{ for_assignment.id }}" class="{{ 'active' if assignment['id'] == for_assignment.id else 'inactive' }}">{{ for_assignment.name }}</a></li>
+    
+    {% endfor %}
+  </ul>
+</div>

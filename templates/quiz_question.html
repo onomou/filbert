@@ -1,0 +1,13 @@
+
+<div class="styled-div">
+    <h3>{{ question.name }}</h3>
+    <div class="question">{{ question.question_text }}</div>
+    <div>ID: <a href="{{ url_for('quiz_question_details', course_id = active_course.id, quiz_id = quiz.id, question_id = question.id) }}">{{ question.id }}</a></div>
+    <div>Position: {{ question.position }}</div>
+    <div>Question type: {{ question.question_type }}</div>
+    <div>Points: {{ question.points_possible }}</div>
+    <div>Correct: {{ question.correct_comments }}</div>
+    <div>Incorrect: {{ question.incorrect_comments }}</div>
+    <div>Neutral: {{ question.neutral_comments }}</div>
+    <div>Answers: {{ question.answers }}</div>
+</div>

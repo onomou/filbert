@@ -1,0 +1,11 @@
+<div class="sidebar">
+    <ul>
+        {% for course in all_courses() %}
+            {% if active_course.id == course.id %}
+                <li><a href="{{ url_for('course_action', course_id = course.id, action = action) }}" class="active">{{ course.name }}</a></li>
+            {% else %}
+                <li><a href="{{ url_for('course_action', course_id = course.id, action = action) }}">{{ course.name }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>

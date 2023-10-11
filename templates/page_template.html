@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/topbar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/overlay.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/page_template.css') }}">
+
+    {% block header %}{% endblock %}
+</head>
+
+<body>
+    {% include 'topbar.html' %}
+    <div class="main">
+
+        {% include 'sidebar.html' %}
+        {% include 'overlay.html' %}
+
+        <div class="content">
+            {% block body %}{% endblock %}
+        </div>
+        {% block footer %}{% endblock %}
+        <script>
+            var overlay = document.getElementById('overlay');
+            var okButton = document.getElementById('ok-button');
+
+            // Check if there are non-empty flash messages to display
+            var flashMessages = document.querySelectorAll('.flash-message');
+            var hasNonEmptyMessages = Array.from(flashMessages).some(function (message) {
+                return message.textContent.trim() !== "";
+            });
+
+            if (hasNonEmptyMessages) {
+                overlay.style.display = 'block';
+            }
+
+            // Hide the overlay and clear messages when OK button is clicked
+            okButton.addEventListener('click', function () {
+                overlay.style.display = 'none';
+            });
+        </script>
+
+    </div>
+</body>
+
+</html>

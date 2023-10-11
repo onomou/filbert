@@ -1,0 +1,112 @@
+/* Styling for sidebar */
+.quiz-sidebar {
+    /* float: left; */
+    /* position: relative; */
+    /* top: 0px; */
+    /* left: 0px; */
+    width: 120px;
+    height: 100%;
+    background-color: #c8c8c8;
+    padding: 8px;
+    /* overflow-y: scroll; */
+    display: block;
+}
+
+.quiz-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.quiz-sidebar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.quiz-sidebar a.active {
+    font-weight: bold;
+    background-color: lightblue;
+}
+
+/* Styling for questions list */
+.quiz-questions-sidebar {
+    /* float: left; */
+    /* position: relative; */
+    /* top: 0px; */
+    /* left: 0px; */
+    width: 92px;
+    /* height: 100%; */
+    background-color: #efefef;
+    padding: 0px;
+    overflow: hidden;
+    display: block;
+}
+
+.quiz-questions-sidebar ul {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.quiz-questions-sidebar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.quiz-questions-sidebar a.active {
+    font-weight: bold;
+    background-color: lightblue;
+}
+
+.quiz-question-details {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 20px;
+    height: 100%;
+    width: 70%;
+}
+
+.quiz-content {
+    /* margin-left: 206px; */ /* Adjust this value based on the sidebar width */
+    padding: 20px;
+    height: 100%;
+    width: 90%;
+    position: relative;
+    /* left: 38px; */
+    /* float: left; */
+    /* display: flex; */
+    /* flex: 1; */
+}
+
+.quiz-buttons {
+    height: 100%;
+    /* display: flex; */
+    /* flex: 1; */
+}
+
+.main {
+    /* top: 100px; */
+}
+
+.question {
+    line-height: 1.5;
+    background-color: white;
+    border: 1px solid black;
+    padding: 20px;
+    margin-bottom: 10px;
+}
+
+.download-button {
+    font-size: medium;
+    padding: 15px 20px;
+    font-weight: bold;
+    /* width: 233px; */
+}
+
+

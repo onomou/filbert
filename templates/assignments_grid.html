@@ -1,0 +1,85 @@
+{% extends 'page_template.html' %}
+
+{% block title %}
+All Assignments
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/slick.grid.css') }}">
+<script src="{{ url_for('static', filename='js/slick.core.js') }}"></script>
+<script src="{{ url_for('static', filename='js/slick.grid.js') }}"></script>
+<script src="{{ url_for('static', filename='js/slick.dataview.js') }}"></script>
+<script src="{{ url_for('static', filename='js/slick.interactions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/slick.editors.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+
+<div id="theGrid" name="theGrid" style="width: 700px; height: 500px;">
+</div>
+<button id="saveButton">Save Changes</button>
+
+
+{% endblock %}
+{% block footer %}
+<script type="text/javascript">
+    function CheckboxFormatter(row, cell, value, columnDef, dataContext) {
+        if (value) {
+            return '<img class="slick-edit-preclick" src=\"{{ url_for('static', filename="images/CheckboxY.png") }}\">';
+        } else {
+            return '<img class="slick-edit-preclick" src=\"{{ url_for('static', filename="images/CheckboxN.png") }}\">';
+        }
+    }
+
+    var data = {{ data | tojson | safe }};
+    var columns = {{ columns | tojson | safe }};
+    // Iterate through the columns and add the editor property
+    columns.forEach(function (column) {
+        // Add the editor property to each column with the desired editor type
+        if (column.name === 'published') {
+            column.editor = Slick.Editors.Checkbox;
+            column.formatter = CheckboxFormatter;
+            column.cssClass = 'editor-checkbox';
+        } else if (column.name === 'points_possible') {
+            column.editor = Slick.Editors.Integer;
+        } else {
+            column.editor = Slick.Editors.Text; // You can replace TextEditor with the editor you want to use
+        }
+    });
+
+    var options = {
+        enableCellNavigation: true,
+        enableColumnReorder: false,
+        editable: true,
+        enableSorting: true,
+        // Configure other SlickGrid options
+    };
+
+    var grid = new Slick.Grid("#theGrid", data, columns, options);
+
+
+    // Event handler for the "Save Changes" button
+    document.getElementById("saveButton").addEventListener("click", function () {
+        // Get the edited data from SlickGrid
+        var editedData = grid.getData();
+
+        // Send the edited data to Flask using an AJAX request
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/course/{{ active_course.id }}/assignments/update_data');  // Replace with your Flask route for data update
+        xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log('Data updated successfully');
+            } else {
+                console.error('Error updating data:', xhr.statusText);
+            }
+        };
+        xhr.onerror = function () {
+            console.error('Network error while updating data');
+        };
+        xhr.send(JSON.stringify(editedData));
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'page_template.html' %}
+
+{% block title %}
+Create New Assignment
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/new_assignment.css') }}">
+<!-- Include jQuery library -->
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+<link src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}">
+<!-- Include datetimepicker plugin -->
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+<!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
+<script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
+<script>
+  tinymce.init({
+    selector: '#description',
+    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code | numlist bullist | link',
+    plugins: 'lists | autolink | link',
+    default_link_target: '_blank',
+    link_default_protocol: 'https',
+    width: 650,
+    height: 260,
+  });
+</script>
+{% endblock %}
+
+
+{% block body %}
+<form action="/course/{{ active_course.id }}/new_assignment" method="POST">
+  <h1>Create New Assignment</h1>
+
+  <div class="parent-float">
+    <div class="styled-div child-float">
+      <h2 for="name">Assignment Title</h2>
+      <input type="text" id="name" name="name" required>
+    </div>
+    <div class="styled-div child-float">
+      <h2 for="points">Points</h2>
+      <input type="number" id="points" name="points" min="0"><br><br>
+    </div>
+
+    <div class="styled-div child-float">
+      <h2>Due Date</h2>
+      <input type="text" id="due_date" name="due_date" autocomplete="off"><br><br>
+    </div>
+    <div class="styled-div child-float">
+      <h2 for="published">Published</h2>
+      <input type="checkbox" id="published" name="published">
+    </div>
+  </div>
+
+  <div class="parent-float">
+    <div class="styled-div child-float">
+      <h2>Category</h2>
+      <select id="category" name="category" size="{{ groups_count }}">
+        {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="styled-div child-float">
+      <h2>Modules</h2>
+      <select id="modules" name="modules" size="{{ groups_count }}" multiple>
+        {% for module in modules %}
+        <option value="{{ module.id }}">{{ module.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="styled-div child-float">
+      <h2 for="attach">Attach File</h2>
+      <label for="attach" class="attach-label">Upload file</label>
+      <input type="file" id="attach" name="attach">
+    </div>
+  </div>
+
+  <div class="styled-div">
+    <h2>Description</h2>
+    <textarea id="description" name="description"></textarea><br><br>
+  </div>
+
+
+  <button class="submit-button" type="submit">Submit</button>
+</form>
+{% endblock %}
+
+
+{% block footer %}
+<script>
+  $(document).ready(function () {
+    // Initialize datetimepicker for date fields
+    $("#due_date").datetimepicker({
+      format: "Y-m-d H:i",
+      timepicker: true,
+      //inline: true,
+      showButtonPanel: true,
+      controlType: "select",
+      minDate: '0',
+      disableWeekDays: [6],
+      defaultDate: '+1970/01/02',
+      allowTimes: [
+        '7:00', '7:45', '8:28', '9:11', '9:54', '10:37', '11:20', '11:50 ',
+        '12:45', '13:28', '14:11', '14:54', '15:37', '16:20', '17:00', '17:40', '19:30', '22:00'
+      ]
+    });
+
+    // Validate points field to allow only nonnegative integers
+    $("#points").on("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value < 0) {
+        this.value = '';
+      }
+    });
+  });
+</script>
+{% endblock %}

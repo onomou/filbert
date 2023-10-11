@@ -1,0 +1,49 @@
+/* Styling for sidebar */
+.sidebar {
+    /* float: left; */
+    /* position: relative; */
+    /* top: 0px; */
+    /* left: 0px; */
+    width: 125px;
+    height: 100%;
+    background-color: #a8a8a8;
+    padding: 0px;
+    display: block;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.sidebar li {
+    transition: 0.25s;
+}
+.sidebar li:hover {
+    background-color: #dfc9c9;
+}
+
+.sidebar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+    font-family: math;
+}
+
+.sidebar a.active {
+    font-weight: bold;
+    background-color: dimgrey;
+    color: white;
+}
+
+.content {
+    /* margin-left: 200px; */ /* Adjust this value based on the sidebar width */
+    /* padding: 20px; */
+    height: 100%;
+    position: relative;
+    display: flex;
+    /* overflow: hidden; */
+}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Course Selection</title>
+</head>
+<body>
+    <h1>Course Selection</h1>
+    <form action="/course" method="GET">
+        <label for="course-select">Courses:</label>
+        <select id="course-select" name="course_id">
+            {% for course in all_courses() %}
+            <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <input type="submit" value="Select">
+    </form>
+    <div class="sidebar">
+        <h1>Course Selection</h1>
+        <ul>
+            {% for course in all_courses() %}
+            <li style="{% if selected == course.id %}font-weight: bold background: gray{% endif %}"><a href="/course/{{ course.id }}">{{ course.name }}</a></li>
+            {% endfor %}
+    </div>
+</body>
+</html>

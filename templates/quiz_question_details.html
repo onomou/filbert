@@ -1,0 +1,82 @@
+{% extends 'page_template.html' %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/quiz.css') }}">
+<script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
+<script>
+    tinymce.init({
+        selector: '#question_text',
+        toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code | numlist bullist | link',
+        plugins: 'lists | autolink | link',
+        default_link_target: '_blank',
+        link_default_protocol: 'https',
+    });
+</script>
+{% endblock %}
+
+
+{% block body %}
+{% include 'quiz_sidebar.html' %}
+{% include 'quiz_questions_sidebar.html' %}
+<div class="quiz-question-details">
+    <div class="quiz-buttons">
+        <form action="/course/{{ active_course.id }}/quiz/{{ quiz.id }}/question/{{ quiz_question.id }}/download"
+            method="POST">
+            <button class="download-button" type="submit">Download<br>Submissions</button>
+        </form>
+        <form action="/course/{{ active_course.id }}/quiz/{{ quiz.id }}/question/{{ quiz_question.id }}/upload"
+            method="POST">
+            <button class="download-button" type="submit">Upload<br>Submissions</button>
+        </form>
+    </div>
+    <div class="quiz-content">
+        <div class="styled-div">
+            <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/quizzes/{{ quiz.id }}"
+                target="_blank" rel="noopener noreferrer">
+                <h2 for="name">{{ quiz.title }}</h2>
+            </a>
+
+            <div class="styled-div">
+
+                <input type="text" id="question_name" name="question_name" value="{{ quiz_question.question_name }}">
+                <textarea id="question_text" , name="question_text">{{ quiz_question.question_text }}</textarea>
+                <div>ID: {{ quiz_question.id }}</div>
+                <div class="styled-div">
+                    <h3>Position:</h3>
+                    <input type="number" name="position" value="{{ quiz_question.position }}">
+                </div>
+                <div>Question type: {{ quiz_question.question_type }}</div>
+                <div class="styled-div">
+                    <h3>Points:</h3>
+                    <input type="number" name="points_possible" value="{{ quiz_question.points_possible }}">
+                </div>
+                <div>Correct: {{ quiz_question.correct_comments }}</div>
+                <div>Incorrect: {{ quiz_question.incorrect_comments }}</div>
+                <div>Neutral: {{ quiz_question.neutral_comments }}</div>
+                <div>Answers: {{ quiz_question.answers }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<script>
+    //$(document).ready(function () {
+    /*
+        document.addEventListener("DOMContentLoaded", function () {
+    
+            var questionDivs = document.querySelectorAll(".question_text");
+    
+            questionDivs.forEach(function (questionDiv) {
+                var htmlContent = questionDiv.textContent;
+                //$('.question').html($('#about').val());
+                var tempElement = document.createElement("div");
+                tempElement.innerHTML = htmlContent;
+                questionDiv.innerHTML = htmlContent;
+            })
+        }
+        );
+    */
+</script>
+{% endblock %}
