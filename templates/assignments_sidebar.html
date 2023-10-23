@@ -1,5 +1,5 @@
-<div class="assignments-sidebar">
-  <!-- <h1>Assignments</h1> -->
+<div class="secondary-sidebar">
+  <h3>Assignments</h3>
 
   <ul>
     {% for for_assignment in assignments %}
@@ -7,5 +7,6 @@
     <li><a href="/course/{{ active_course.id }}/assignment/{{ for_assignment.id }}" class="{{ 'active' if assignment['id'] == for_assignment.id else 'inactive' }}">{{ for_assignment.name }}</a></li>
     
     {% endfor %}
+    <li><a href="/course/{{ active_course.id }}/assignment/refresh" class="refresh">Refresh</a></li>
   </ul>
 </div>

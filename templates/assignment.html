@@ -1,14 +1,14 @@
 {% extends 'page_template.html' %}
 
 {% block title %}
-Create New Assignment
+Assignment Details
 {% endblock %}
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static',filename='css/new_assignment.css') }}">
 <!-- Include jQuery library -->
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-<link src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}">
+<script src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}"></script>
 <!-- Include datetimepicker plugin -->
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
@@ -31,35 +31,39 @@ Create New Assignment
 
 
 {% block body %}
-<form action="/course/{{ active_course.id }}/new_assignment" method="POST">
-  <h1>Create New Assignment</h1>
+{% include 'assignments_sidebar.html' %}
 
-  <div class="parent-float">
-    <div class="styled-div child-float">
-      <h2 for="name">Assignment Title</h2>
-      <input type="text" id="name" name="name" required>
-    </div>
+<div class="details">
+
+  <form action="/course/{{ active_course.id }}/assignment" method="POST">
+    <h1>Assignment</h1>
+    
+    <div class="parent-float">
+      <div class="styled-div child-float">
+        <h2 for="name">Assignment Title</h2>
+        <input type="text" id="name" name="name" value="{{ assignment.name }}" required>
+      </div>
     <div class="styled-div child-float">
       <h2 for="points">Points</h2>
-      <input type="number" id="points" name="points" min="0"><br><br>
+      <input type="number" id="points" name="points" min="0" value="{{ assignment.points_possible }}"><br><br>
     </div>
-
+    
     <div class="styled-div child-float">
       <h2>Due Date</h2>
-      <input type="text" id="due_date" name="due_date" autocomplete="off"><br><br>
+      <input type="text" id="due_date" name="due_date" autocomplete="off" value="{{ assignment.due_at }}"><br><br>
     </div>
     <div class="styled-div child-float">
       <h2 for="published">Published</h2>
-      <input type="checkbox" id="published" name="published">
+      <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
     </div>
   </div>
-
+  
   <div class="parent-float">
     <div class="styled-div child-float">
       <h2>Category</h2>
       <select id="category" name="category" size="{{ groups_count }}">
         {% for category in categories %}
-        <option value="{{ category.id }}">{{ category.name }}</option>
+        <option value="{{ category.id }}" {{ 'selected' if category.id == assignment.assignment_group_id }}>{{ category.name }}</option>
         {% endfor %}
       </select>
     </div>
@@ -67,7 +71,8 @@ Create New Assignment
       <h2>Modules</h2>
       <select id="modules" name="modules" size="{{ groups_count }}" multiple>
         {% for module in modules %}
-        <option value="{{ module.id }}">{{ module.name }}</option>
+        <!-- TODO: select modules this assignment is in -->
+        <option value="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
         {% endfor %}
       </select>
     </div>
@@ -77,15 +82,16 @@ Create New Assignment
       <input type="file" id="attach" name="attach">
     </div>
   </div>
-
+  
   <div class="styled-div">
     <h2>Description</h2>
-    <textarea id="description" name="description"></textarea><br><br>
+    <textarea id="description" name="description" >{{ assignment.description }}</textarea><br><br>
   </div>
-
-
+  
+  
   <button class="submit-button" type="submit">Submit</button>
 </form>
+</div>
 {% endblock %}
 
 

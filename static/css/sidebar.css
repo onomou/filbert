@@ -11,6 +11,14 @@
     display: block;
 }
 
+.secondary-sidebar h3 {
+    margin: 0px;
+    background: dimgrey;
+    color: white;
+    padding: 5px;
+    text-align: center;
+}
+
 .sidebar ul {
     list-style-type: none;
     padding: 0;
@@ -45,5 +53,54 @@
     height: 100%;
     position: relative;
     display: flex;
-    /* overflow: hidden; */
+    width: 100%;
+    /* overflow: auto; */
+}
+
+/* Styling for inner sidebar */
+.secondary-sidebar {
+    /* float: left; */
+    /* position: relative; */
+    /* top: 0px; */
+    /* left: 0px; */
+    width: 125px;
+    height: 100%;
+    background-color: #c0c0c0;
+    padding: 0px;
+    display: block;
+    overflow-y: auto;
+}
+
+.secondary-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.secondary-sidebar li {
+    transition: 0.25s;
+}
+.secondary-sidebar li:hover {
+    background-color: #dfc9c9;
+}
+
+.secondary-sidebar a {
+    display: block;
+    padding: 5px;
+    text-decoration: none;
+    color: black;
+    font-family: math;
+    font-size: smaller;
+}
+
+.secondary-sidebar a.active {
+    font-weight: bold;
+    background-color: dimgrey;
+    color: white;
+}
+
+.secondary-sidebar .refresh {
+    /* color: blue; */
+    background-color: #96b6d2;
 }

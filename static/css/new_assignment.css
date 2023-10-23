@@ -43,6 +43,8 @@ input[type=file]::file-selector-button:hover {
 .details {
   left: 10px;
   position: relative;
+  overflow: auto;
+  width: auto;
 }
 
 input {
@@ -62,12 +64,14 @@ input {
   /* width: 228px; */
   flex-wrap: wrap;
   /* width: 500px; */
+  gap: 10px;
 }
 
 .child-float {
   /* float: left; */
   flex: 1;
-  margin-right: 10px;
+  /* margin-right: 10px; */
+  /* gap: 10px; */
 }
 .child-float:first-child {
   /* float: left; */

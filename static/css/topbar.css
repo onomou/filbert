@@ -5,17 +5,23 @@
     top: 0px;
     left: 0px;
     width: 100%;
-    min-height: 70px;
+    /* min-height: 70px; */
     background-color: #e05b5b;
     padding: 0px;
-    /* z-index: 1; */
+    z-index: 1;
+    box-shadow: 0px 1px 1px #e05b5b;
+}
+
+.topbar .refresh {
+    color: black !important;
+    background-color: #96b6d2;
 }
 
 .topbar a {
     /* display: block; */
     padding: 10px;
     text-decoration: none;
-    color: black;
+    /* color: black; */
     font-family: math;
 }
 
@@ -37,6 +43,7 @@
     /* float: right; */
     flex-wrap: wrap;
     margin: 0px;
+    padding: 3px;
 }
 
 .topbar li {
@@ -50,6 +57,11 @@
     /* height: 18px; */
     /* align-items: center; */
     display: flex;
+    /* overflow: hidden; */
+    word-wrap: break-word;
+    white-space: normal;
+    /* box-shadow: 0px 0px 3px 1px; */
+    border-radius: 3px;
 }
 
 .topbar li:hover {
@@ -59,4 +71,9 @@
 .topbar li a {
     /* display: block; */
     color: white;
+    word-wrap: break-word;
+}
+
+.topbar .refresh li a {
+    color: black !important;
 }
