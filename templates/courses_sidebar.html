@@ -1,0 +1,16 @@
+<div id="courses-sidebar">
+    <h3 id="toggle-courses">Courses</h3>
+    <ul>
+        {% for course in all_courses() %}
+            <li>
+                <a href="{{ url_for('course_action', course_id = course.id, action = action) }}"
+                   id="{{ course.id }}" 
+                   data-shortname="{{ course.course_code }}"
+                   data-longname="{{ course.name }}"
+                   class="item{{ ' active' if active_course.id == course.id }} sidebar-course">
+                    {{ course.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

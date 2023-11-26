@@ -1,11 +1,12 @@
 {% extends 'page_template.html' %}
 
 {% block title %}
-Assignment Details
+Canvas - Assignment Details
 {% endblock %}
 
 {% block header %}
-<link rel="stylesheet" href="{{ url_for('static',filename='css/new_assignment.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/assignment.css') }}">
+<script src="{{ url_for('static', filename='js/functions.js') }}"></script>
 <!-- Include jQuery library -->
 <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 <script src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}"></script>
@@ -14,17 +15,27 @@ Assignment Details
   src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
 <link rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
-<!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script> -->
 <script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
 <script>
   tinymce.init({
     selector: '#description',
     toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code | numlist bullist | link',
-    plugins: 'lists | autolink | link',
+    plugins: 'lists autolink link',
     default_link_target: '_blank',
     link_default_protocol: 'https',
+    apply_source_formatting : true,
+    indent: false, // fixes \n issue: https://stackoverflow.com/a/39489073
     width: 650,
     height: 260,
+    setup: (editor) => {
+      editor.on('init', (event) => {
+        tinyMCE.get("description").setContent(document.getElementById("raw-description").innerHTML)
+        initialValues['description'] = tinyMCE.get("description").getContent()
+      })
+    },
+    init_instance_callback: function(editor) {
+      editor.on('NodeChange', handleDescriptionChange)
+    }
   });
 </script>
 {% endblock %}
@@ -35,92 +46,212 @@ Assignment Details
 
 <div class="details">
 
-  <form action="/course/{{ active_course.id }}/assignment" method="POST">
-    <h1>Assignment</h1>
-    
+  <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
+    enctype=multipart/form-data>
+    <!-- Assignment Title -->
+    <h1>
+      {% if assignment is not none %}
+      <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
+        target="_blank" rel="noopener noreferrer">🔗 {{ assignment.name }}
+      </a>
+      {% else %}
+      Creating New Assignment
+      {% endif %}
+    </h1>
+
+    <!-- First row -->
     <div class="parent-float">
       <div class="styled-div child-float">
         <h2 for="name">Assignment Title</h2>
-        <input type="text" id="name" name="name" value="{{ assignment.name }}" required>
+        <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
+        <label id="id-label" for="id">ID: </label>
+        <input type="text" id="id" name="id"
+          value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
       </div>
-    <div class="styled-div child-float">
-      <h2 for="points">Points</h2>
-      <input type="number" id="points" name="points" min="0" value="{{ assignment.points_possible }}"><br><br>
+      <div class="styled-div child-float">
+        <h2 for="points_possible">Points</h2>
+        <input type="number" id="points_possible" name="points_possible" min="0"
+          value="{{ assignment.points_possible }}">
+      </div>
+
+      <div class="styled-div child-float">
+        <h2>Due Date</h2>
+        <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
+      </div>
+      <div class="styled-div child-float">
+        <h2 for="published">Published</h2>
+        <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
+      </div>
     </div>
     
-    <div class="styled-div child-float">
-      <h2>Due Date</h2>
-      <input type="text" id="due_date" name="due_date" autocomplete="off" value="{{ assignment.due_at }}"><br><br>
+    <!-- Second row -->
+    <div class="parent-float">
+      <div class="styled-div child-float">
+        <h2>Assignment Group</h2>
+        <select id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
+          {% for assignment_group in assignment_groups %}
+          <option value="{{ assignment_group.id }}" {{ 'selected' if assignment_group.id==assignment.assignment_group_id }}>
+            {{ assignment_group.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="styled-div child-float">
+        <h2>Modules</h2>
+        <select id="modules" name="modules" size="{{ groups_count }}" multiple>
+          {% for module in modules %}
+          <option value="{{ module.id }}" class="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="styled-div child-float">
+        <h2>Submission Types</h2>
+        <select id="submission-types" name="submission_types" size="{{ groups_count }}" class="submission-types" multiple>
+          {% for submission_type in submission_types %}
+          <option value="{{ submission_type }}" class="{{ submission_type }}" {{ 'selected' if submission_type in assignment.submission_types }}{{ 'selected' if assignment is none and submission_type in default_submission_types }}>{{ submission_type }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="styled-div child-float">
+        <h2 for="file">Attach File</h2>
+        <label for="file" class="file-label">Upload file</label>
+        <input type="file" id="file" name="file">
+      </div>
     </div>
+
+    <!-- Third row -->
+    <div class="parent-float">
+      <div class="styled-div child-float">
+        <h2>External Tool URL</h2>
+        <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
+      </div>
+      <div class="styled-div child-float">
+        <h2>New Tab</h2>
+        <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
+      </div>
+    </div>
+
+    <!-- TinyMCE editor -->
+    <div class="parent-float">
     <div class="styled-div child-float">
-      <h2 for="published">Published</h2>
-      <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
+      <h2>Description</h2>
+      <textarea id="description" name="description"></textarea>
+    </div>
+    
+    <div id="raw-description-container" class="styled-div child-float">
+      <h2>Description</h2>
+      <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
     </div>
   </div>
-  
-  <div class="parent-float">
-    <div class="styled-div child-float">
-      <h2>Category</h2>
-      <select id="category" name="category" size="{{ groups_count }}">
-        {% for category in categories %}
-        <option value="{{ category.id }}" {{ 'selected' if category.id == assignment.assignment_group_id }}>{{ category.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="styled-div child-float">
-      <h2>Modules</h2>
-      <select id="modules" name="modules" size="{{ groups_count }}" multiple>
-        {% for module in modules %}
-        <!-- TODO: select modules this assignment is in -->
-        <option value="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="styled-div child-float">
-      <h2 for="attach">Attach File</h2>
-      <label for="attach" class="attach-label">Upload file</label>
-      <input type="file" id="attach" name="attach">
-    </div>
-  </div>
-  
-  <div class="styled-div">
-    <h2>Description</h2>
-    <textarea id="description" name="description" >{{ assignment.description }}</textarea><br><br>
-  </div>
-  
-  
-  <button class="submit-button" type="submit">Submit</button>
-</form>
+
+
+  </form>
+  <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
+  <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update">Duplicate</button>
+  <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
 </div>
 {% endblock %}
 
 
 {% block footer %}
 <script>
+  document.getElementById("delete-button").disabled = ( '{{ assignment.id }}' == 0 )
+  document.getElementById("submission-types").addEventListener('change', function(event) {
+    //  document.getElementById("url").disabled = !([...event.target.selectedOptions].map(x => x.value).includes('external_tool'))
+    document.querySelectorAll(".external-tool-options").forEach(x => {
+      x.disabled = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
+      // x.style.display = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
+     })
+    })
+  document.getElementById("toggle-courses").addEventListener('click', function(event) {
+    if(document.getElementById("courses-sidebar").classList.contains('collapsed')) {
+      document.getElementById("courses-sidebar").classList.remove('collapsed')
+      document.querySelectorAll(".sidebar-course").forEach(x => {
+        x.innerHTML = x.dataset.longname;
+      })
+    } else {
+      document.getElementById("courses-sidebar").classList.add('collapsed')
+      document.querySelectorAll(".sidebar-course").forEach(x => {
+        x.innerHTML = x.dataset.shortname;
+      })
+    } 
+  })
+  document.getElementById("toggle-assignments").addEventListener('click', function(event) {
+    if(document.getElementById("assignments-sidebar").classList.contains('collapsed')) {
+      document.getElementById("assignments-sidebar").classList.remove('collapsed')
+      document.querySelectorAll(".sidebar-assignment-name").forEach(x => {
+        x.innerHTML = x.dataset.longname;
+      })
+    } else {
+      document.getElementById("assignments-sidebar").classList.add('collapsed')
+      document.querySelectorAll(".sidebar-assignment-name").forEach(x => {
+        x.innerHTML = x.dataset.shortname;
+      })
+    } 
+  })
+
   $(document).ready(function () {
-    // Initialize datetimepicker for date fields
-    $("#due_date").datetimepicker({
+    document.querySelectorAll('input').forEach(input => {
+    // Gather initial values
+    if(input.type == "checkbox") {
+      initialValues[input.id] = input.checked
+    } else {
+      initialValues[input.id] = input.value;
+    }
+    // Add event listeners to input elements
+    input.addEventListener('input', handleInputChange);
+  });
+  document.querySelectorAll('select').forEach(input => {
+    // Gather initial values
+    initialValues[input.id] = [...input.selectedOptions].map(x => x.value);
+    // Add event listeners to input elements
+    input.addEventListener('change', handleInputChange);
+  });
+  
+
+  
+  // initialValues['description'] = JSON.stringify(document.getElementById("description").innerHTML)
+
+  // enable external tools if selected
+  var submission_types_element = document.getElementById("submission-types")
+  // submission_types_element.dispatchEvent(new CustomEvent('change', {'target': {'selectedOptions': submission_types_element.selectedOptions}}))
+  submission_types_element.dispatchEvent(new CustomEvent('change', {}))
+
+    // datetimepicker for date fields
+    var default_times = {{ default_times| tojson | safe }}
+    $("#due_at").datetimepicker({
       format: "Y-m-d H:i",
       timepicker: true,
       //inline: true,
       showButtonPanel: true,
       controlType: "select",
-      minDate: '0',
+      // minDate: '0',
       disableWeekDays: [6],
       defaultDate: '+1970/01/02',
-      allowTimes: [
-        '7:00', '7:45', '8:28', '9:11', '9:54', '10:37', '11:20', '11:50 ',
-        '12:45', '13:28', '14:11', '14:54', '15:37', '16:20', '17:00', '17:40', '19:30', '22:00'
-      ]
+      allowTimes: default_times,
     });
 
-    // Validate points field to allow only nonnegative integers
-    $("#points").on("input", function () {
-      this.value = this.value.replace(/[^0-9]/g, '');
-      if (this.value < 0) {
-        this.value = '';
-      }
+    $('#due_at').on('change.datetimepicker', handleInputChange);
+
+
+  // Validate points field to allow only nonnegative integers
+  $("#points_possible").on("input", function () {
+    this.value = this.value.replace(/[^0-9]/g, '');
+    if (this.value < 0) {
+      this.value = '';
+    }
+  });
+
+  // Scroll to show selected assignment
+  const selectedAssignment = document.querySelector(".secondary-sidebar .item.active")
+
+  if (selectedAssignment) {
+    selectedAssignment.scrollIntoView({
+      behavior: "smooth", // Use "smooth" for smooth scrolling, or "auto" for instant scrolling
+      block: "nearest",   // Scroll block: "start", "center", "end", or "nearest"
+      inline: "nearest"   // Scroll inline: "start", "center", "end", or "nearest"
     });
+  }
   });
 </script>
 {% endblock %}

@@ -1,25 +1,48 @@
-html {
-  height: 100%;
+:root {
+  --red-color: rgb(224 91 91);
+  --lightred-color: rgba(224,91,91,50%);--blue-color: rgb(150 182 210);
+  --lightblue-color: rgba(150,182,210,50%);--hover-color: #919191;
+--background-color: #666666;
+--sidebar-color: #a8a8a8;
+--sidebar-text-color: black;--secondary-sidebar-color: #c0c0c0;
+--secondary-sidebar-text-color: whitesmoke;
 }
 
-body {
+html, body {
   margin: 0px;
   height: 100%;
+  width: 100%;
+  padding: 0px;
+  background-color: var(--background-color);
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+a {
+  text-decoration: none;
 }
 
 .main {
   /* top: 70px; */
   position: relative;
-  height: 91%;
+  height: 100%;
   left: 0px;
   display: flex;
+  overflow-y: auto;
+  /* box-sizing: border-box; */
+  flex: 1;
 }
 
 h1 {
-  margin: 8px 0px;
+  margin: 0px 0px 7px;
   padding-left: 8px;
   /* text-align: center; */
-  background: aliceblue;
+  background: var(--blue-color);
+  font-size: x-large;
 }
 
 /* Styling for the container div */
@@ -27,12 +50,13 @@ h1 {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
-  margin-bottom: 10px;
-  background-color: #f3f3f3;
+  /* margin-bottom: 10px; */
+  background-color: #ffffff63;
   /* padding-top: 5px; */
   /* width: fit-content; */
   /* width: 95%; */
   text-align: center;
+  color: white;
 }
 
 /* Styling for the heading */
@@ -43,4 +67,8 @@ h1 {
   /* text-align: center; */
   padding-bottom: 5px;
   /* border-bottom: 1px solid #ccc; */
+}
+
+.mce-content-body {
+  background: #c15959
 }

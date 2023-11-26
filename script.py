@@ -11,18 +11,16 @@ from flask import (
 from markupsafe import Markup
 from canvasapi import Canvas
 from datetime import datetime
+import dateutil.parser
+import pytz
 import configparser
 import csv
 import os
-# from dash import Dash, dcc, html, Input, Output, State
-# import dash_table
-# import pandas as pd
 from werkzeug.utils import secure_filename
 
 
-
 def load_config(filename):
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
     config.read(filename)
     return config
 
@@ -34,9 +32,13 @@ flask_app = Flask(__name__, static_folder="static")
 flask_app.static_folder = "static"
 flask_app.static_url_path = "/static"
 flask_app.secret_key = "fjeioaijcvmew908jcweio320"
-flask_app.config['UPLOAD_FOLDER'] = config.get('Flask', 'TEMP_DIR')#'/temp/uploads' # TODO: handle missing config key
-# Ensure the upload folder exists, create it if necessary
+flask_app.config['UPLOAD_FOLDER'] = config.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
+# Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+from util import ListConverter
+flask_app.url_map.converters['list'] = ListConverter
+
 
 
 @flask_app.route("/favicon.ico")
@@ -51,60 +53,6 @@ def favicon():
 def render_page(template_name, **kwargs):
     return render_template(template_name, **kwargs)
 
-
-"""
-# Dash section
-dash_app = Dash(__name__, server=flask_app, url_base_pathname='/dash/')
-# Create the layout for the Dash app
-# Create some sample data
-info = [
-    {'a1': 'a1 value', 'b1': 'b1 value', 'c1': 'c1 value', 'd1': 'd1 value'},
-    {'a1': 'a2 value', 'b1': 'b1 value', 'c1': 'c1 value', 'd1': 'd2 value'},
-]
-df = pd.DataFrame(info)
-
-# Create the layout for the Dash app
-dash_app.layout = html.Div([
-    html.H1("Editable Table with Dash/Plotly"),
-    dcc.Input(id='filter-input', type='text', placeholder='Filter Data'),
-    dash_table.DataTable(
-        id='table',
-        columns=[{'name': col, 'id': col} for col in df.columns],
-        data=df.to_dict('records'),  # Data for the table
-        sort_action='native',       # Enable sorting
-        sort_mode='multi',          # Allow multiple columns to be sorted
-        column_selectable='multi',  # Allow multiple column selection
-        editable=True,  # Make the table editable
-    ),
-])
-
-@dash_app.callback(
-    Output('table', 'data'),
-    Input('table', 'sort_by'),
-    State('table', 'data'),
-)
-def update_table(sort_by, data):
-    if not sort_by:
-        # No sorting applied, return the current data
-        return data
-
-    # Sort the data based on the sorting criteria
-    sorted_data = sorted(data, key=lambda x: x.get(sort_by[0]['column_id']), reverse=sort_by[0]['direction'] == 'desc')
-
-    return sorted_data
-"""
-
-# TODO: work in progress
-class Cnvs:
-    def __init__(self, API_URL, API_KEY):
-        self.API_URL = API_URL
-        self.API_KEY = API_KEY
-        self.canvas = Canvas(API_URL, API_KEY)
-        
-    def get_course(self, course_id):
-        return self.courses[course_id]
-
-#
 
 # Canvas section
 API_URL = config.get("Canvas", "API_URL") # TODO: handle missing config key
@@ -159,7 +107,8 @@ def get_assignment(course_id, assignment_id):
     assignment_id = int(assignment_id)
     if assignment_id not in canvas_d['courses'][course_id]['assignments']:
         course = canvas_d['courses'][course_id]['course']
-        canvas_d['courses'][course_id]['assignments'][assignment_id] = {'assignment': course.get_assignment(assignment_id)}
+        # canvas_d['courses'][course_id]['assignments'][assignment_id] = {'assignment': course.get_assignment(assignment_id)}
+        get_assignments(course_id, True)
         print('missed assignment ' + str(assignment_id) + ' in course ' + str(course_id))
     return canvas_d['courses'][course_id]['assignments'][assignment_id]['assignment']
 def get_assignment_groups(course_id, refresh=False):
@@ -184,6 +133,16 @@ def get_module(course_id, module_id):
         canvas_d['courses'][course_id]['modules'][module_id] = {'module': course.get_module(module_id)}
         print('missed module ' + str(module_id) + ' in course ' + str(course_id))
     return canvas_d['courses'][course_id]['modules'][module_id]['module']
+def get_assignment_modules(course_id, assignment_id):
+    modules = get_modules(course_id)
+    quiz_id = getattr(assignment, 'quiz_id', -1)
+    assignment_modules = []#set(x.id for x, y in module_items.items())
+    module_items_dict = {module.id:get_module_items(course_id, module.id) for module in modules}#{'module': x['module'], 'module_items': x['module_items']
+    for module_id, module_items in module_items_dict.items():
+        for module_item in module_items.values():
+            if module_item.type in ['File', 'Discussion', 'Assignment', 'Quiz', 'ExternalTool'] and module_item.content_id in [assignment_id, quiz_id]:
+                assignment_modules.append(module_id)
+    return assignment_modules
 def get_module_items(course_id, module_id):
     return canvas_d['courses'][course_id]['modules'][module_id]['module_items']
 def get_quizzes(course_id, refresh=False):
@@ -209,6 +168,26 @@ def get_users(course_id, refresh=False):
         print('refresh users: ' + str(course_id))
     return [x['user'] for x in canvas_d['courses'][course_id]['users'].values()]
 
+def get_times(course_id):
+    course_id = str(course_id)
+    course_times = config.getlist(course_id, "DUE_TIMES", fallback=[])
+    default_times = config.getlist('DEFAULTS', "DUE_TIMES", fallback=[])
+    shared_times = config.getlist('DEFAULTS', "SHARED_TIMES", fallback=[])
+
+    all_times = course_times + shared_times
+    if course_times == []:
+        all_times += default_times
+    return sorted(list(set(all_times)))
+    if course_id in default_times:
+        return default_times[course_id] + default_times['shared']
+    else:
+        return default_times['default'] + default_times['shared']
+    
+def get_submission_types(course_id):
+    course_id = str(course_id)
+    submission_types = config.getlist(course_id, "SUBMISSION_TYPES", fallback=[])
+    return submission_types
+    
 # reload_assignments()
 # _ = get_assignments()
 
@@ -241,150 +220,140 @@ def course_redirect():
     return redirect(f"/{course_id}")
 
 
-@flask_app.route("/course/<int:course_id>/<action>", methods=["GET"])
+@flask_app.route("/courses/<int:course_id>/<action>", methods=["GET"])
 def course_action(course_id, action):
-    if action == "new_assignment":
-        return redirect(f"/course/{course_id}/new_assignment")
-    elif action == "list_quiz":
-        return redirect(f"/course/{course_id}/quiz")
+    match action:
+        case 'assignments':
+            return redirect(f"/courses/{course_id}/assignments")
+        case "list_quiz":
+            return redirect(f"/courses/{course_id}/quizzes")
+        case 'assignments_bulk':
+            return redirect(f'/courses/{course_id}/assignments_bulk')
+        case 'list_quiz':
+            return redirect(f'/courses/{course_id}/list_quiz')
+        case 'quiz_question_details':
+            return redirect(f'/courses/{course_id}/quiz_question_details')
 
 
-@flask_app.route("/course/<int:course_id>/assignment", methods=["GET"])
+@flask_app.route("/courses/<int:course_id>/assignment_default", methods=["GET"])
 def list_assignments(course_id):
     global courses_d, canvas_d  # , assignment_groups
     course = courses_d[course_id]
-    assignments = get_assignments(course_id)#course.get_assignments()
+    assignments = get_assignments(course_id)
     assignment_groups = course.get_assignment_groups()
     modules = course.get_modules()
-
     return render_page(
         "assignment.html",
         active_course=course,
         assignment=None,
         assignments=assignments,
-        categories=assignment_groups,
+        assignment_groups=assignment_groups,
         modules=modules,
-        action="assignment",
+        action="assignments",
     )
 
 
-@flask_app.route("/course/<int:course_id>/assignment/refresh", methods=["GET"])
+@flask_app.route("/courses/<int:course_id>/assignments/refresh", methods=["GET"])
 def refresh_assignments(course_id):
-    get_assignments(course_id, True)
+    _ = get_assignments(course_id, True)
+    _ = get_modules(course_id, True)
+    _ = get_assignment_groups(course_id, True)
     return redirect(request.referrer)
 
-
-@flask_app.route("/course/<int:course_id>/assignment/<int:assignment_id>", methods=["GET"])
-def assignment(course_id, assignment_id):
-    global courses_d, canvas_d  # , assignment_groups
-    course = canvas_d['courses'][course_id]['course']
+@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/delete", methods=["POST"])
+def delete_assignment(course_id, assignment_id):
     assignment = get_assignment(course_id, assignment_id)
-    assignments = get_assignments(course_id)#course.get_assignments()
-    assignment_groups = get_assignment_groups(course_id)#course.get_assignment_groups()
-    modules = get_modules(course_id)#course.get_modules()
-    module_items = {module.id:get_module_items(course_id, module.id) for module in modules}#{'module': x['module'], 'module_items': x['module_items']
-    assignment_modules = []#set(x.id for x, y in module_items.items())
-    groups_count = min(5, max(len(list(assignment_groups)), len(list(modules))))
-    for module_id, module_items in module_items.items():
-        for module_item in module_items.values():
-            if module_item.type in ['File', 'Discussion', 'Assignment', 'Quiz', 'ExternalTool'] and module_item.content_id == assignment_id:
-                assignment_modules.append(module_id)
-    print(assignment_modules)
+    result = assignment.delete()
+    flash('Deleted assignment ' + str(assignment_id))
+    refresh_assignments(course_id)
+    return redirect(url_for('assignments', course_id=course_id))
 
-    if request.method == "POST":
-        name = request.form.get("name")
-        description = request.form.get("description")
-        flash('This feature is not yet implemented.')
-        return redirect(request.referrer)
+
+# call with assignment_id=0 to create new
+@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/update", methods=["POST"])
+def update_assignment(course_id, assignment_id=0):
+    global canvas_d
+    course = canvas_d['courses'][course_id]['course']
+    fields = ['name', 'description', 'points_possible', 'due_at', 'published', 'assignment_group_id']
+    response = {x: request.form.get(x) for x in fields}
+    response['description'] = response['description'].replace('\r\n', '\n')
+    response['published'] = bool(response['published'])
+    response['submission_types'] = request.form.getlist('submission_types') or ['none']
     
+    # handle due_at separately
+    due_at_text = request.form.get("due_at")
+    try:
+        due_at = pytz.timezone(course.time_zone).localize(dateutil.parser.parse(due_at_text)).astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    # return redirect(f"/course/{course_id}/new_assignment")
-    # return redirect(API_URL + '/courses/' + str(course_id) + '/assignments/' + str(assignment_id))
+    except:
+        due_at = None
+    response['due_at'] = due_at
 
-    return render_page(
-        "assignment.html",
-        active_course=course,
-        assignment=assignment,
-        assignments=assignments,
-        categories=assignment_groups,
-        modules=modules,
-        assignment_modules=assignment_modules,
-        groups_count=groups_count,
-        action="assignment",
-    )
+    # TODO: insert latex equations eg. https://canvas.instructure.com/equation_images/4n-1?scale=1
 
-
-@flask_app.route("/course/<int:course_id>/new_assignment", methods=["GET", "POST"])
-def course_page(course_id):
-    global courses_d  # , assignment_groups
-    # course = canvas.get_course(course_id)
-    course = get_course(course_id)#courses_d[course_id]
-    assignments = get_assignments(course_id)#course.get_assignments()
-    modules = get_modules(course_id)#course.get_modules()
-
-    if request.method == "POST":
-        name = request.form.get("name")
-        description = request.form.get("description")
-
-        # insert latex equations eg. https://canvas.instructure.com/equation_images/4n-1?scale=1
-
-        #attach_file = request.form.get("attach")
-        #if attach_file != "" or True:
-        if 'file' in request.files:
-            print('file attached to POST')
-            file = request.files['file']
-            if file.filename == '':
-                # no file attached
-                print('no file selected')
-            else:
-                filename = secure_filename(file.filename)
-                print('filename: ' + filename)
-                the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
-                # print(the_filepath)
-                # file.save(the_filepath)
-                file.save(the_filepath)
-                # print(url_for('download_file', name=filename))
-                result = course.upload(the_filepath, parent_folder_path='Uploaded Media')
-                if result[0] is True:
-                    canvas_file = result[1]
-                    print('uploaded file ' + canvas_file['display_name'])
-                    #print(result)
-                    # print('resut != "": ' + str(attach_file != ""))
-                    description += '<p><a class="instructure_file_link instructure_scribd_file auto_open"'\
-                        + ' title="' + canvas_file['display_name'] + '"'\
-                        + ' href="' + API_URL + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
-                        + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
-                        + canvas_file["display_name"] + '</a></p>'
-                        # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
-                        #     data-api-returntype="File">\
-        
-        points = request.form.get("points")
-        print("points is " + str(points) + " and type is " + str(type(points)))
-        due_date_text = request.form.get("due_date")
-        try:
-            due_date = datetime.strptime(
-                due_date_text, "%Y-%m-%d %H:%M"
-            )  # '2023-08-30 15:00'
-        except:
-            due_date = None
-        published = request.form.get("published")
-        category = request.form.get("category")
+    # handle file attachment
+    # raise(Exception)
+    if 'file' in request.files:
+        print('file attached to POST')
+        file = request.files['file']
+        if file.filename == '':
+            # no file attached
+            print('no file selected')
+        else:
+            filename = secure_filename(file.filename)
+            print('filename: ' + filename)
+            the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
+            # print(the_filepath)
+            # file.save(the_filepath)
+            file.save(the_filepath)
+            # print(url_for('download_file', name=filename))
+            result = course.upload(the_filepath, parent_folder_path='Uploaded Media')
+            if result[0] is True:
+                canvas_file = result[1]
+                print('uploaded file ' + canvas_file['display_name'])
+                response['description'] += '<p><a class="instructure_file_link instructure_scribd_file auto_open"'\
+                    + ' title="' + canvas_file['display_name'] + '"'\
+                    + ' href="' + API_URL + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
+                    + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
+                    + canvas_file["display_name"] + '</a></p>'
+                    # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
+                    #     data-api-returntype="File">\
+    
+    if assignment_id == 0:
+        # create new assignment
         assignment = course.create_assignment(
-            assignment={
-                "name": name,
-                "description": description,
-                "points_possible": points,
-                "due_at": due_date,
-                "published": published,
-                "assignment_group_id": category,
-            }
+            assignment=response
         )
+    else:
+        # update existing assignment
+        changes = {}
+        assignment = get_assignment(course_id, assignment_id)
+        # get differences between original and new data
+        for key, val in response.items():
+            if str(getattr(assignment,key)) != str(val):
+                changes[key] = {'old': getattr(assignment,key), 'new': val}
+        if changes == {}:
+            flash('Nothing has been changed for this assignment!')
+        else:
+            assignment.edit(assignment={key: val['new'] for key, val in changes.items()})
+            flash('Changed these things:')
+            for field, change in changes.items():
+                flash('<em>' + field + '</em>: ' + str(change))
+
+    if assignment is not None:
+        # add assignment to selected modules
+        assignment_modules = get_assignment_modules(assignment.course_id, assignment.id)
         selected_module_ids = request.form.getlist("modules")
+        # TODO: split selected_module_ids into insertions and deletions, and handle each
+        module_insertions = set([x for x in selected_module_ids if x not in assignment_modules])
+        print('will add to ' + str(module_insertions))
+        module_deletions = set([x for x in assignment_modules if x not in selected_module_ids])
+        print('will delete from ' + str(module_deletions))
         selected_modules = []
         created_module_items = []
         print(selected_module_ids)
-        for module_id in selected_module_ids:
-            module = get_module(course_id, module_id)#course.get_module(module_id)
+        for module_id in module_insertions:
+            module = get_module(course_id, module_id)
             selected_modules.append(module)
             print(module.name)
             module_item = module.create_module_item(
@@ -394,69 +363,157 @@ def course_page(course_id):
                     "position": module.items_count+1,
                 }
             )
-            created_module_items.append(module_item)
+            created_module_items.append(module)
+        deleted_module_items = []
+        for module_id in module_deletions:
+            module = get_module(course_id, module_id)
+            module_items = get_module_items(course_id, module_id)
+            for module_item in module_items.values():
+                print(str(getattr(module_item,'content_id',0)) + ' vs ' + str(module_id) + ' is ' + str(getattr(module_item,'content_id',0) == module_id))
+                if getattr(module_item,'content_id',0) == assignment.id:
+                    module_item.delete()
+                    deleted_module_items.append(module.name)
         flash(
-            "Assignment created and added to these modules: "
-            + ", ".join(module.name for module in selected_modules)
+            "Assignment added to these modules: "
+            + ", ".join(module.name for module in created_module_items)
+            + '\n and removed from these modules: '
+            + ','.join(module_name for module_name in deleted_module_items)
         )
-        assignment_link = (
-            '<br><a href="'
-            + assignment.html_url
-            + '" target="_blank" rel="noopener noreferrer">'
-            + assignment.name
-            + "</a>"
-        )
-        flash(Markup(assignment_link), "info")
-        # return redirect(url_for('/course/'+course_id+'/new_assignment'))
-        # return# redirect(url_for('index'))
+
+        return redirect(f"/courses/{course_id}/assignments/{assignment.id}")
+    else:
+        flash('This feature is not yet implemented.')
         return redirect(request.referrer)
 
-    # Retrieve assignment categories from Canvas
-    # assignment_groups = course.get_assignment_groups()  # Fetch assignment groups for the selected course
+@flask_app.route("/courses/<int:course_id>/assignments", methods=["GET"], strict_slashes=False)
+@flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
+@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
+def assignment(course_id, assignment_id=None):
+    global courses_d, canvas_d  # , assignment_groups
+    course = get_course(course_id)#canvas_d['courses'][course_id]['course']
+    if assignment_id is None:
+        # creating new assignment
+        assignment = None
+    else:
+        try:
+            assignment = get_assignment(course_id, assignment_id)
+        except:
+            assignment = None # TODO: redirect to /assignments
+
+    assignments = sorted(get_assignments(course_id), key=lambda x: getattr(x,'due_at','') or '')
+    for x in assignments:
+        x.safe_description = Markup(x.description)
+        if x.due_at is not None:
+            x.due_at_local = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d %H:%M')
+            x.short_date = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d')
     assignment_groups = get_assignment_groups(course_id)
-
-    groups_count = min(5, max(len(list(assignment_groups)), len(list(modules))))
-
-    # tinymce_key = config.get("TinyMCE", "API_KEY") # TODO: handle missing config key
-
+    modules = get_modules(course_id)
+    
+    groups_count = min(int(config.get('DEFAULT', 'MIN_LINES', fallback=5)), max(len(list(assignment_groups)), len(list(modules))))
+    
+    assignment_modules = get_assignment_modules(course_id, assignment_id)
+    # raise(Exception)
+    # print(assignment_modules)
+    # return redirect(f"/courses/{course_id}/new_assignment")
+    # return redirect(API_URL + '/courses/' + str(course_id) + '/assignments/' + str(assignment_id))
+    default_times = get_times(course_id)
+    default_submission_types = get_submission_types(course_id)
+    # print('check this out: ' + str(default_times))
+    # print(assignment.description)
+    submission_types = ['discussion_topic', 'online_quiz', 'on_paper', #'none',
+                        'external_tool', 'online_text_entry', 
+                        'online_url', 'online_upload', 'media_recording', 
+                        'student_annotation']
     return render_page(
-        "new_assignment.html",
+        "assignment.html",
         active_course=course,
-        assignment=None,
+        assignment=assignment,
         assignments=assignments,
-        categories=assignment_groups,
-        groups_count=groups_count,
-        # tinymce_api_key=tinymce_key,
+        assignment_groups=assignment_groups,
         modules=modules,
-        action="new_assignment",
+        assignment_modules=assignment_modules,
+        groups_count=groups_count,
+        default_times=default_times,
+        default_submission_types=default_submission_types,
+        submission_types=submission_types,
+        action="assignments",
     )
 
 
-@flask_app.route("/course/<int:course_id>/new_assignment_bulk", methods=["GET", "POST"])
-def new_assignment_bulk(course_id):
+@flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/")
+@flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/<list:assignment_ids>", methods=["GET"])
+def get_selected_assignments(course_id, assignment_ids=[]):
+    assignments = []
+    for x in assignment_ids:
+        assignments.append(get_assignment(course_id, x))
+    response = {}
+    
+    fields = ['name', 'description', 'points_possible', 'due_at', 'published', 'assignment_group_id']
+    special_fields = ['submission_types']
+    for field in fields:
+        # response[field] = set.intersection(*set([getattr(x,field) for x in assignments]))
+        field_values = [getattr(y, field) for y in assignments]
+        unique_value = list(set([x for x in field_values if (field_values.count(x) == len(field_values))]))
+        response[field] = '<varies>' if len(unique_value) == 0 else unique_value[0]
+    for field in special_fields:
+        pass
+    
+    # raise(Exception)
+    print('in get_selected_assignments')
+    print(response)
+    return response
+    # return {'what': 'who'}
+
+
+
+@flask_app.route("/courses/<int:course_id>/assignments_bulk/update/<list:assignment_ids>", methods=["POST"])
+def assignments_bulk_update(course_id,assignment_ids=[]):
+    # TODO: implement this
+    return redirect(request.referrer)
+
+@flask_app.route("/courses/<int:course_id>/assignments_bulk/delete/<list:assignment_ids>", methods=["POST"])
+def assignments_bulk_delete(course_id,assignment_ids=[]):
+    # TODO: implement this
+    return redirect(request.referrer)
+    
+@flask_app.route("/courses/<int:course_id>/assignments_bulk", methods=["GET"], strict_slashes=False)
+@flask_app.route("/courses/<int:course_id>/assignments_bulk/<list:assignment_ids>", methods=["GET"])
+def assignments_bulk(course_id,assignment_ids=[]):
     global courses_d  # , assignment_groups
     # course = canvas.get_course(course_id)
-    course = get_course(course_id)#courses_d[course_id]
-    modules = get_modules(course_id)#course.get_modules()
+    course = get_course(course_id)
+    modules = get_modules(course_id)
+    assignments = sorted(get_assignments(course_id), key=lambda x: getattr(x,'due_at','') or '')
+    print(assignment_ids)
+    selected_assignments = []
+    for x in assignment_ids:
+        try:
+            a = get_assignment(course_id, x)
+            print(a.id)
+            selected_assignments.append(a)
+        except:
+            pass
+    assignment_ids = [x.id for x in selected_assignments]
 
-    if request.method == "POST":
-        return redirect(request.referrer)
     return render_page(
-        "new_assignment_bulk.html",
+        "assignments_bulk.html",
         active_course=course,
+        assignments=assignments,
+        selected_assignments=selected_assignments,
+        selected_assignment_ids=assignment_ids,
         quiz=None,
         modules=modules,
-        action="new_assignment_bulk",
+        action="assignments_bulk",
     )
 
 
-@flask_app.route("/course/<int:course_id>/quiz", methods=["GET", "POST"])
+@flask_app.route("/courses/<int:course_id>/quizzes", methods=["GET", "POST"])
 def quiz_page(course_id):
     global courses_d  # , assignment_groups
     # course = canvas.get_course(course_id)
-    course = get_course(course_id)#courses_d[course_id]
-    modules = get_modules(course_id)#course.get_modules()
-    quizzes = get_quizzes(course_id)#course.get_quizzes()
+    course = get_course(course_id)
+    modules = get_modules(course_id)
+    quizzes = get_quizzes(course_id)
 
     if request.method == "POST":
         return redirect(request.referrer)
@@ -470,14 +527,14 @@ def quiz_page(course_id):
     )
 
 
-@flask_app.route("/course/<int:course_id>/quiz/<quiz_id>", methods=["GET", "POST"])
+@flask_app.route("/courses/<int:course_id>/quizzes/<quiz_id>", methods=["GET", "POST"])
 def quiz_details(course_id, quiz_id):
     global courses_d  # , assignment_groups
     # course = canvas.get_course(course_id)
-    course = get_course(course_id)#courses_d[course_id]
-    modules = get_modules(course_id)#course.get_modules()
-    quizzes = get_quizzes(course_id)#course.get_quizzes()
-    quiz = get_quiz(course_id, quiz_id)#course.get_quiz(quiz_id)
+    course = get_course(course_id)
+    modules = get_modules(course_id)
+    quizzes = get_quizzes(course_id)
+    quiz = get_quiz(course_id, quiz_id)
     quiz_questions = quiz.get_questions()
 
     if request.method == "POST":
@@ -494,14 +551,14 @@ def quiz_details(course_id, quiz_id):
 
 
 @flask_app.route(
-    "/course/<int:course_id>/quiz/<quiz_id>/question/<question_id>", methods=["GET", "POST"]
+    "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>", methods=["GET", "POST"]
 )
 def quiz_question_details(course_id, quiz_id, question_id):
     global courses_d  # , assignment_groups
-    course = get_course(course_id)#courses_d[course_id]
-    modules = get_modules(course_id)#course.get_modules()
-    quizzes = get_quizzes(course_id)#course.get_quizzes()
-    quiz = get_quiz(course_id, quiz_id)#course.get_quiz(quiz_id)
+    course = get_course(course_id)
+    modules = get_modules(course_id)
+    quizzes = get_quizzes(course_id)
+    quiz = get_quiz(course_id, quiz_id)
     quiz_questions = quiz.get_questions()
     quiz_question = quiz.get_question(question_id)
 
@@ -536,19 +593,19 @@ def quiz_question_details(course_id, quiz_id, question_id):
     )
 
 @flask_app.route(
-    "/course/<int:course_id>/quiz/<quiz_id>/question/<question_id>/download", methods=["POST"]
+    "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/download", methods=["POST"]
 )
 def quiz_question_download(course_id, quiz_id, question_id):
     question_id = int(question_id)
     global courses_d
-    course = get_course(course_id)#canvas.get_course(course_id)
-    users = get_users(course_id)#course.get_users()
+    course = get_course(course_id)
+    users = get_users(course_id)
     users_d = {x.id:x for x in users}
-    quiz = get_quiz(course_id, quiz_id)#course.get_quiz(quiz_id)
+    quiz = get_quiz(course_id, quiz_id)
     quiz_questions = quiz.get_questions()
     quiz_questions_d = {x.id:x for x in quiz_questions}
     quiz_question = quiz_questions_d[question_id]
-    assignment = get_assignment(course_id, quiz.assignment_id)#course.get_assignment(quiz.assignment_id)
+    assignment = get_assignment(course_id, quiz.assignment_id)
     submissions = assignment.get_submissions(include=['submission_history'])
     
     # gather all responses
@@ -592,19 +649,19 @@ def quiz_question_download(course_id, quiz_id, question_id):
     return send_from_directory(flask_app.config['UPLOAD_FOLDER'], filename)#redirect(request.referrer)
 
 @flask_app.route(
-    "/course/<int:course_id>/quiz/<quiz_id>/question/<question_id>/upload", methods=["POST"]
+    "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/upload", methods=["POST"]
 )
 def quiz_question_upload(course_id, quiz_id, question_id):
     question_id = int(question_id)
     global courses_d
-    course = get_course(course_id)#canvas.get_course(course_id)
-    users = get_users(course_id)#course.get_users()
+    course = get_course(course_id)
+    users = get_users(course_id)
     users_d = {x.id:x for x in users} # TODO: fix this
-    quiz = get_quiz(quiz_id)#course.get_quiz(quiz_id)
+    quiz = get_quiz(quiz_id)
     quiz_questions = quiz.get_questions()
     quiz_questions_d = {x.id:x for x in quiz_questions}
     quiz_question = quiz_questions_d[question_id]
-    assignment = get_assignment(quiz.assignment_id)#course.get_assignment(quiz.assignment_id)
+    assignment = get_assignment(quiz.assignment_id)
     submissions = assignment.get_submissions(include=['submission_history'])
     
     # gather all responses
@@ -702,32 +759,25 @@ def quiz_question_upload(course_id, quiz_id, question_id):
     return redirect(request.referrer)
 
 
-"""
-@flask_app.route('/course/<int:course_id>/assignments/dash', methods=['GET', 'POST'])
-def go_dash(course_id):
-    return redirect('/dash/')
-"""
-
-
 def get_assignment_data(course_id):
     course = courses_d[course_id]
-    assignments = get_assignments(course_id)#course.get_assignments()
+    assignments = get_assignments(course_id)
     data = [{'id': x.id, 'name': x.name, 'points': x.points_possible, 'published': x.published} for x in assignments]
     return data
 
 
-@flask_app.route("/course/<int:course_id>/assignments/grid", methods=["GET", "POST"])
+@flask_app.route("/courses/<int:course_id>/assignments/grid", methods=["GET", "POST"])
 def assignments_grid(course_id):
     global courses_d
     course = courses_d[course_id]
-    assignments = get_assignments(course_id)#course.get_assignments()
+    assignments = get_assignments(course_id)
     data = [{'id': x.id, 'name': x.name, 'points_possible': x.points_possible, 'published': x.published} for x in assignments]
     columns = [{'id': x, 'name': x, 'field': x} for x in data[0].keys()]
     return render_page("assignments_grid.html", active_course=course, data=data, columns=columns)
 
 
 
-@flask_app.route("/course/<int:course_id>/assignments/update_data", methods=["POST"])
+@flask_app.route("/courses/<int:course_id>/assignments/update_data", methods=["POST"])
 def update_assignments(course_id):
     global courses_d
     updated_data = request.get_json()  # Get the updated data sent from the client

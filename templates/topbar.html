@@ -1,21 +1,21 @@
-<div class="topbar">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <ul>
+<div id="topbar" class="topbar">
+    <ul id="topbar-left">
         <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}" target="_blank"
-                rel="noopener noreferrer"><i class="fa fa-external-link"></i> {{ active_course.course_code }}</a></li>
-        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments" target="_blank"
-                rel="noopener noreferrer"><i class="fa fa-external-link"></i> Assignments</a></li>
-        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/modules" target="_blank"
-                rel="noopener noreferrer"><i class="fa fa-external-link"></i> Modules</a></li>
-        <li><a href="/course/{{ active_course.id }}/new_assignment">Assignments</a></li>
-        <!-- <li><a href="/course/{{ active_course.id }}/new_assignment_bulk">New Assignments (Bulk)</a></li> -->
-        <li><a href="/course/{{ active_course.id }}/quiz">Quizzes</a></li>
+                rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></li>
+        <li><a href="/courses/{{ active_course.id }}/assignments/new">New Assignment</a></li>
+        <li><a href="/courses/{{ active_course.id }}/assignments_bulk">Bulk</a></li>
+        <li><a href="/courses/{{ active_course.id }}/quiz">Quizzes</a></li>
         <!-- <li>Grade Quiz</li> -->
         <!-- <li>Quiz Editor</li> -->
         <!-- <li>Student Information</li> -->
         <!-- <li><form action="/refresh" method="POST"  id="myForm"><button type="submit" class="btn btn-sm btn-info" name="something">Refresh</button></form> -->
                 
         <li class="refresh" id="refresh"><a class="refresh" href="/refresh">Refresh</a></li>
-        </li>
+    </ul>
+    <ul id="topbar-right">
+        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments" target="_blank"
+                rel="noopener noreferrer">🔗 Assignments</a></li>
+        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/modules" target="_blank"
+                rel="noopener noreferrer">🔗 Modules</a></li>
     </ul>
 </div>

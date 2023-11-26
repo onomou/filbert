@@ -5,9 +5,9 @@
     {% for for_quiz in quizzes %}
 
     {% if quiz.id == for_quiz.id %}
-    <li><a href="/course/{{ active_course.id }}/quiz/{{ for_quiz.id }}" class="active">{{ for_quiz.title }}</a></li>
+    <li><a href="/courses/{{ active_course.id }}/quizzes/{{ for_quiz.id }}" class="active">{{ for_quiz.title }}</a></li>
     {% else %}
-    <li><a href="/course/{{ active_course.id }}/quiz/{{ for_quiz.id }}">{{ for_quiz.title }}</a></li>
+    <li><a href="/courses/{{ active_course.id }}/quizzes/{{ for_quiz.id }}">{{ for_quiz.title }}</a></li>
     {% endif %}
 
     {% endfor %}

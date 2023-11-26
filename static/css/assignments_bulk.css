@@ -1,0 +1,156 @@
+
+/* Styling for checkboxes */
+input[type="checkbox"] {
+  transform: scale(1);
+  width: 40px;
+}
+input[type="checkbox"]:hover {
+  cursor: pointer;
+}
+input[type="number"] {
+  width: 56px;
+}
+input[type="file"] {
+  display: none;
+}
+.file-label {
+  border: 1px solid #979494;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 13px;
+  transition: 0.5s;
+}
+.file-label:hover {
+  background-color: rgb(102, 96, 108);
+  color: white;
+}
+/*
+input[type=file]::file-selector-button {
+  border: 2px solid #6c5ce7;
+  padding: .2em .4em;
+  border-radius: .2em;
+  background-color: #a29bfe;
+  transition: 1s;
+}
+
+input[type=file]::file-selector-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+*/
+
+.details {
+  left: 10px;
+  /* position: relative; */
+  overflow: auto;
+  /* width: auto; */
+  margin: 5px;
+}
+
+.changed {
+  background-color: #f1b3b3;
+}
+
+.assignment-item-new {
+  background-color: var(--red-color);
+}
+
+.assignment-item, .assignment-item-new {
+  padding: 5px;
+  font-size: smaller;
+  font-family: math;
+  cursor: pointer;
+}
+
+.assignment-item.selected {
+    background-color: var(--lightred-color);
+}
+
+.assignment-item.selected.first-click {
+    border: blue;
+    border-width: medium;
+    border: dashed gray;
+}
+
+.new-assignment.inactive {
+  background-color: #aa7d7d;
+}
+
+input {
+  height: 20px;
+  width: 172px;
+}
+
+input#id {
+    /* float: left; */
+    display: inline-block;
+}
+
+#id-label {
+  /* position: relative; */
+  /* float: left; */
+  display: inline-block;
+}
+
+.action-button {
+  cursor: pointer;
+  font-size: larger;
+  padding: 12px 15px;
+  font-weight: bold;
+  border-radius: 6px;
+  /* width: 105px; */
+  border-width: thin;
+  background: var(--blue-color);
+}
+
+#duplicate-button {
+  background-color: var(--red-color);
+  /* float: left; */
+}
+
+#delete-button {
+  background-color: var(--red-color);
+  float: right;
+}
+
+#delete-button:disabled {
+  background-color: rgb(96 70 70);
+  color: rgb(198 118 118);
+  cursor: not-allowed;
+}
+
+#update {
+  margin-bottom: 7px;
+}
+
+.parent-float {
+  display: flex;
+  padding: 0px;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+
+.child-float {
+  flex: 1;
+}
+
+.sidebar-assignment-name
+{
+
+}
+
+.sidebar-assignment-name.collapsed
+{
+  font-size: small;
+}
+
+.sidebar-assignment-date {
+  color: #707070;
+  font-size: x-small;
+}
+
+.sidebar-assignment-date.collapsed {
+  font-size: xx-small;
+}

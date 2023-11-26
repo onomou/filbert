@@ -1,48 +1,70 @@
 /* Styling for sidebar */
-.sidebar {
+#courses-sidebar {
     /* float: left; */
     /* position: relative; */
     /* top: 0px; */
     /* left: 0px; */
     width: 125px;
     height: 100%;
-    background-color: #a8a8a8;
+    background-color: var(--sidebar-color);
     padding: 0px;
     display: block;
 }
 
-.secondary-sidebar h3 {
-    margin: 0px;
-    background: dimgrey;
-    color: white;
-    padding: 5px;
-    text-align: center;
+#courses-sidebar.collapsed {
+    width: 37px;
+    /* font-size: small; */
 }
 
-.sidebar ul {
+#courses-sidebar.collapsed a {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+}
+
+#courses-sidebar h3,
+.secondary-sidebar h3 {
+    margin: 0px;
+    color: #000000;
+    padding: 5px;
+    text-align: center;
+    font-weight: bold;
+    height: 22px;
+}
+
+#courses-sidebar h3 {
+    background: #c97a7a;
+    cursor: pointer;
+}
+
+.secondary-sidebar h3 {
+    background: #f59595c9;
+    cursor: pointer;
+}
+
+#courses-sidebar ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
 
 
-.sidebar li {
+#courses-sidebar li {
     transition: 0.25s;
 }
-.sidebar li:hover {
+#courses-sidebar li:hover {
     background-color: #dfc9c9;
 }
 
-.sidebar a {
+#courses-sidebar a {
     display: block;
     padding: 10px;
     text-decoration: none;
-    color: black;
+    color: var(--sidebar-text-color);
     font-family: math;
 }
 
-.sidebar a.active {
-    font-weight: bold;
+#courses-sidebar a.active {
+    /* font-weight: bold; */
     background-color: dimgrey;
     color: white;
 }
@@ -65,10 +87,14 @@
     /* left: 0px; */
     width: 125px;
     height: 100%;
-    background-color: #c0c0c0;
+    background-color: var(--secondary-sidebar-color);
     padding: 0px;
     display: block;
     overflow-y: auto;
+}
+
+.secondary-sidebar.collapsed {
+    width: 94px;
 }
 
 .secondary-sidebar ul {
@@ -87,20 +113,24 @@
 
 .secondary-sidebar a {
     display: block;
-    padding: 5px;
     text-decoration: none;
     color: black;
+}
+
+.item {
+    padding: 5px;
     font-family: math;
     font-size: smaller;
 }
 
 .secondary-sidebar a.active {
-    font-weight: bold;
-    background-color: dimgrey;
+    /* font-weight: bold; */
+    background-color: #838383;
     color: white;
 }
 
 .secondary-sidebar .refresh {
     /* color: blue; */
-    background-color: #96b6d2;
+    background-color: var(--blue-color);
+    font-weight: bold;
 }

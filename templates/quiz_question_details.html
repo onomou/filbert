@@ -20,11 +20,11 @@
 {% include 'quiz_questions_sidebar.html' %}
 <div class="quiz-question-details">
     <div class="quiz-buttons">
-        <form action="/course/{{ active_course.id }}/quiz/{{ quiz.id }}/question/{{ quiz_question.id }}/download"
+        <form action="/courses/{{ active_course.id }}/quizzes/{{ quiz.id }}/question/{{ quiz_question.id }}/download"
             method="POST">
             <button class="download-button" type="submit">Download<br>Submissions</button>
         </form>
-        <form action="/course/{{ active_course.id }}/quiz/{{ quiz.id }}/question/{{ quiz_question.id }}/upload"
+        <form action="/courses/{{ active_course.id }}/quizzes/{{ quiz.id }}/question/{{ quiz_question.id }}/upload"
             method="POST">
             <button class="download-button" type="submit">Upload<br>Submissions</button>
         </form>

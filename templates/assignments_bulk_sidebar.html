@@ -1,0 +1,24 @@
+<div id="assignments-sidebar" class="secondary-sidebar">
+  <h3 id="toggle-assignments">Assignments</h3>
+
+  <ul>
+    <li><a href="/courses/{{ active_course.id }}/assignments/refresh" class="refresh item">Refresh ↺</a></li>
+    <!-- <li><a href="/courses/{{ active_course.id }}/assignments/new" class="new-assignment item">New Assignment</a></li> -->
+    <div id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
+      <div id="new-assignment" class="assignment-item-new">New Assignment</div>
+      {% for for_assignment in assignments %}
+        <li>
+          
+            <div class="assignment-item"
+              data-shortname="{{ for_assignment.name }}"
+              data-longname="{{ for_assignment.name }}"
+              value="{{ for_assignment.id }}"
+            >
+            {{ for_assignment.name }}
+          </div>
+      </li>  
+      {% endfor %}
+      </div>
+      
+  </ul>
+</div>
