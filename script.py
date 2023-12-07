@@ -132,7 +132,6 @@ def get_module(course_id, module_id, refresh=False):
     module_id = int(module_id)
     if module_id not in canvas_d['courses'][course_id]['modules'] or refresh:
         course = canvas_d['courses'][course_id]['course']
-        canvas_d['courses'][course_id]['modules'][module_id] = {'module': course.get_module(module_id)}
         module = course.get_module(module_id)
         canvas_d['courses'][course_id]['modules'][module_id] = {'module': module, 'module_items': {module_item.id: module_item for module_item in module.get_module_items()}}
         print('missed module ' + str(module_id) + ' in course ' + str(course_id))
