@@ -68,7 +68,7 @@ Canvas - Assignment Details
         <input type="text" id="id" name="id"
           value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
       </div>
-      <div class="styled-div child-float">
+      <div class="styled-div child-float" id="points-float">
         <h2 for="points_possible">Points</h2>
         <input type="number" id="points_possible" name="points_possible" min="0"
           value="{{ assignment.points_possible }}">
@@ -78,7 +78,7 @@ Canvas - Assignment Details
         <h2>Due Date</h2>
         <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
       </div>
-      <div class="styled-div child-float">
+      <div class="styled-div child-float" id="published-float">
         <h2 for="published">Published</h2>
         <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
       </div>

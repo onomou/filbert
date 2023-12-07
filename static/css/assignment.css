@@ -1,7 +1,7 @@
 
 /* Styling for checkboxes */
 input[type="checkbox"] {
-  transform: scale(1);
+  transform: scale(1.3);
   width: 40px;
 }
 input[type="checkbox"]:hover {
@@ -58,7 +58,7 @@ input[type=file]::file-selector-button:hover {
 
 input {
   height: 20px;
-  width: 172px;
+  width: calc(100% - 10px);
 }
 
 input#id {
@@ -113,6 +113,10 @@ input#id {
 
 .child-float {
   flex: 1;
+}
+
+div#points-float {
+    flex: 0.5;
 }
 
 .sidebar-assignment-name

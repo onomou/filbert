@@ -180,6 +180,21 @@ def get_users(course_id, refresh=False):
         print('refresh users: ' + str(course_id))
     return [x['user'] for x in canvas_d['courses'][course_id]['users'].values()]
 
+# other helper functions
+def fix_module_ordering(course_id, module_id):
+    module_items = get_module_items(course_id, module_id, refresh=True).values()
+    if not all(x.position == i for i, x in enumerate(module_items, 1)):
+        print('reverse')
+        for index, module_item in reversed(list(enumerate(module_items, 1))):
+            if module_item.position != index:
+                print(index,module_item.position)
+                module_item.edit(module_item={'position':max(index,module_item.position)})
+        print('forward')
+        for index, module_item in enumerate(get_module_items(course_id, module_id, refresh=True).values(),1):
+            if module_item.position != index:
+                print(index,module_item.position)
+                module_item.edit(module_item={'position':index})
+
 def get_times(course_id):
     course_id = str(course_id)
     course_times = config.getlist(course_id, "DUE_TIMES", fallback=[])
@@ -291,6 +306,9 @@ def update_assignment(course_id, assignment_id=0):
     response['description'] = response['description'].replace('\r\n', '\n')
     response['published'] = bool(response['published'])
     response['submission_types'] = request.form.getlist('submission_types') or ['none']
+
+    if 'external_tool' in response['submission_types']:
+        response['external_tool_tag_attributes'] = {'url': request.form.get('url'), 'new_tab': True}
     
     # handle due_at separately
     due_at_text = request.form.get("due_at")
@@ -331,6 +349,7 @@ def update_assignment(course_id, assignment_id=0):
                     # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
                     #     data-api-returntype="File">\
     
+    flash('<h2>' + response['name'] + '</h2>')
     if assignment_id == 0:
         # create new assignment
         assignment = course.create_assignment(
@@ -342,10 +361,10 @@ def update_assignment(course_id, assignment_id=0):
         assignment = get_assignment(course_id, assignment_id)
         # get differences between original and new data
         for key, val in response.items():
-            if str(getattr(assignment,key)) != str(val):
-                changes[key] = {'old': getattr(assignment,key), 'new': val}
+            if str(getattr(assignment,key,None)) != str(val):
+                changes[key] = {'old': getattr(assignment,key,None), 'new': val}
         if changes == {}:
-            flash('Nothing has been changed for this assignment!')
+            flash('<b>Nothing</b> has been changed for this assignment!')
         else:
             assignment.edit(assignment={key: val['new'] for key, val in changes.items()})
             flash('Changed these things:')
@@ -354,12 +373,12 @@ def update_assignment(course_id, assignment_id=0):
 
     if assignment is not None:
         # add assignment to selected modules
-        assignment_modules = get_assignment_modules(assignment.course_id, assignment.id)
-        selected_module_ids = request.form.getlist("modules")
+        assignment_module_ids = get_assignment_module_ids(assignment.course_id, assignment.id)
+        selected_module_ids = [int(x) for x in request.form.getlist("modules")]
         # TODO: split selected_module_ids into insertions and deletions, and handle each
-        module_insertions = set([x for x in selected_module_ids if x not in assignment_modules])
+        module_insertions = set([x for x in selected_module_ids if x not in assignment_module_ids])
         print('will add to ' + str(module_insertions))
-        module_deletions = set([x for x in assignment_modules if x not in selected_module_ids])
+        module_deletions = set([x for x in assignment_module_ids if x not in selected_module_ids])
         print('will delete from ' + str(module_deletions))
         selected_modules = []
         created_module_items = []
@@ -368,6 +387,8 @@ def update_assignment(course_id, assignment_id=0):
             module = get_module(course_id, module_id)
             selected_modules.append(module)
             print(module.name)
+            fix_module_ordering(course_id, module_id)
+
             module_item = module.create_module_item(
                 module_item={
                     "type": "assignment",
@@ -385,12 +406,12 @@ def update_assignment(course_id, assignment_id=0):
                 if getattr(module_item,'content_id',0) == assignment.id:
                     module_item.delete()
                     deleted_module_items.append(module.name)
-        flash(
-            "Assignment added to these modules: "
-            + ", ".join(module.name for module in created_module_items)
-            + '\n and removed from these modules: '
-            + ','.join(module_name for module_name in deleted_module_items)
-        )
+            fix_module_ordering(course_id, module_id)
+        flash('<h3>Modules</h3>')
+        flash('<b>Added to:</b>')
+        flash(", ".join(module.name for module in created_module_items))
+        flash('<b>Removed from:</b>')
+        flash(','.join(module_name for module_name in deleted_module_items))
 
         return redirect(f"/courses/{course_id}/assignments/{assignment.id}")
     else:
