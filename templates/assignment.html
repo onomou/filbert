@@ -38,6 +38,23 @@ Canvas - Assignment Details
     }
   });
 </script>
+<script>
+  function formatMyOpenMathURL(url) {
+    // Main website link
+    // https://www.myopenmath.com/assess2/?cid=203357&aid=14546253
+    // LTI link
+    // https://www.myopenmath.com/bltilaunch.php?custom_place_aid=14546253
+    var searchParams = new URLSearchParams(url);
+    var aid = searchParams.get('aid')
+    var theString = 'https://www.myopenmath.com/bltilaunch.php?custom_place_aid=' + aid
+    return theString
+  }
+  function popupMyOpenMathFormatter() {
+    var url = prompt('Paste MyOpenMath link here')
+    var formattedURL = formatMyOpenMathURL(url)
+    document.getElementById('url').value = formattedURL
+  }
+</script>
 {% endblock %}
 
 
@@ -124,6 +141,7 @@ Canvas - Assignment Details
       <div class="styled-div child-float">
         <h2>External Tool URL</h2>
         <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
+        <br><button type="button" onClick="popupMyOpenMathFormatter()">Paste MyOpenMath Link</button>
       </div>
       <div class="styled-div child-float">
         <h2>New Tab</h2>
