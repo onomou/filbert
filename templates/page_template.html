@@ -37,11 +37,18 @@
 
                 if (hasNonEmptyMessages) {
                     overlay.style.display = 'block';
+                    okButton.focus()
                 }
 
                 // Hide the overlay and clear messages when OK button is clicked
                 okButton.addEventListener('click', function () {
                     overlay.style.display = 'none';
+                });
+                overlay.addEventListener('click', function () {
+                    var messageBox = document.getElementById('message-box');
+                    if (!messageBox.contains(event.target)) {
+                        overlay.style.display = 'none';
+                    }
                 });
             </script>
 

@@ -13,6 +13,7 @@
     color: white;
 }
 
+#messages,
 #topbar #refresh a {
     color: black !important;
     background-color: var(--blue-color);
@@ -22,9 +23,9 @@
 }
 
 #refresh:hover {
-    background-color: #8da3b6;
 }
 
+#messages,
 #topbar a {
     padding: 10px;
     text-decoration: none;
@@ -71,6 +72,8 @@
     border-radius: 3px;
 }
 
+button#messages {border: none;}
+
 #topbar li:hover {
     background-color: var(--hover-color);
 }
@@ -86,6 +89,13 @@
 
 #topbar-left {
     float: left;
+}
+
+#topbar-center {
+    float: left;
+    position: relative;
+    left: 10%;
+    /* display: inline-block; */
 }
 
 #topbar-right {
