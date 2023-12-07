@@ -89,7 +89,7 @@ def reload_assignments(course_id = None):
         # canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x} for x in course.get_modules()}
 
 
-
+# canvas helper dict functions
 def get_courses():
     return [x['course'] for x in canvas_d['courses'].values()]
 def get_course(course_id):
@@ -122,28 +122,41 @@ def get_modules(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['modules'] == {} or refresh:
         course = canvas_d['courses'][course_id]['course']
-        canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x, 'module_items': {y.id: y for y in x.get_module_items()}} for x in course.get_modules()}
+        for module in course.get_modules():
+            get_module(course_id, module.id, True)
+        # canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x, 'module_items': {y.id: y for y in x.get_module_items()}} for x in course.get_modules()}
         print('refresh modules: ' + str(course_id))
     return [x['module'] for x in canvas_d['courses'][course_id]['modules'].values()]
-def get_module(course_id, module_id):
+def get_module(course_id, module_id, refresh=False):
     course_id = int(course_id)
     module_id = int(module_id)
-    if module_id not in canvas_d['courses'][course_id]['modules']:
+    if module_id not in canvas_d['courses'][course_id]['modules'] or refresh:
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['modules'][module_id] = {'module': course.get_module(module_id)}
+        module = course.get_module(module_id)
+        canvas_d['courses'][course_id]['modules'][module_id] = {'module': module, 'module_items': {module_item.id: module_item for module_item in module.get_module_items()}}
         print('missed module ' + str(module_id) + ' in course ' + str(course_id))
     return canvas_d['courses'][course_id]['modules'][module_id]['module']
-def get_assignment_modules(course_id, assignment_id):
-    modules = get_modules(course_id)
+def get_assignment_module_ids(course_id, assignment_id, refresh=False):
+    course_id = int(course_id)
+    if assignment_id is None:
+        return []
+    assignment_id = int(assignment_id)
+    assignment = get_assignment(course_id, assignment_id)
     quiz_id = getattr(assignment, 'quiz_id', -1)
+    modules = get_modules(course_id, refresh)
     assignment_modules = []#set(x.id for x, y in module_items.items())
-    module_items_dict = {module.id:get_module_items(course_id, module.id) for module in modules}#{'module': x['module'], 'module_items': x['module_items']
+    module_items_dict = {module.id:get_module_items(course_id, module.id, refresh) for module in modules}#{'module': x['module'], 'module_items': x['module_items']
     for module_id, module_items in module_items_dict.items():
         for module_item in module_items.values():
             if module_item.type in ['File', 'Discussion', 'Assignment', 'Quiz', 'ExternalTool'] and module_item.content_id in [assignment_id, quiz_id]:
                 assignment_modules.append(module_id)
     return assignment_modules
-def get_module_items(course_id, module_id):
+def get_module_items(course_id, module_id, refresh=False):
+    course_id = int(course_id)
+    module_id = int(module_id)
+    if refresh:
+        get_module(course_id, module_id, True)
     return canvas_d['courses'][course_id]['modules'][module_id]['module_items']
 def get_quizzes(course_id, refresh=False):
     course_id = int(course_id)
@@ -152,10 +165,10 @@ def get_quizzes(course_id, refresh=False):
         canvas_d['courses'][course_id]['quizzes'] = {x.id: {'quiz': x} for x in course.get_quizzes()}
         print('refresh quizzes: ' + str(course_id))
     return [x['quiz'] for x in canvas_d['courses'][course_id]['quizzes'].values()]
-def get_quiz(course_id, quiz_id):
+def get_quiz(course_id, quiz_id, refresh=False):
     course_id = int(course_id)
     quiz_id = int(quiz_id)
-    if quiz_id not in canvas_d['courses'][course_id]['quizzes']:
+    if quiz_id not in canvas_d['courses'][course_id]['quizzes'] or refresh:
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['quizzes'][quiz_id] = {'quiz': course.get_quiz(quiz_id)}
         print('missed quiz ' + str(quiz_id) + ' in course ' + str(course_id))
