@@ -447,7 +447,7 @@ def assignments(course_id, assignment_id=None):
     
     groups_count = min(int(config.get('DEFAULT', 'MIN_LINES', fallback=5)), max(len(list(assignment_groups)), len(list(modules))))
     
-    assignment_modules = get_assignment_module_ids(course_id, assignment_id)
+    assignment_modules = get_assignment_module_ids(course_id, assignment_id) #
     # raise(Exception)
     # print(assignment_modules)
     # return redirect(f"/courses/{course_id}/new_assignment")
