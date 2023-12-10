@@ -407,11 +407,14 @@ def update_assignment(course_id, assignment_id=0):
                     module_item.delete()
                     deleted_module_items.append(module.name)
             fix_module_ordering(course_id, module_id)
-        flash('<h3>Modules</h3>')
-        flash('<b>Added to:</b>')
-        flash(", ".join(module.name for module in created_module_items))
-        flash('<b>Removed from:</b>')
-        flash(','.join(module_name for module_name in deleted_module_items))
+        if len(created_module_items) + len(deleted_module_items) > 0:
+            flash('<h3>Modules</h3>')
+            flash('<b>Added to:</b>')
+            flash(", ".join(module.name for module in created_module_items))
+            flash('<b>Removed from:</b>')
+            flash(','.join(module_name for module_name in deleted_module_items))
+        else:
+            flash('Modules unchanged')
 
         return redirect(f"/courses/{course_id}/assignments/{assignment.id}")
     else:
