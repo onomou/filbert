@@ -424,7 +424,7 @@ def update_assignment(course_id, assignment_id=0):
 @flask_app.route("/courses/<int:course_id>/assignments", methods=["GET"], strict_slashes=False)
 @flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
-def assignments(course_id, assignment_id=None):
+def assignments_page(course_id, assignment_id=None):
     global courses_d, canvas_d  # , assignment_groups
     course = get_course(course_id)#canvas_d['courses'][course_id]['course']
     if assignment_id is None:
