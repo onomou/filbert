@@ -59,8 +59,13 @@ h1 {
   color: white;
 }
 
+div#published-float {
+    flex: 0.5;
+}
+
 /* Styling for the heading */
 .styled-div h2 {
+  color: black;
   font-size: 18px;
   font-weight: bold;
   margin: 0;

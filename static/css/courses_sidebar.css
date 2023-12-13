@@ -4,11 +4,12 @@
     /* position: relative; */
     /* top: 0px; */
     /* left: 0px; */
-    width: 125px;
+    width: 6em;
     height: 100%;
     background-color: var(--sidebar-color);
     padding: 0px;
     display: block;
+    min-width: 6em;
 }
 
 #courses-sidebar.collapsed {
@@ -34,11 +35,15 @@
 #courses-sidebar h3 {
     background: #c97a7a;
     cursor: pointer;
+    position: sticky;
+    top: 0;
 }
 
 .secondary-sidebar h3 {
     background: #f59595c9;
     cursor: pointer;
+    /* position: sticky; */
+    /* top: 0; */
 }
 
 #courses-sidebar ul {
@@ -81,16 +86,18 @@
 
 /* Styling for inner sidebar */
 .secondary-sidebar {
+    --secondary-sidebar-width: 7em;
     /* float: left; */
     /* position: relative; */
     /* top: 0px; */
     /* left: 0px; */
-    width: 125px;
+    width: var(--secondary-sidebar-width);
     height: 100%;
     background-color: var(--secondary-sidebar-color);
     padding: 0px;
     display: block;
     overflow-y: auto;
+    min-width: var(--secondary-sidebar-width);
 }
 
 .secondary-sidebar.collapsed {

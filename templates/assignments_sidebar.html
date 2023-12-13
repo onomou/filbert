@@ -1,26 +1,27 @@
 <div id="assignments-sidebar" class="secondary-sidebar">
-  <h3 id="toggle-assignments">Assignments</h3>
+  <div class="assignments-sticky">
+    <h3 id="toggle-assignments">Assignments</h3>
+    <ul>
+      <li><a href="/courses/{{ active_course.id }}/assignments/refresh" class="refresh item">Refresh ↺</a></li>
+      <li><a href="/courses/{{ active_course.id }}/assignments/new"
+          class="new-assignment item{{ ' inactive' if assignment['id'] else ' active' }}">New Assignment</a></li>
+    </ul>
+  </div>
 
-  <ul>
-    <li><a href="/courses/{{ active_course.id }}/assignments/refresh" class="refresh item">Refresh ↺</a></li>
-    <li><a href="/courses/{{ active_course.id }}/assignments/new" class="new-assignment item{{ ' inactive' if assignment['id'] else ' active' }}">New Assignment</a></li>
-
+  <ul class="sidebar-assignments">
     {% for for_assignment in assignments %}
-    
     <li class="sidebar-assignment">
       <a href="/courses/{{ active_course.id }}/assignments/{{ for_assignment.id }}"
-         class="item{{ ' active' if assignment['id'] == for_assignment.id else ' inactive' }}">
-         <div class="sidebar-assignment-name" 
-              data-shortname="{{ for_assignment.name }}"
-              data-longname="{{ for_assignment.name }}">
-           {{ for_assignment.name }}
-         </div>
-         <div class="sidebar-assignment-date">
-            {{ for_assignment.short_date }}
-         </div>
+        class="item{{ ' active' if assignment['id'] == for_assignment.id else ' inactive' }}">
+        <div class="sidebar-assignment-name" data-shortname="{{ for_assignment.name }}"
+          data-longname="{{ for_assignment.name }}">
+          {{ for_assignment.name }}
+        </div>
+        <div class="sidebar-assignment-date">
+          {{ for_assignment.short_date }}
+        </div>
       </a>
     </li>
-    
     {% endfor %}
   </ul>
 </div>

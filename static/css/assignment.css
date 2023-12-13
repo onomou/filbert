@@ -113,15 +113,19 @@ input#id {
 
 .child-float {
   flex: 1;
+  min-width: 80px;
+}
+
+div#due-at-float {
+    flex: 0.5;
 }
 
 div#points-float {
     flex: 0.5;
 }
 
-.sidebar-assignment-name
-{
-
+.sidebar-assignments {
+  overflow-y: auto;
 }
 
 .sidebar-assignment-name.collapsed
@@ -146,4 +150,9 @@ div#points-float {
   width: 650px;
   height: 250px;
   overflow: auto;
+}
+
+.assignments-sticky {
+  position: sticky;
+  top: 0;
 }

@@ -61,7 +61,7 @@ Canvas - Assignment Details
 {% block body %}
 {% include 'assignments_sidebar.html' %}
 
-<div class="details">
+<div class="details" id="assignment-details">
 
   <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
     enctype=multipart/form-data>
@@ -91,7 +91,7 @@ Canvas - Assignment Details
           value="{{ assignment.points_possible }}">
       </div>
 
-      <div class="styled-div child-float">
+      <div class="styled-div child-float" id="due-at-float">
         <h2>Due Date</h2>
         <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
       </div>
@@ -168,8 +168,6 @@ Canvas - Assignment Details
   <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update">Duplicate</button>
   <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
 </div>
-{% endblock %}
-
 
 {% block footer %}
 <script>

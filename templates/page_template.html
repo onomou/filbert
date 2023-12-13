@@ -50,6 +50,11 @@
                         overlay.style.display = 'none';
                     }
                 });
+                overlay.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        overlay.style.display = 'none';
+                    }
+                })
             </script>
 
         </div>
