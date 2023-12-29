@@ -285,7 +285,8 @@ def course_action(course_id, action='assignments'):
         case _ :
             return redirect(url_for('course_page', course_id=course_id))
 
-
+'''
+# TODO: delete this
 @flask_app.route("/courses/<int:course_id>/assignment_default", methods=["GET"])
 def list_assignments(course_id):
     course = get_course(course_id)
@@ -301,7 +302,7 @@ def list_assignments(course_id):
         modules=modules,
         action="assignments",
     )
-
+'''
 
 @flask_app.route("/courses/<int:course_id>/assignments/refresh", methods=["GET"])
 def refresh_assignments(course_id):
@@ -448,14 +449,6 @@ def update_assignment(course_id, assignment_id=0):
         flash('This feature is not yet implemented.')
         return redirect(request.referrer)
 
-@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/silent")
-def push_page(course_id, assignment_id):
-    return render_template('assignment_details.html', )
-
-@flask_app.route("/courses/<int:course_id>/assignments", methods=["GET"], strict_slashes=False)
-@flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
-@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
-def assignments_page(course_id, assignment_id=None):
 def get_assignment_details(course_id, assignment_id):
     the_details = {}
     course = get_course(course_id)#canvas_d['courses'][course_id]['course']

@@ -13,6 +13,11 @@ input[type="number"] {
 input[type="file"] {
   display: none;
 }
+select {
+  width: 100%;
+  min-width: 40px;
+  /* min-height: 5em; */
+}
 .file-label {
   border: 1px solid #979494;
   display: inline-block;
@@ -126,6 +131,12 @@ div#points-float {
 
 .sidebar-assignments {
   overflow-y: auto;
+}
+
+.sidebar-assignment-item {
+  padding: 5px;
+  font-family: math;
+  font-size: smaller;
 }
 
 .sidebar-assignment-name.collapsed

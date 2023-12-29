@@ -1,6 +1,32 @@
 
 const initialValues = {};
 
+function initTinyMCE() {
+  try {tinymce.activeEditor.remove("#description");}
+  catch {};
+  tinymce.init({
+    selector: '#description',
+    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code | numlist bullist | link',
+    plugins: 'lists autolink link',
+    default_link_target: '_blank',
+    link_default_protocol: 'https',
+    apply_source_formatting : true,
+    indent: false, // fixes \n issue: https://stackoverflow.com/a/39489073
+    // width: 650,
+    width: '100%',
+    height: 260,
+    setup: (editor) => {
+      editor.on('init', (event) => {
+        tinyMCE.get("description").setContent(document.getElementById("raw-description").innerHTML)
+        initialValues['description'] = tinyMCE.get("description").getContent()
+      })
+    },
+    init_instance_callback: function(editor) {
+      editor.on('NodeChange', handleDescriptionChange)
+    }
+  });
+}
+
 function isValidDate(dateString) {
     const regex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
     return regex.test(dateString);

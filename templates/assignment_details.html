@@ -1,0 +1,104 @@
+    <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
+      enctype=multipart/form-data>
+      <!-- Assignment Title -->
+      <h1>
+        {% if assignment is not none %}
+        <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
+          target="_blank" rel="noopener noreferrer">🔗 {{ assignment.name }}
+        </a>
+        {% else %}
+        Creating New Assignment
+        {% endif %}
+      </h1>
+  
+      <!-- First row -->
+      <div class="parent-float">
+        <div class="styled-div child-float">
+          <h2 for="name">Assignment Title</h2>
+          <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
+          <label id="id-label" for="id">ID: </label>
+          <input type="text" id="id" name="id"
+            value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
+        </div>
+        <div class="styled-div child-float" id="points-float">
+          <h2 for="points_possible">Points</h2>
+          <input type="number" id="points_possible" name="points_possible" min="0"
+            value="{{ assignment.points_possible }}">
+        </div>
+  
+        <div class="styled-div child-float" id="due-at-float">
+          <h2>Due Date</h2>
+          <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
+        </div>
+        <div class="styled-div child-float" id="published-float">
+          <h2 for="published">Published</h2>
+          <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
+        </div>
+      </div>
+      
+      <!-- Second row -->
+      <div class="parent-float">
+        <div class="styled-div child-float">
+          <h2>Assignment Group</h2>
+          <select id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
+            {% for assignment_group in assignment_groups %}
+            <option value="{{ assignment_group.id }}" {{ 'selected' if assignment_group.id==assignment.assignment_group_id }}>
+              {{ assignment_group.name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="styled-div child-float">
+          <h2>Modules</h2>
+          <select id="modules" name="modules" size="{{ groups_count }}" multiple>
+            {% for module in modules %}
+            <option value="{{ module.id }}" class="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="styled-div child-float">
+          <h2>Submission Types</h2>
+          <select id="submission-types" name="submission_types" size="{{ groups_count }}" class="submission-types" multiple>
+            {% for submission_type in submission_types %}
+            <option value="{{ submission_type }}" class="{{ submission_type }}" {{ 'selected' if submission_type in assignment.submission_types }}{{ 'selected' if assignment is none and submission_type in default_submission_types }}>{{ submission_type }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="styled-div child-float">
+          <h2 for="file">Attach File</h2>
+          <label for="file" class="file-label">Upload file</label>
+          <input type="file" id="file" name="file">
+        </div>
+      </div>
+  
+      <!-- Third row -->
+      <div class="parent-float">
+        <div class="styled-div child-float">
+          <h2>External Tool URL</h2>
+          <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
+          <br><button type="button" onClick="popupMyOpenMathFormatter()">Paste MyOpenMath Link</button>
+        </div>
+        <div class="styled-div child-float">
+          <h2>New Tab</h2>
+          <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
+        </div>
+      </div>
+  
+      <!-- TinyMCE editor -->
+      <div class="parent-float">
+      <div class="styled-div child-float">
+        <h2>Description</h2>
+        <textarea id="description" name="description"></textarea>
+      </div>
+      
+      <div id="raw-description-container" class="styled-div child-float">
+        <h2>Description</h2>
+        <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
+      </div>
+    </div>
+  
+  
+    </form>
+    <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
+    <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update">Duplicate</button>
+    <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>

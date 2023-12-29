@@ -7,37 +7,11 @@ Canvas - Assignment Details
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static',filename='css/assignment.css') }}">
 <script src="{{ url_for('static', filename='js/functions.js') }}"></script>
-<!-- Include jQuery library -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-<script src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}"></script>
-<!-- Include datetimepicker plugin -->
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
-<link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css"> -->
+<script src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static',filename='css/jquery.datetimepicker.min.css') }}">
 <script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
-<script>
-  tinymce.init({
-    selector: '#description',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code | numlist bullist | link',
-    plugins: 'lists autolink link',
-    default_link_target: '_blank',
-    link_default_protocol: 'https',
-    apply_source_formatting : true,
-    indent: false, // fixes \n issue: https://stackoverflow.com/a/39489073
-    width: 650,
-    height: 260,
-    setup: (editor) => {
-      editor.on('init', (event) => {
-        tinyMCE.get("description").setContent(document.getElementById("raw-description").innerHTML)
-        initialValues['description'] = tinyMCE.get("description").getContent()
-      })
-    },
-    init_instance_callback: function(editor) {
-      editor.on('NodeChange', handleDescriptionChange)
-    }
-  });
-</script>
 <script>
   function formatMyOpenMathURL(url) {
     // Main website link
@@ -60,114 +34,10 @@ Canvas - Assignment Details
 
 {% block body %}
 {% include 'assignments_sidebar.html' %}
-
 <div class="details" id="assignment-details">
-
-  <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
-    enctype=multipart/form-data>
-    <!-- Assignment Title -->
-    <h1>
-      {% if assignment is not none %}
-      <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
-        target="_blank" rel="noopener noreferrer">🔗 {{ assignment.name }}
-      </a>
-      {% else %}
-      Creating New Assignment
-      {% endif %}
-    </h1>
-
-    <!-- First row -->
-    <div class="parent-float">
-      <div class="styled-div child-float">
-        <h2 for="name">Assignment Title</h2>
-        <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
-        <label id="id-label" for="id">ID: </label>
-        <input type="text" id="id" name="id"
-          value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
-      </div>
-      <div class="styled-div child-float" id="points-float">
-        <h2 for="points_possible">Points</h2>
-        <input type="number" id="points_possible" name="points_possible" min="0"
-          value="{{ assignment.points_possible }}">
-      </div>
-
-      <div class="styled-div child-float" id="due-at-float">
-        <h2>Due Date</h2>
-        <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
-      </div>
-      <div class="styled-div child-float" id="published-float">
-        <h2 for="published">Published</h2>
-        <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
-      </div>
-    </div>
-    
-    <!-- Second row -->
-    <div class="parent-float">
-      <div class="styled-div child-float">
-        <h2>Assignment Group</h2>
-        <select id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
-          {% for assignment_group in assignment_groups %}
-          <option value="{{ assignment_group.id }}" {{ 'selected' if assignment_group.id==assignment.assignment_group_id }}>
-            {{ assignment_group.name }}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="styled-div child-float">
-        <h2>Modules</h2>
-        <select id="modules" name="modules" size="{{ groups_count }}" multiple>
-          {% for module in modules %}
-          <option value="{{ module.id }}" class="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="styled-div child-float">
-        <h2>Submission Types</h2>
-        <select id="submission-types" name="submission_types" size="{{ groups_count }}" class="submission-types" multiple>
-          {% for submission_type in submission_types %}
-          <option value="{{ submission_type }}" class="{{ submission_type }}" {{ 'selected' if submission_type in assignment.submission_types }}{{ 'selected' if assignment is none and submission_type in default_submission_types }}>{{ submission_type }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="styled-div child-float">
-        <h2 for="file">Attach File</h2>
-        <label for="file" class="file-label">Upload file</label>
-        <input type="file" id="file" name="file">
-      </div>
-    </div>
-
-    <!-- Third row -->
-    <div class="parent-float">
-      <div class="styled-div child-float">
-        <h2>External Tool URL</h2>
-        <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
-        <br><button type="button" onClick="popupMyOpenMathFormatter()">Paste MyOpenMath Link</button>
-      </div>
-      <div class="styled-div child-float">
-        <h2>New Tab</h2>
-        <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
-      </div>
-    </div>
-
-    <!-- TinyMCE editor -->
-    <div class="parent-float">
-    <div class="styled-div child-float">
-      <h2>Description</h2>
-      <textarea id="description" name="description"></textarea>
-    </div>
-    
-    <div id="raw-description-container" class="styled-div child-float">
-      <h2>Description</h2>
-      <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
-    </div>
-  </div>
-
-
-  </form>
-  <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
-  <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update">Duplicate</button>
-  <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
+{% include 'assignment_details.html' %}
 </div>
+{% endblock %}
 
 {% block footer %}
 <script>
@@ -178,35 +48,47 @@ Canvas - Assignment Details
       x.disabled = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
       // x.style.display = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
      })
-    })
-  document.getElementById("toggle-courses").addEventListener('click', function(event) {
-    if(document.getElementById("courses-sidebar").classList.contains('collapsed')) {
-      document.getElementById("courses-sidebar").classList.remove('collapsed')
-      document.querySelectorAll(".sidebar-course").forEach(x => {
-        x.innerHTML = x.dataset.longname;
+  });
+
+  $('#toggle-assignments').click(function() {
+    var sidebar = $('#assignments-sidebar');
+    if( sidebar.hasClass('collapsed') ) {
+      // toggle collapsed
+      sidebar.removeClass('collapsed');
+      // replace all with longname
+      $('.sidebar-assignment-name').each(function() {
+        $(this).html($(this).data('longname'));
       })
     } else {
-      document.getElementById("courses-sidebar").classList.add('collapsed')
-      document.querySelectorAll(".sidebar-course").forEach(x => {
-        x.innerHTML = x.dataset.shortname;
+      // toggle collapsed
+      sidebar.addClass('collapsed');
+      // replace all with shortname
+      $('.sidebar-assignment-name').each(function() {
+        $(this).html($(this).data('shortname'));
       })
-    } 
+    }
   })
-  document.getElementById("toggle-assignments").addEventListener('click', function(event) {
-    if(document.getElementById("assignments-sidebar").classList.contains('collapsed')) {
-      document.getElementById("assignments-sidebar").classList.remove('collapsed')
-      document.querySelectorAll(".sidebar-assignment-name").forEach(x => {
-        x.innerHTML = x.dataset.longname;
-      })
-    } else {
-      document.getElementById("assignments-sidebar").classList.add('collapsed')
-      document.querySelectorAll(".sidebar-assignment-name").forEach(x => {
-        x.innerHTML = x.dataset.shortname;
-      })
-    } 
+
+  // handle click on assignments sidebar items
+  $('a.sidebar-assignment-item').on('click', function(event) {
+    if( event.ctrlKey || event.shiftKey ) return true;
+    var data_url = $(this).data('dataurl');
+    var history_url = $(this).attr('href');
+    window.history.pushState(null,"",history_url);
+    fetch(data_url)
+    .then(response => {return response.text()})
+    .then(data => {document.getElementById('assignment-details').innerHTML = data})
+    .then(() => {
+      initTinyMCE();
+      $(".sidebar-assignment-item.active").removeClass('active');
+      $(this).addClass('active');
+    });
+    // event.preventDefault();
+    return false;
   })
 
   $(document).ready(function () {
+    initTinyMCE();
     document.querySelectorAll('input').forEach(input => {
     // Gather initial values
     if(input.type == "checkbox") {

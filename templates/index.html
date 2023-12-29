@@ -6,17 +6,15 @@
     <title>Course Selection</title>
 </head>
 <body>
-    <h1>Course Selection</h1>
-    
+    <div id="topbar" class="topbar">
+        <h1>Course Selection</h1>
+    </div>
     <div class="page-container">
-
-
         <div id="index-content">
             <ul>
-
                 {% for course in all_courses() %}
                 <li class="flex-item">
-                    <a href="{{ url_for('course_action', course_id = course.id, action = action) }}"
+                    <a href="{{ url_for('course_page', course_id = course.id) }}"
                     id="{{ course.id }}" 
                     data-shortname="{{ course.course_code }}"
                     data-longname="{{ course.name }}">

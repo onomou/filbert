@@ -13,8 +13,12 @@
 }
 
 #courses-sidebar.collapsed {
-    width: 37px;
+    width: 2em;
     /* font-size: small; */
+    max-width: 2em;
+    /* overflow: hidden; */
+    min-width: 2em;
+    font-weight: bold;
 }
 
 #courses-sidebar.collapsed a {
@@ -37,6 +41,10 @@
     cursor: pointer;
     position: sticky;
     top: 0;
+    overflow: clip;
+    /* width: 2em; */
+    /* rotate: 90deg; */
+    /* transform: rotate(90deg); */
 }
 
 .secondary-sidebar h3 {
@@ -50,11 +58,14 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
+    /* width: 3em; */
 }
 
 
 #courses-sidebar li {
     transition: 0.25s;
+    /* height: fit-content; */
+    /* width: auto; */
 }
 #courses-sidebar li:hover {
     background-color: #dfc9c9;
@@ -65,7 +76,7 @@
     padding: 10px;
     text-decoration: none;
     color: var(--sidebar-text-color);
-    font-family: math;
+    /* font-family: math; */
 }
 
 #courses-sidebar a.active {
@@ -101,7 +112,8 @@
 }
 
 .secondary-sidebar.collapsed {
-    width: 94px;
+    width: 7em;
+    min-width: 1em;
 }
 
 .secondary-sidebar ul {

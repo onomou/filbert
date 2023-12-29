@@ -6,14 +6,8 @@ Create New Assignment
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static',filename='css/assignment.css') }}">
-<!-- Include jQuery library -->
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-<script src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}"></script>
-<!-- Include datetimepicker plugin -->
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
-<link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css">
 <script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
 <script>
   tinymce.init({

@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/topbar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/overlay.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/page_template.css') }}">
-
+    <script src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}"></script>
     {% block header %}{% endblock %}
 </head>
 
@@ -26,6 +26,27 @@
             </div>
             {% block footer %}{% endblock %}
             <script>
+                // Courses sidebar
+                $("#toggle-courses").click(function() {
+                    var sidebar = $('#courses-sidebar');
+                    if( sidebar.hasClass('collapsed') ) {
+                        // toggle collapsed
+                        sidebar.removeClass('collapsed');
+                        // replace all with longname
+                        $('.sidebar-course').each(function() {
+                            $(this).html($(this).data('longname'));
+                        })
+                    } else {
+                        // toggle collapsed
+                        sidebar.addClass('collapsed');
+                        // replace all with shortname
+                        $('.sidebar-course').each(function() {
+                            $(this).html($(this).data('shortname'));
+                        })
+                    }
+                })
+
+                // Overlay
                 var overlay = document.getElementById('overlay');
                 var okButton = document.getElementById('ok-button');
 
@@ -38,7 +59,7 @@
                 if (hasNonEmptyMessages) {
                     overlay.style.display = 'block';
                     okButton.focus()
-                }
+                };
 
                 // Hide the overlay and clear messages when OK button is clicked
                 okButton.addEventListener('click', function () {
@@ -54,7 +75,7 @@
                     if (event.key === 'Escape') {
                         overlay.style.display = 'none';
                     }
-                })
+                });
             </script>
 
         </div>

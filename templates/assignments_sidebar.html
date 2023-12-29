@@ -11,10 +11,13 @@
   <ul class="sidebar-assignments">
     {% for for_assignment in assignments %}
     <li class="sidebar-assignment">
-      <a href="/courses/{{ active_course.id }}/assignments/{{ for_assignment.id }}"
-        class="item{{ ' active' if assignment['id'] == for_assignment.id else ' inactive' }}">
-        <div class="sidebar-assignment-name" data-shortname="{{ for_assignment.name }}"
-          data-longname="{{ for_assignment.name }}">
+      <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
+        class="sidebar-assignment-item{{ ' active' if assignment['id'] == for_assignment.id else ' inactive' }}"
+        id="sidebar-assignment-{{ for_assignment.id }}"
+        data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}">
+        <div class="sidebar-assignment-name" data-shortname="{{ for_assignment.name[:10] }}..."
+          data-longname="{{ for_assignment.name }}"
+          title="{{ for_assignment.name }}">
           {{ for_assignment.name }}
         </div>
         <div class="sidebar-assignment-date">

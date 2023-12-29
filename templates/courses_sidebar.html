@@ -1,9 +1,9 @@
 <div id="courses-sidebar">
-    <h3 id="toggle-courses">Courses</h3>
+    <h3 id="toggle-courses" title="Courses">Courses</h3>
     <ul>
         {% for course in all_courses() %}
             <li>
-                <a href="{{ url_for('course_action', course_id = course.id, action = action) }}"
+                <a href="{{ url_for('course_page', course_id=course.id) + action }}"
                    id="{{ course.id }}" 
                    data-shortname="{{ course.course_code }}"
                    data-longname="{{ course.name }}"
