@@ -49,11 +49,6 @@ def favicon():
         mimetype="image/vnd.microsoft.icon",
     )
 
-
-def render_page(template_name, **kwargs):
-    return render_template(template_name, **kwargs)
-
-
 # Canvas section
 API_URL = config.get("Canvas", "API_URL") # TODO: handle missing config key
 API_KEY = config.get("Canvas", "API_KEY") # TODO: handle missing config key
@@ -247,6 +242,10 @@ def courses_page():
 
 
 @flask_app.route("/courses/<int:course_id>/", methods=["GET"])
+def course_page(course_id):
+    return redirect(f'/courses/{course_id}/assignments') # TODO: consider implementing course front page view
+
+
 @flask_app.route("/courses/<int:course_id>/<action>", methods=["GET"])
 def course_action(course_id, action='assignments'):
     match action:
@@ -260,6 +259,8 @@ def course_action(course_id, action='assignments'):
             return redirect(f'/courses/{course_id}/list_quiz')
         case 'quiz_question_details':
             return redirect(f'/courses/{course_id}/quiz_question_details')
+        case _ :
+            return redirect(url_for('course_page', course_id=course_id))
 
 
 @flask_app.route("/courses/<int:course_id>/assignment_default", methods=["GET"])
@@ -268,7 +269,7 @@ def list_assignments(course_id):
     assignments = get_assignments(course_id)
     assignment_groups = course.get_assignment_groups()
     modules = course.get_modules()
-    return render_page(
+    return render_template(
         "assignment.html",
         active_course=course,
         assignment=None,
@@ -362,7 +363,7 @@ def update_assignment(course_id, assignment_id=0):
         # get differences between original and new data
         for key, val in response.items():
             if str(getattr(assignment,key,None)) != str(val):
-                changes[key] = {'old': getattr(assignment,key,None), 'new': val}
+                changes[key] = {'old': getattr(assignment,key,None), 'new': val} # TODO: handle changes in sub-attributes, like external_tool_tag_attributes
         if changes == {}:
             diff_message += 'none'
         else:
@@ -432,6 +433,8 @@ def push_page(course_id, assignment_id):
 @flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
 def assignments_page(course_id, assignment_id=None):
+def get_assignment_details(course_id, assignment_id):
+    the_details = {}
     course = get_course(course_id)#canvas_d['courses'][course_id]['course']
     if assignment_id is None:
         # creating new assignment
@@ -451,7 +454,8 @@ def assignments_page(course_id, assignment_id=None):
     assignment_groups = get_assignment_groups(course_id)
     modules = get_modules(course_id)
     
-    groups_count = min(int(config.get('DEFAULT', 'MIN_LINES', fallback=5)), max(len(list(assignment_groups)), len(list(modules))))
+    # groups_count = min(int(config.get('DEFAULT', 'MIN_LINES', fallback=5)), max(len(list(assignment_groups)), len(list(modules))))
+    groups_count = int(config.get('DEFAULT', 'MIN_LINES', fallback=5))
     
     assignment_modules = get_assignment_module_ids(course_id, assignment_id) #
     # raise(Exception)
@@ -466,18 +470,38 @@ def assignments_page(course_id, assignment_id=None):
                         'external_tool', 'online_text_entry', 
                         'online_url', 'online_upload', 'media_recording', 
                         'student_annotation']
-    return render_page(
+
+    the_details['active_course'] = course
+    the_details['assignment'] = assignment
+    the_details['assignments'] = assignments
+    the_details['assignment_groups'] = assignment_groups
+    the_details['modules'] = modules
+    the_details['assignment_modules'] = assignment_modules
+    the_details['groups_count'] = groups_count
+    the_details['default_times'] = default_times
+    the_details['default_submission_types'] = default_submission_types
+    the_details['submission_types'] = submission_types
+
+    return the_details
+
+
+@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/silent")
+def push_page(course_id, assignment_id):
+    the_details = get_assignment_details(course_id, assignment_id)
+    return render_template(
+        'assignment_details.html',
+        **the_details
+    )
+
+
+@flask_app.route("/courses/<int:course_id>/assignments", methods=["GET"], strict_slashes=False)
+@flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
+@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
+def assignments_page(course_id, assignment_id=None):
+    the_details = get_assignment_details(course_id, assignment_id)
+    return render_template(
         "assignment.html",
-        active_course=course,
-        assignment=assignment,
-        assignments=assignments,
-        assignment_groups=assignment_groups,
-        modules=modules,
-        assignment_modules=assignment_modules,
-        groups_count=groups_count,
-        default_times=default_times,
-        default_submission_types=default_submission_types,
-        submission_types=submission_types,
+        **the_details,
         action="assignments",
     )
 
@@ -504,8 +528,6 @@ def get_selected_assignments(course_id, assignment_ids=[]):
     print('in get_selected_assignments')
     print(response)
     return response
-    # return {'what': 'who'}
-
 
 
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/update/<list:assignment_ids>", methods=["POST"])
@@ -513,11 +535,13 @@ def assignments_bulk_update(course_id,assignment_ids=[]):
     # TODO: implement this
     return redirect(request.referrer)
 
+
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/delete/<list:assignment_ids>", methods=["POST"])
 def assignments_bulk_delete(course_id,assignment_ids=[]):
     # TODO: implement this
     return redirect(request.referrer)
-    
+
+
 @flask_app.route("/courses/<int:course_id>/assignments_bulk", methods=["GET"], strict_slashes=False)
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/<list:assignment_ids>", methods=["GET"])
 def assignments_bulk(course_id,assignment_ids=[]):
@@ -536,7 +560,7 @@ def assignments_bulk(course_id,assignment_ids=[]):
             pass
     assignment_ids = [x.id for x in selected_assignments]
 
-    return render_page(
+    return render_template(
         "assignments_bulk.html",
         active_course=course,
         assignments=assignments,
@@ -556,7 +580,7 @@ def quiz_page(course_id):
 
     if request.method == "POST":
         return redirect(request.referrer)
-    return render_page(
+    return render_template(
         "quiz_details.html",
         active_course=course,
         quiz=None,
@@ -576,7 +600,7 @@ def quiz_details(course_id, quiz_id):
 
     if request.method == "POST":
         return redirect(request.referrer)
-    return render_page(
+    return render_template(
         "quiz_details.html",
         active_course=course,
         quiz=quiz,
@@ -617,7 +641,7 @@ def quiz_question_details(course_id, quiz_id, question_id):
 
         flash("Quiz question updated!")
         return redirect(request.referrer)
-    return render_page(
+    return render_template(
         "quiz_question_details.html",
         active_course=course,
         quiz=quiz,
@@ -627,6 +651,7 @@ def quiz_question_details(course_id, quiz_id, question_id):
         modules=modules,
         action="quiz_question_details",
     )
+
 
 @flask_app.route(
     "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/download", methods=["POST"]
@@ -806,8 +831,7 @@ def assignments_grid(course_id):
     assignments = get_assignments(course_id)
     data = [{'id': x.id, 'name': x.name, 'points_possible': x.points_possible, 'published': x.published} for x in assignments]
     columns = [{'id': x, 'name': x, 'field': x} for x in data[0].keys()]
-    return render_page("assignments_grid.html", active_course=course, data=data, columns=columns)
-
+    return render_template("assignments_grid.html", active_course=course, data=data, columns=columns)
 
 
 @flask_app.route("/courses/<int:course_id>/assignments/update_data", methods=["POST"])
@@ -817,8 +841,6 @@ def update_assignments(course_id):
     print(updated_data)
     # Return a response to the client
     return jsonify({'message': 'Data updated successfully'})
-
-
 
 
 if __name__ == "__main__":
