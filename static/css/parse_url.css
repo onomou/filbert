@@ -1,0 +1,28 @@
+.content {
+    display: block;
+    margin: 1em;
+    /* overflow-x: clip; */
+    width: 85vw;
+    flex: 1;
+    height: auto;
+}
+
+.url-input {
+    width: 100%;
+}
+
+#url {
+    /* width: 100%; */
+    width: -webkit-fill-available;
+    height: 2em;
+    padding-left: 0.5em;
+}
+
+form#url-form {
+    margin-bottom: 2em;
+}
+
+.copy-to-clipboard-button {
+    transform: scale(1.5) translate(-1em,0.5em);
+    padding-bottom: 0.2em !important;
+}

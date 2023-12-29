@@ -1,0 +1,29 @@
+{% extends 'page_template.html' %}
+
+{% block title %}
+Canvas - Assignment Details
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/parse_url.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/prism.css') }}">
+<script src="{{ url_for('static', filename='js/prism.js') }}"></script>
+
+{% endblock %}
+
+
+{% block body %}
+<div class="url-input">
+    <h1>Canvas URL</h1>
+    <form id="url-form" action="{{ url_for('parse_url_form') }}">
+        <input type="text" id="url" name="url" value="{{url}}" onClick="this.select();"/>
+    </form>
+</div>
+<div class="code-div">
+  <h1>Python Code</h1>
+  <pre id="code" name="code"><code class="language-python line-numbers" data-python-copy="Copy 🗍">{{code}}</code></pre>
+</div>
+{% endblock %}>
+
+{% block footer %}
+{% endblock %}

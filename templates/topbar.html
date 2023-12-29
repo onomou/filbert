@@ -1,6 +1,7 @@
 <div id="topbar" class="topbar">
     <ul id="topbar-left">
         <li><a href="/" title="Courses List">◰</a></li>
+        <li><a href="{{ url_for('parse_url') }}" title="Parse URL">📝</a></li>
         <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}" target="_blank"
                 rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></li>
         <li><a href="/courses/{{ active_course.id }}/assignments/new">New Assignment</a></li>

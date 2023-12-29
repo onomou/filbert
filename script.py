@@ -236,6 +236,29 @@ def refresh_everything():
     flash('Reloaded everything')
     return redirect(request.referrer)
 
+
+@flask_app.route("/parse_form/", methods=["GET"])
+def parse_url_form():
+    request_url = request.args.get('url') or None
+    return redirect(url_for('parse_url', url=request_url))
+
+@flask_app.route("/parse_url", methods=["GET"], strict_slashes=False)
+@flask_app.route("/parse_url/<path:url>", methods=["GET"])
+def parse_url(url=None):
+    from parse_url import parse_canvas_url
+    code = parse_canvas_url(url)
+
+    return render_template(
+        "parse_url.html",
+        url=url,
+        code=code,
+        active_course=None,
+        assignment=None,
+        action='assignments',
+    )
+
+
+
 @flask_app.route("/courses", methods=["GET"], strict_slashes=False)
 def courses_page():
     return redirect(url_for('index'))
