@@ -16,7 +16,21 @@ import pytz
 import configparser
 import csv
 import os
-from werkzeug.utils import secure_filename
+# from werkzeug.utils import secure_filename
+import re
+windows_badnames = (
+    "CON",
+    "AUX",
+    "COM1",
+    "COM2",
+    "COM3",
+    "COM4",
+    "LPT1",
+    "LPT2",
+    "LPT3",
+    "PRN",
+    "NUL",
+)
 
 
 def load_config(filename):
@@ -33,6 +47,8 @@ flask_app.static_folder = "static"
 flask_app.static_url_path = "/static"
 flask_app.secret_key = "fjeioaijcvmew908jcweio320"
 flask_app.config['UPLOAD_FOLDER'] = config.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
+flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 20MB
+
 # Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
 
@@ -413,7 +429,11 @@ def update_assignment(course_id, assignment_id=0):
             # no file attached
             print('no file selected')
         else:
-            filename = secure_filename(file.filename)
+            # filename = secure_filename(file.filename)
+            # https://stackoverflow.com/a/71199182 -- of course I trust the regex
+            filename = re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "-", file.filename)
+            if filename in windows_badnames:
+                filename = filename + '_'
             print('filename: ' + filename)
             the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
             # print(the_filepath)
