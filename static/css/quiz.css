@@ -32,7 +32,7 @@
 }
 
 /* Styling for questions list */
-.quiz-questions-sidebar {
+#quiz-questions-sidebar {
     /* float: left; */
     /* position: relative; */
     /* top: 0px; */
@@ -45,22 +45,20 @@
     display: block;
 }
 
-.quiz-questions-sidebar ul {
+#quiz-questions-sidebar h3 {
+    background-color: var(--blue-color);
+}
+
+#quiz-questions-sidebar ul {
     list-style-type: none;
     padding: 0px;
     margin: 0px;
 }
 
-.quiz-questions-sidebar a {
-    display: block;
-    padding: 10px;
-    text-decoration: none;
-    color: black;
+#quiz-questions-sidebar a {
 }
 
-.quiz-questions-sidebar a.active {
-    font-weight: bold;
-    background-color: lightblue;
+#quiz-questions-sidebar a.active {
 }
 
 .quiz-question-details {
@@ -73,11 +71,13 @@
 }
 
 .quiz-content {
-    /* margin-left: 206px; */ /* Adjust this value based on the sidebar width */
-    padding: 20px;
-    height: 100%;
-    width: 90%;
+    margin: 1em; /* Adjust this value based on the sidebar width */
+    /* padding: 20px; */
+    /* height: 100%; */
+    /* width: 90%; */
+    flex: 1;
     position: relative;
+    overflow: auto;
     /* left: 38px; */
     /* float: left; */
     /* display: flex; */
@@ -90,13 +90,9 @@
     /* flex: 1; */
 }
 
-.main {
-    /* top: 100px; */
-}
-
 .question {
     line-height: 1.5;
-    background-color: white;
+    background-color: var(--blue-color);
     border: 1px solid black;
     padding: 20px;
     margin-bottom: 10px;
@@ -109,4 +105,14 @@
     /* width: 233px; */
 }
 
+.tertiary-sidebar-name {
+    
+}
 
+.tertiary-sidebar-short {
+    font-size: x-small;
+    color: #707070;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

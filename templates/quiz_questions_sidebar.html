@@ -1,14 +1,24 @@
-<div class="quiz-questions-sidebar">
+{% if not quiz_question %}
+{% set quiz_question = None %}
+{% endif %}
+<div id="quiz-questions-sidebar" class="sidebar tertiary">
+  <h3>Questions</h3>
   <ul>
     {% for for_quiz_question in quiz_questions %}
 
-
-    {% if for_quiz_question.id == quiz_question.id %}
-    <li><a href="/courses/{{ active_course.id }}/quizzes/{{ quiz.id }}/question/{{ for_quiz_question.id }}" class="active">{{ for_quiz_question.question_name }}</a></li>
-    {% else %}
-    <li><a href="/courses/{{ active_course.id }}/quizzes/{{ quiz.id }}/question/{{ for_quiz_question.id }}">{{ for_quiz_question.question_name }}</a></li>
-    {% endif %}
+    <li>
+      <a href="/courses/{{ active_course.id }}/quizzes/{{ quiz.id }}/question/{{ for_quiz_question.id }}"
+        class="item{{ ' active' if for_quiz_question.id == quiz_question.id else ' inactive'}}"
+        title="{{ for_quiz_question.question_text }}">
+        <div class="tertiary-sidebar-name">
+          {{ for_quiz_question.question_name }}
+        </div>
+        <div class="tertiary-sidebar-short">
+          {{ for_quiz_question.question_text }}
+        </div>
+      </a>
+    </li>
 
     {% endfor %}
   </ul>
-</div>  
+</div>

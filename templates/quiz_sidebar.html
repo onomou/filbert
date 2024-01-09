@@ -1,14 +1,22 @@
-<div class="secondary-sidebar">
+<div id="quizzes-sidebar" class="sidebar secondary-sidebar">
   <h3>Quizzes</h3>
 
   <ul>
     {% for for_quiz in quizzes %}
 
-    {% if quiz.id == for_quiz.id %}
-    <li><a href="/courses/{{ active_course.id }}/quizzes/{{ for_quiz.id }}" class="active">{{ for_quiz.title }}</a></li>
-    {% else %}
-    <li><a href="/courses/{{ active_course.id }}/quizzes/{{ for_quiz.id }}">{{ for_quiz.title }}</a></li>
-    {% endif %}
+    <li class="sidebar-item{{ ' active' if quiz.id == for_quiz.id }}">
+      <a href="/courses/{{ active_course.id }}/quizzes/{{ for_quiz.id }}"
+         class="secondary-sidebar item">
+         <div class="secondary-sidebar-name"
+           title="{{ for_quiz.title }}">
+           {{ for_quiz.title }}
+         </div>
+         <div class="secondary-sidebar-date">
+           {{ for_quiz.due_at_date.strftime('%Y-%m-%d') if for_quiz.due_at }}
+         </div>
+         
+        </a>
+    </li>
 
     {% endfor %}
   </ul>
