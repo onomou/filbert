@@ -1,9 +1,13 @@
 <div id="courses-sidebar" class="sidebar primary-sidebar">
-    <h3 id="toggle-courses" title="Courses">Courses</h3>
+    <div class="assignments-sticky">
+        <h3 id="toggle-courses" title="Courses">Courses</h3>
+        <ul>
+            <li class="sidebar-item" id="courses-refresh">
+                <a href="/courses/refresh">Refresh ↺</a>
+            </li>
+        </ul>
+    </div>
     <ul>
-        <li class="sidebar-item" id="courses-refresh">
-          <a href="/courses/refresh">Refresh ↺</a>
-        </li>
         {% for course in all_courses() %}
             <li class="sidebar-item{{ ' active' if active_course and active_course.id == course.id }} sidebar-course">
                 <a href="{{ url_for('course_page', course_id=course.id) + action }}"

@@ -241,11 +241,9 @@ input#id {
 
 .parent-float {
   display: flex;
-  padding: 0px;
   flex-wrap: wrap;
   gap: 0.4em;
-  row-gap: 0.4em;
-  /* margin-bottom: 7px; */
+  margin-bottom: 0.4em;
 }
 
 .child-float {

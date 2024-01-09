@@ -14,6 +14,7 @@
     font-weight: bold;
     height: 22px;
     /* padding: 0; */
+    cursor: pointer;
 }
 
 .sidebar ul {
@@ -69,9 +70,8 @@
 
 .primary-sidebar h3 {
     background: #c97a7a;
-    cursor: pointer;
     position: sticky;
-    top: 0;
+    /* top: 0; */
     overflow: clip;
     /* width: 2em; */
     /* rotate: 90deg; */
@@ -100,7 +100,6 @@
 
 .secondary-sidebar h3 {
     background: #f59595c9;
-    cursor: pointer;
     /* position: sticky; */
     /* top: 0; */
 }
@@ -122,7 +121,7 @@
 
 .sidebar-item.active {
     /* font-weight: bold; */
-    background-color: dimgrey;
+    background-color: var(--background-color);
     color: white;
 }
 

@@ -7,7 +7,7 @@ tbody, th, td {
   }
   
   td:nth-child(4) {
-      /* background: white; */
+      background: var(--secondary-sidebar-text-color);
       overflow-x: auto;
   }
   

@@ -126,12 +126,12 @@
           <h2>New Tab</h2>
           <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
         {{ endblob() }}
-      <!-- </div> -->
+      </div>
 
-      <div class="break"></div>
+      <!-- <div class="break"></div> -->
   
       <!-- TinyMCE editor -->
-      <!-- <div class="parent-float"> -->
+      <div class="parent-float">
         {{ blob("Description", id="description") }}
         <textarea id="description" name="description"></textarea>
         {{ endblob() }}

@@ -576,7 +576,7 @@ def push_page(course_id, assignment_id):
 def assignments_page(course_id, assignment_id=None):
     the_details = get_assignment_details(course_id, assignment_id)
     return render_template(
-        "assignment.html",
+        "assignments.html",
         **the_details,
         action="assignments",
     )
@@ -919,7 +919,13 @@ def assignments_grid(course_id):
     assignments = get_assignments(course_id)
     data = [{'id': x.id, 'name': x.name, 'points_possible': x.points_possible, 'published': x.published} for x in assignments]
     columns = [{'id': x, 'name': x, 'field': x} for x in data[0].keys()]
-    return render_template("assignments_grid.html", active_course=course, data=data, columns=columns)
+    return render_template(
+        "assignments_grid.html", 
+        active_course=course, 
+        data=data, 
+        columns=columns,
+        action='grid',
+    )
 
 
 @flask_app.route("/courses/<int:course_id>/assignments/update_data", methods=["POST"])

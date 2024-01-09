@@ -64,7 +64,7 @@ input[type=file]::file-selector-button:hover {
 }
 
 .assignment-item.selected {
-    background-color: var(--lightred-color);
+    background-color: var(--light-red-color);
 }
 
 .assignment-item.selected.first-click {
@@ -136,21 +136,21 @@ input#id {
   flex: 1;
 }
 
-.sidebar-assignment-name
+.secondary-sidebar-name
 {
 
 }
 
-.sidebar-assignment-name.collapsed
+.secondary-sidebar-name.collapsed
 {
   font-size: small;
 }
 
-.sidebar-assignment-date {
+.secondary-sidebar-date {
   color: #707070;
   font-size: x-small;
 }
 
-.sidebar-assignment-date.collapsed {
+.secondary-sidebar-date.collapsed {
   font-size: xx-small;
 }
