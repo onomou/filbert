@@ -7,10 +7,10 @@
     /* width: 100%; */
     /* min-height: 70px; */
     background-color: var(--red-color);
-    padding: 0px;
+    /* padding: 0px; */
     z-index: 1;
-    box-shadow: 0px 1px 1px var(--red-color);
-    color: white;
+    /* box-shadow: 0px 1px 1px var(--red-color); */
+    /* color: white; */
 }
 
 #messages,

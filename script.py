@@ -581,6 +581,18 @@ def get_assignment_details(course_id, assignment_id):
     return the_details
 
 
+
+@flask_app.route("/courses/<int:course_id>/render_topbar")
+def render_topbar(course_id):
+    active_course = get_course(course_id)
+    print('something',active_course.id)
+    return render_template(
+        "topbar.html",
+        active_course=active_course,
+    )
+
+
+
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/silent")
 def push_page(course_id, assignment_id):
     the_details = get_assignment_details(course_id, assignment_id)
