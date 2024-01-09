@@ -28,6 +28,8 @@ Canvas - Assignment Details
     var formattedURL = formatMyOpenMathURL(url)
     document.getElementById('url').value = formattedURL
   }
+  
+  var default_times = {{ default_times | tojson | safe }}
 </script>
 {% endblock %}
 
@@ -69,26 +71,9 @@ Canvas - Assignment Details
     }
   })
 
-  // handle click on assignments sidebar items
-  $('a.sidebar-assignment-item').on('click', function(event) {
-    if( event.ctrlKey || event.shiftKey ) return true;
-    var data_url = $(this).data('dataurl');
-    var history_url = $(this).attr('href');
-    window.history.pushState(null,"",history_url);
-    fetch(data_url)
-    .then(response => {return response.text()})
-    .then(data => {document.getElementById('assignment-details').innerHTML = data})
-    .then(() => {
-      initTinyMCE();
-      $(".sidebar-assignment-item.active").removeClass('active');
-      $(this).addClass('active');
-    });
-    // event.preventDefault();
-    return false;
-  })
-
   $(document).ready(function () {
     initTinyMCE();
+    initDatePicker();
     document.querySelectorAll('input').forEach(input => {
     // Gather initial values
     if(input.type == "checkbox") {
@@ -114,23 +99,6 @@ Canvas - Assignment Details
   var submission_types_element = document.getElementById("submission-types")
   // submission_types_element.dispatchEvent(new CustomEvent('change', {'target': {'selectedOptions': submission_types_element.selectedOptions}}))
   submission_types_element.dispatchEvent(new CustomEvent('change', {}))
-
-    // datetimepicker for date fields
-    var default_times = {{ default_times| tojson | safe }}
-    $("#due_at").datetimepicker({
-      format: "Y-m-d H:i",
-      timepicker: true,
-      //inline: true,
-      showButtonPanel: true,
-      controlType: "select",
-      // minDate: '0',
-      disableWeekDays: [6],
-      defaultDate: '+1970/01/02',
-      allowTimes: default_times,
-    });
-
-    $('#due_at').on('change.datetimepicker', handleInputChange);
-
 
   // Validate points field to allow only nonnegative integers
   $("#points_possible").on("input", function () {

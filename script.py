@@ -36,8 +36,9 @@ flask_app.config['UPLOAD_FOLDER'] = config.get('Flask', 'TEMP_DIR', fallback='.\
 # Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-from util import ListConverter
+from util import ListConverter, format_date
 flask_app.url_map.converters['list'] = ListConverter
+flask_app.jinja_env.filters['format_date'] = format_date
 
 
 
@@ -56,8 +57,13 @@ canvas = Canvas(API_URL, API_KEY)
 courses = canvas.get_courses(include=['course_image'])
 # assignments_d = {course.id:{x.id for x in course.get_assignments()} for course in courses}
 # assignment_groups = {}
+canvas_d = {}
+'''
+canvas = Canvas(API_URL, API_KEY)
+courses = canvas.get_courses(include=['course_image'])
 canvas_d = {'API_URL': API_URL,
             'API_KEY': API_KEY,
+            'canvas': canvas,
             'courses': {x.id: {'course': x} for x in courses},
             }
 for course_id in canvas_d['courses'].keys():
@@ -67,7 +73,7 @@ for course_id in canvas_d['courses'].keys():
     canvas_d['courses'][course_id]['users'] = {}
     canvas_d['courses'][course_id]['enrollments'] = {}
     canvas_d['courses'][course_id]['modules'] = {}
-
+'''
 # canvas['courses'][course_id]['assignments']
 selected_course = None
 
@@ -85,52 +91,97 @@ def reload_assignments(course_id = None):
 
 
 # canvas helper dict functions
-def get_courses():
+def get_courses(partial_refresh=False, refresh=False):
+    if partial_refresh:
+        print('partial refresh courses')
+        courses = canvas_d['canvas'].get_courses(include=['course_image'])
+        for course in courses:
+            if course.id not in canvas_d['courses']:
+                canvas_d['courses'][course.id] = {'course': course}
+                canvas_d['courses'][course.id]['assignments'] = {}
+                canvas_d['courses'][course.id]['assignment_groups'] = {}
+                canvas_d['courses'][course.id]['quizzes'] = {}
+                canvas_d['courses'][course.id]['users'] = {}
+                canvas_d['courses'][course.id]['enrollments'] = {}
+                canvas_d['courses'][course.id]['modules'] = {}
+    if refresh:
+        print('refresh courses')
+        API_URL = config.get("Canvas", "API_URL") # TODO: handle missing config key
+        API_KEY = config.get("Canvas", "API_KEY") # TODO: handle missing config key
+        canvas = Canvas(API_URL, API_KEY)
+        courses = canvas.get_courses(include=['course_image'])
+        # assignments_d = {course.id:{x.id for x in course.get_assignments()} for course in courses}
+        # assignment_groups = {}
+        canvas_d['API_URL'] = API_URL
+        canvas_d['API_KEY'] = API_KEY
+        canvas_d['canvas'] = canvas
+        canvas_d['courses'] = {x.id: {'course': x} for x in courses}
+        for course_id in canvas_d['courses'].keys():
+            canvas_d['courses'][course_id]['assignments'] = {}
+            canvas_d['courses'][course_id]['assignment_groups'] = {}
+            canvas_d['courses'][course_id]['quizzes'] = {}
+            canvas_d['courses'][course_id]['users'] = {}
+            canvas_d['courses'][course_id]['enrollments'] = {}
+            canvas_d['courses'][course_id]['modules'] = {}
     return [x['course'] for x in canvas_d['courses'].values()]
+
 def get_course(course_id):
     course_id = int(course_id)
     return canvas_d['courses'][course_id]['course']
+
 def get_assignments(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['assignments'] == {} or refresh:
+        print('refresh assignments: ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['assignments'] = {x.id: {'assignment': x} for x in course.get_assignments()}
-        print('refresh assignments: ' + str(course_id))
-    return [x['assignment'] for x in canvas_d['courses'][course_id]['assignments'].values()]
+
+        for x in [x['assignment'] for x in canvas_d['courses'][course_id]['assignments'].values()]:
+            x.safe_description = Markup(x.description)
+            if x.due_at is not None:
+                x.due_at_local = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d %H:%M')
+                x.short_date = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d')
+    assignments = [x['assignment'] for x in canvas_d['courses'][course_id]['assignments'].values()]
+    # TODO: choose sort type
+    return sorted(assignments, key=lambda x: getattr(x,'due_at','') or '')
+
 def get_assignment(course_id, assignment_id):
     course_id = int(course_id)
     assignment_id = int(assignment_id)
     if assignment_id not in canvas_d['courses'][course_id]['assignments']:
-        course = canvas_d['courses'][course_id]['course']
+        print('missed assignment ' + str(assignment_id) + ' in course ' + str(course_id))
         # canvas_d['courses'][course_id]['assignments'][assignment_id] = {'assignment': course.get_assignment(assignment_id)}
         get_assignments(course_id, True)
-        print('missed assignment ' + str(assignment_id) + ' in course ' + str(course_id))
     return canvas_d['courses'][course_id]['assignments'][assignment_id]['assignment']
+
 def get_assignment_groups(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['assignment_groups'] == {} or refresh:
+        print('refresh assignment groups: ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['assignment_groups'] = {x.id: {'assignment_group': x} for x in course.get_assignment_groups()}
-        print('refresh assignment groups: ' + str(course_id))
     return [x['assignment_group'] for x in canvas_d['courses'][course_id]['assignment_groups'].values()]
+
 def get_modules(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['modules'] == {} or refresh:
+        print('refresh modules: ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         for module in course.get_modules():
             get_module(course_id, module.id, True)
         # canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x, 'module_items': {y.id: y for y in x.get_module_items()}} for x in course.get_modules()}
-        print('refresh modules: ' + str(course_id))
     return [x['module'] for x in canvas_d['courses'][course_id]['modules'].values()]
+
 def get_module(course_id, module_id, refresh=False):
     course_id = int(course_id)
     module_id = int(module_id)
     if module_id not in canvas_d['courses'][course_id]['modules'] or refresh:
+        print('missed module ' + str(module_id) + ' in course ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         module = course.get_module(module_id)
         canvas_d['courses'][course_id]['modules'][module_id] = {'module': module, 'module_items': {module_item.id: module_item for module_item in module.get_module_items()}}
-        print('missed module ' + str(module_id) + ' in course ' + str(course_id))
     return canvas_d['courses'][course_id]['modules'][module_id]['module']
+
 def get_assignment_module_ids(course_id, assignment_id, refresh=False):
     course_id = int(course_id)
     if assignment_id is None:
@@ -146,45 +197,49 @@ def get_assignment_module_ids(course_id, assignment_id, refresh=False):
             if module_item.type in ['File', 'Discussion', 'Assignment', 'Quiz', 'ExternalTool'] and module_item.content_id in [assignment_id, quiz_id]:
                 assignment_modules.append(module_id)
     return assignment_modules
+
 def get_module_items(course_id, module_id, refresh=False):
     course_id = int(course_id)
     module_id = int(module_id)
     if refresh:
         get_module(course_id, module_id, True)
     return canvas_d['courses'][course_id]['modules'][module_id]['module_items']
+
 def get_quizzes(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['quizzes'] == {} or refresh:
+        print('refresh quizzes: ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['quizzes'] = {x.id: {'quiz': x} for x in course.get_quizzes()}
-        print('refresh quizzes: ' + str(course_id))
     return [x['quiz'] for x in canvas_d['courses'][course_id]['quizzes'].values()]
+
 def get_quiz(course_id, quiz_id, refresh=False):
     course_id = int(course_id)
     quiz_id = int(quiz_id)
     if quiz_id not in canvas_d['courses'][course_id]['quizzes'] or refresh:
+        print('missed quiz ' + str(quiz_id) + ' in course ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['quizzes'][quiz_id] = {'quiz': course.get_quiz(quiz_id)}
-        print('missed quiz ' + str(quiz_id) + ' in course ' + str(course_id))
     return canvas_d['courses'][course_id]['quizzes'][quiz_id]['quiz']
+
 def get_users(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['users'] == {} or refresh:
+        print('refresh users: ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['users'] = {x.id: {'user': x} for x in course.get_users()}
-        print('refresh users: ' + str(course_id))
     return [x['user'] for x in canvas_d['courses'][course_id]['users'].values()]
 
 # other helper functions
 def fix_module_ordering(course_id, module_id):
     module_items = get_module_items(course_id, module_id, refresh=True).values()
     if not all(x.position == i for i, x in enumerate(module_items, 1)):
-        print('reverse')
+        print('reorder modules: reverse')
         for index, module_item in reversed(list(enumerate(module_items, 1))):
             if module_item.position != index:
                 print(index,module_item.position)
                 module_item.edit(module_item={'position':max(index,module_item.position)})
-        print('forward')
+        print('reorder modules: forward')
         for index, module_item in enumerate(get_module_items(course_id, module_id, refresh=True).values(),1):
             if module_item.position != index:
                 print(index,module_item.position)
@@ -304,6 +359,11 @@ def list_assignments(course_id):
     )
 '''
 
+@flask_app.route("/courses/refresh", methods=["GET"])
+def refresh_courses():
+    _ = get_courses(partial_refresh=True)
+    return redirect(request.referrer)
+
 @flask_app.route("/courses/<int:course_id>/assignments/refresh", methods=["GET"])
 def refresh_assignments(course_id):
     _ = get_assignments(course_id, True)
@@ -347,9 +407,10 @@ def update_assignment(course_id, assignment_id=0):
 
     # handle file attachment
     # raise(Exception)
-    if 'file' in request.files:
+    file_div = 'assignment-attachment'
+    if file_div in request.files:
         print('file attached to POST')
-        file = request.files['file']
+        file = request.files[file_div]
         if file.filename == '':
             # no file attached
             print('no file selected')
@@ -367,7 +428,7 @@ def update_assignment(course_id, assignment_id=0):
                 print('uploaded file ' + canvas_file['display_name'])
                 response['description'] += '<p><a class="instructure_file_link instructure_scribd_file auto_open"'\
                     + ' title="' + canvas_file['display_name'] + '"'\
-                    + ' href="' + API_URL + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
+                    + ' href="' + canvas_d['API_URL'] + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
                     + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
                     + canvas_file["display_name"] + '</a></p>'
                     # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
@@ -461,12 +522,13 @@ def get_assignment_details(course_id, assignment_id):
         except:
             assignment = None # TODO: redirect to /assignments
 
-    assignments = sorted(get_assignments(course_id), key=lambda x: getattr(x,'due_at','') or '')
-    for x in assignments:
-        x.safe_description = Markup(x.description)
-        if x.due_at is not None:
-            x.due_at_local = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d %H:%M')
-            x.short_date = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d')
+    # assignments = sorted(get_assignments(course_id), key=lambda x: getattr(x,'due_at','') or '')
+    assignments = get_assignments(course_id)
+    # for x in assignments:
+    #     x.safe_description = Markup(x.description)
+    #     if x.due_at is not None:
+    #         x.due_at_local = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d %H:%M')
+    #         x.short_date = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d')
     assignment_groups = get_assignment_groups(course_id)
     modules = get_modules(course_id)
     
@@ -860,4 +922,5 @@ def update_assignments(course_id):
 
 
 if __name__ == "__main__":
+    _ = get_courses(refresh=True)
     flask_app.run(debug=True)
