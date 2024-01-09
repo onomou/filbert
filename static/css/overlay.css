@@ -41,3 +41,12 @@
 .ok-button:hover {
     background-color: #0056b3;
 }
+
+.diff-table tbody, th, td {
+    border: 1px solid black;
+    padding: .3em;
+}
+
+.diff-table {
+    border-collapse: collapse;
+}

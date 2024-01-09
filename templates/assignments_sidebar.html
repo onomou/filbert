@@ -19,7 +19,8 @@
     <li class="sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}">
       <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
         class="sidebar-assignment-link" id="sidebar-assignment-{{ for_assignment.id }}"
-        data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}">
+        data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
+        data-parseurl="{{ url_for('render_topbar',course_id=active_course.id) }}">
         <div class="secondary-sidebar-name" data-shortname="{{ for_assignment.name[:10] }}..."
           data-longname="{{ for_assignment.name }}"
           title="{{ for_assignment.name }}&#13;Due: {{ for_assignment.due_at if for_assignment.short_date else 'Not set' }}">
@@ -43,12 +44,25 @@
     window.history.pushState(null,"",history_url);
     fetch(data_url)
     .then(response => {return response.text()})
-    .then(data => {document.getElementById('assignment-details').innerHTML = data})
+    .then(data => {
+      if (data) {
+        document.getElementById('assignment-details').innerHTML = data
+      } else {
+        document.getElementById('assignment-details').innerHTML = ""
+      }
+    })
     .then(() => {
       initTinyMCE();
       initDatePicker();
       $(".secondary-sidebar .sidebar-item").removeClass('active');
       $(this).parent().addClass('active');
+
+      var parse_url = $(this).data('parseurl');
+      console.log(parse_url)
+      fetch(parse_url)
+      .then(response => {return response.text()})
+      .then(data => {$("#topbar").innerHTML = data})
+      console.log('did something')
     });
     // event.preventDefault();
     return false;

@@ -39,10 +39,6 @@ select {
 }
 
 
-#assignment-attachment-placeholder {
-  display: none;
-}
-
 .file-area:hover .file-placeholder {
   background: var(--blue-color);
 }
@@ -59,10 +55,6 @@ select {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-}
-
-.file-area .file-placeholder .file-success {
-  display: none;
 }
 
 .file-area input[type="file"] {
@@ -91,20 +83,11 @@ select {
 #assignment-attachment.file-present + .file-placeholder {
 border-color: var(--red-color);
   background-color: var(--light-red-color);
-
-  .file-success {
-    display: inline-block;
-    content: "this";
-  }
-
-  .file-unset {
-    display: none;
-  }
 }
 
-.styled-div:has(> #assignment-attachment.file-present + .file-placeholder) {
+/* .styled-div:has(> #assignment-attachment.file-present + .file-placeholder) {
   background-color: var(--lighter-red-color);
-}
+} */
 
 
 
@@ -304,5 +287,5 @@ div#points_possible-box {
   background: var(--secondary-sidebar-color);
   z-index: 1;
   /* border-bottom: 2px solid var(--background-color); */
-  box-shadow: 0px 0px 2px 1px var(--background-color);
+  box-shadow: 0px 0px 5px 1px var(--background-color);
 }

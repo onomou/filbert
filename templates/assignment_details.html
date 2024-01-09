@@ -97,17 +97,8 @@
         https://stackoverflow.com/a/45249452 -->
         {{ blob("Attach File", id="assignment-attachment") }}
           <div class="file-area">
-            <input type="file" id="assignment-attachment" name="assignment-attachment" required/>
-            <span id="assignment-attachment-status" class="file-placeholder">Drop a file here</span>
-            <div class="file-placeholder" id="assignment-attachment-placeholder">
-              <div class="file-success">
-                Success
-                <!-- File will be uploaded and inserted at the end of this assignment's description. -->
-              </div>
-              <div class="file-unset">
-                Attach a file here.
-              </div>
-            </div>
+            <input type="file" id="assignment-attachment" name="assignment-attachment"/>
+              <span id="assignment-attachment-status" class="file-placeholder">Drop a file here</span>
           </div>
         {{ endblob() }}
 

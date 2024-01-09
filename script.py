@@ -463,20 +463,32 @@ def update_assignment(course_id, assignment_id=0):
         # update existing assignment
         changes = {}
         assignment = get_assignment(course_id, assignment_id)
+        response['external_tool_tag_attributes'] = getattr(assignment,'external_tool_tag_attributes',{}) | response['external_tool_tag_attributes']
+
         # get differences between original and new data
         for key, val in response.items():
             if str(getattr(assignment,key,None)) != str(val):
                 changes[key] = {'old': getattr(assignment,key,None), 'new': val} # TODO: handle changes in sub-attributes, like external_tool_tag_attributes
         if changes == {}:
-            diff_message += 'none'
+            diff_message += 'No changes to assignment'
         else:
-            diff_message = 'Differences: \n'
+            # diff_message = 'Differences: \n'
+            diff_message += '<table class="diff-table">'
+            diff_message += '<tr><th colspan="3">Assignment Differences</th></tr>'
+            diff_message += '<tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>'
             assignment.edit(assignment={key: val['new'] for key, val in changes.items()})
             for field, change in changes.items():
-                diff_message += '<em>' + field + '</em>: ' + str(change)
-
+                # diff_message += '<em>' + field + '</em>: ' + str(change)
+                diff_message += '<tr>'
+                diff_message += '<td>' + field + '</td>'
+                diff_message += '<td>' + str(change['old']) + '</td>'
+                diff_message += '<td>' + str(change['new']) + '</td>'
+                diff_message += '</tr>'
+            diff_message += '</table>'
+    diff_message += '\n'
     flash('<h2><a href="' + assignment.html_url + '" target="_blank" rel="noopener noreferrer">🔗 ' + assignment.name + '</a></h2>')
     flash(diff_message)
+    flash('<br>')
     
     if assignment is not None:
         # add assignment to selected modules
@@ -515,13 +527,21 @@ def update_assignment(course_id, assignment_id=0):
                     deleted_module_items.append(module.name)
             fix_module_ordering(course_id, module_id)
         if len(created_module_items) + len(deleted_module_items) > 0:
-            flash('<h3>Modules</h3>')
-            flash('<b>Added to:</b>')
-            flash(", ".join(module.name for module in created_module_items))
-            flash('<b>Removed from:</b>')
-            flash(','.join(module_name for module_name in deleted_module_items))
+            # flash('<h3>Modules</h3>')
+            # flash('<b>Added to:</b>')
+            # flash(", ".join(module.name for module in created_module_items))
+            # flash('<b>Removed from:</b>')
+            # flash(','.join(module_name for module_name in deleted_module_items))
+
+            diff_message = ''
+            diff_message += '<table class="diff-table">'
+            diff_message += '<tr><th colspan="2">Modules</th></tr>'
+            diff_message += '<tr><th>Added To</th><th>Removed From</th></tr>'
+            diff_message += '<tr><td>' + '\n'.join(module.name for module in created_module_items) + '</td><td>' + '\n'.join(module_name for module_name in deleted_module_items) + '</tr>'
+            diff_message += '</table>'
+            flash(diff_message)
         else:
-            flash('Modules unchanged')
+            flash('<em>Modules unchanged</em>')
 
         return redirect(f"/courses/{course_id}/assignments/{assignment.id}")
     else:
