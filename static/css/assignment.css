@@ -1,23 +1,121 @@
-
 /* Styling for checkboxes */
 input[type="checkbox"] {
   transform: scale(1.3);
   width: 40px;
+  accent-color: var(--lightblue-color);
 }
+
 input[type="checkbox"]:hover {
   cursor: pointer;
 }
+
 input[type="number"] {
   width: 56px;
+  text-align: right;
 }
+
 input[type="file"] {
-  display: none;
+  /* display: none; */
 }
+
 select {
   width: 100%;
   min-width: 40px;
   /* min-height: 5em; */
 }
+
+#assignment-attachment-box {
+  display: flex;
+  min-width: 15em;
+  flex: 0;
+  align-items: normal;
+}
+
+/* https://codepen.io/Scribblerockerz/pen/qdWzJw */
+.file-area {
+  position: relative;
+  display: flex;
+  flex: 1;
+}
+
+
+#assignment-attachment-placeholder {
+  display: none;
+}
+
+.file-area:hover .file-placeholder {
+  background: var(--blue-color);
+}
+
+.file-area .file-placeholder {
+  width: 100%;
+  /* padding: 25px; */
+  background: var(--lightblue-color);
+  border: 3px dashed var(--background-color);
+  border-radius: inherit;
+  text-align: center;
+  transition: background 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.file-area .file-placeholder .file-success {
+  display: none;
+}
+
+.file-area input[type="file"] {
+  display: block;
+  position: absolute;
+  width: calc(100% - 2em);
+  height: calc(100% - 2em);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  cursor: pointer;
+  opacity: 0;
+  padding: 1em;
+  /* https://stackoverflow.com/a/24488438 */
+  font-size: 0;
+}
+
+/* 
+.file-area input[type=file]:focus + .file-placeholder {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline: -webkit-focus-ring-color auto 5px;
+} */
+
+/* .file-area input[type=file]:valid + .file-placeholder { */
+#assignment-attachment.file-present + .file-placeholder {
+border-color: var(--red-color);
+  background-color: var(--light-red-color);
+
+  .file-success {
+    display: inline-block;
+    content: "this";
+  }
+
+  .file-unset {
+    display: none;
+  }
+}
+
+.styled-div:has(> #assignment-attachment.file-present + .file-placeholder) {
+  background-color: var(--lighter-red-color);
+}
+
+
+
+#attach-zone.active {
+  border: 5px solid blue;
+}
+
+#attach-zone.active>* {
+  pointer-events: none;
+}
+
 .file-label {
   border: 1px solid #979494;
   display: inline-block;
@@ -25,11 +123,14 @@ select {
   cursor: pointer;
   border-radius: 13px;
   transition: 0.5s;
+  background: var(--red-color);
 }
+
 .file-label:hover {
   background-color: rgb(102, 96, 108);
   color: white;
 }
+
 /*
 input[type=file]::file-selector-button {
   border: 2px solid #6c5ce7;
@@ -45,6 +146,31 @@ input[type=file]::file-selector-button:hover {
 }
 */
 
+.reset {
+  display: none;
+}
+
+.styled-div {
+  position: relative;
+}
+
+.reset {
+  position: absolute;
+  right: 1em;
+  color: black;
+}
+
+.break {
+  flex-basis: 100%;
+  height: 0em;
+}
+
+.break::after {}
+
+.styled-div.changed .reset {
+  display: block;
+}
+
 .details {
   left: 10px;
   /* position: relative; */
@@ -53,8 +179,13 @@ input[type=file]::file-selector-button:hover {
   margin: 5px;
 }
 
+div#assignments-list {
+    /* width: 100%; */
+    /* flex: 1; */
+}
+
 .changed {
-  background-color: #f1b3b3;
+  background-color: var(--lighter-red-color);
 }
 
 .new-assignment.inactive {
@@ -67,8 +198,8 @@ input {
 }
 
 input#id {
-    /* float: left; */
-    display: inline-block;
+  /* float: left; */
+  display: inline-block;
 }
 
 #id-label {
@@ -112,45 +243,51 @@ input#id {
   display: flex;
   padding: 0px;
   flex-wrap: wrap;
-  gap: 7px;
-  margin-bottom: 7px;
+  gap: 0.4em;
+  row-gap: 0.4em;
+  /* margin-bottom: 7px; */
 }
 
 .child-float {
   flex: 1;
-  min-width: 80px;
+  min-width: 10em;
+  /* display: flex; */
+  /* margin: 1px; */
+  /* flex-direction: column; */
+  /* flex-wrap: nowrap; */
+  /* justify-content: flex-start; */
+  align-items: center;
 }
 
-div#due-at-float {
-    flex: 0.5;
+#name-box {
+    flex: 2;
 }
 
-div#points-float {
-    flex: 0.5;
+#submission-types-box {
+    min-width: 10em;
+    flex: 0;
 }
 
-.sidebar-assignments {
-  overflow-y: auto;
+#published-box {
+  flex: 0;
+  min-width: 6em;
 }
 
-.sidebar-assignment-item {
-  padding: 5px;
-  font-family: math;
-  font-size: smaller;
+#url-box {
+    flex: 2;
 }
 
-.sidebar-assignment-name.collapsed
-{
-  font-size: small;
+#description-box {
+    flex: 5;
+    min-width: 20em;
 }
 
-.sidebar-assignment-date {
-  color: #707070;
-  font-size: x-small;
+div#due_at-box {
 }
 
-.sidebar-assignment-date.collapsed {
-  font-size: xx-small;
+div#points_possible-box {
+  flex: 0;
+  min-width: 6em;
 }
 
 #raw-description-container {
@@ -166,4 +303,8 @@ div#points-float {
 .assignments-sticky {
   position: sticky;
   top: 0;
+  background: var(--secondary-sidebar-color);
+  z-index: 1;
+  /* border-bottom: 2px solid var(--background-color); */
+  box-shadow: 0px 0px 2px 1px var(--background-color);
 }

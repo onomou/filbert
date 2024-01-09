@@ -1,26 +1,31 @@
-<div id="assignments-sidebar" class="secondary-sidebar">
+<div id="assignments-sidebar" class="sidebar secondary-sidebar">
   <div class="assignments-sticky">
     <h3 id="toggle-assignments">Assignments</h3>
     <ul>
-      <li><a href="/courses/{{ active_course.id }}/assignments/refresh" class="refresh item">Refresh ↺</a></li>
-      <li><a href="/courses/{{ active_course.id }}/assignments/new"
-          class="new-assignment item{{ ' inactive' if assignment['id'] else ' active' }}">New Assignment</a></li>
+      <li class="sidebar-item" id="assignments-refresh">
+        <a href="/courses/{{ active_course.id }}/assignments/refresh">Refresh ↺</a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/courses/{{ active_course.id }}/assignments/list">List ≡</a>
+      </li>
+      <li class="sidebar-item{{ ' active' if not assignment or not assignment['id'] }}">
+        <a href="/courses/{{ active_course.id }}/assignments/new" class="sidebar-new-assignment">New Assignment</a>
+      </li>
     </ul>
   </div>
 
-  <ul class="sidebar-assignments">
+  <ul>
     {% for for_assignment in assignments %}
-    <li class="sidebar-assignment">
+    <li class="sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}">
       <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
-        class="sidebar-assignment-item{{ ' active' if assignment['id'] == for_assignment.id else ' inactive' }}"
-        id="sidebar-assignment-{{ for_assignment.id }}"
+        class="sidebar-assignment-link" id="sidebar-assignment-{{ for_assignment.id }}"
         data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}">
-        <div class="sidebar-assignment-name" data-shortname="{{ for_assignment.name[:10] }}..."
+        <div class="secondary-sidebar-name" data-shortname="{{ for_assignment.name[:10] }}..."
           data-longname="{{ for_assignment.name }}"
-          title="{{ for_assignment.name }}">
+          title="{{ for_assignment.name }}&#13;Due: {{ for_assignment.due_at if for_assignment.short_date else 'Not set' }}">
           {{ for_assignment.name }}
         </div>
-        <div class="sidebar-assignment-date">
+        <div class="secondary-sidebar-date">
           {{ for_assignment.short_date }}
         </div>
       </a>
@@ -28,3 +33,24 @@
     {% endfor %}
   </ul>
 </div>
+
+<script>
+  // handle click on assignments sidebar items
+  $('a.sidebar-assignment-link').on('click', function(event) {
+    if( event.ctrlKey || event.shiftKey || !document.getElementById('assignment-details') ) return true;
+    var data_url = $(this).data('dataurl');
+    var history_url = $(this).attr('href');
+    window.history.pushState(null,"",history_url);
+    fetch(data_url)
+    .then(response => {return response.text()})
+    .then(data => {document.getElementById('assignment-details').innerHTML = data})
+    .then(() => {
+      initTinyMCE();
+      initDatePicker();
+      $(".secondary-sidebar .sidebar-item").removeClass('active');
+      $(this).parent().addClass('active');
+    });
+    // event.preventDefault();
+    return false;
+  })
+</script>

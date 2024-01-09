@@ -51,10 +51,6 @@ def favicon():
     )
 
 # Canvas section
-API_URL = config.get("Canvas", "API_URL") # TODO: handle missing config key
-API_KEY = config.get("Canvas", "API_KEY") # TODO: handle missing config key
-canvas = Canvas(API_URL, API_KEY)
-courses = canvas.get_courses(include=['course_image'])
 # assignments_d = {course.id:{x.id for x in course.get_assignments()} for course in courses}
 # assignment_groups = {}
 canvas_d = {}
@@ -329,6 +325,8 @@ def course_action(course_id, action='assignments'):
     match action:
         case 'assignments':
             return redirect(f"/courses/{course_id}/assignments")
+        case 'assignments_list':
+            return redirect(f"/courses/{course_id}/assignments/list")
         case "list_quiz":
             return redirect(f"/courses/{course_id}/quizzes")
         case 'assignments_bulk':
@@ -583,6 +581,18 @@ def assignments_page(course_id, assignment_id=None):
         action="assignments",
     )
 
+@flask_app.route("/courses/<int:course_id>/assignments/all")
+@flask_app.route("/courses/<int:course_id>/assignments/list")
+def assignments_list(course_id):
+    course = get_course(course_id)
+    assignments = get_assignments(course_id)
+    
+    return render_template(
+        "assignments_list.html",
+        assignments=assignments,
+        active_course=course,
+        action="assignments_list"
+    )
 
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/")
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/<list:assignment_ids>", methods=["GET"])

@@ -16,6 +16,8 @@
     width: -webkit-fill-available;
     height: 2em;
     padding-left: 0.5em;
+    background-color: rgb(45, 45, 45);
+    color: #c2cccc;
 }
 
 form#url-form {

@@ -1,4 +1,19 @@
-    <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
+{% macro blob(title, id=None) -%}
+<div class="styled-div child-float"
+{% if id %}
+  id="{{ id }}-box"
+{% endif %}
+>
+  <span class="reset">✘</span>
+  <h2>{{ title }}</h2>
+{%- endmacro %}
+
+{% macro endblob() -%}
+</div>
+{%- endmacro %}
+
+
+<form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
       enctype=multipart/form-data>
       <!-- Assignment Title -->
       <h1>
@@ -13,33 +28,32 @@
   
       <!-- First row -->
       <div class="parent-float">
-        <div class="styled-div child-float">
-          <h2 for="name">Assignment Title</h2>
+        {{ blob("Assignment Name", id="name") }}
           <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
           <label id="id-label" for="id">ID: </label>
           <input type="text" id="id" name="id"
             value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
-        </div>
-        <div class="styled-div child-float" id="points-float">
-          <h2 for="points_possible">Points</h2>
+        {{ endblob() }}
+
+        {{ blob("Points", id="points_possible") }}
           <input type="number" id="points_possible" name="points_possible" min="0"
             value="{{ assignment.points_possible }}">
-        </div>
+        {{ endblob() }}
   
-        <div class="styled-div child-float" id="due-at-float">
-          <h2>Due Date</h2>
+        {{ blob("Due Date", id="due_at") }}
           <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
-        </div>
-        <div class="styled-div child-float" id="published-float">
-          <h2 for="published">Published</h2>
+        {{ endblob() }}
+
+        {{ blob("Published", id="published") }}
           <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
-        </div>
-      </div>
+        {{ endblob() }}
+      <!-- </div> -->
       
+      
+      <!-- <div class="break"></div> -->
       <!-- Second row -->
-      <div class="parent-float">
-        <div class="styled-div child-float">
-          <h2>Assignment Group</h2>
+      <!-- <div class="parent-float"> -->
+        {{ blob("Assignment Group", id="assignment_group_id") }}
           <select id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
             {% for assignment_group in assignment_groups %}
             <option value="{{ assignment_group.id }}" {{ 'selected' if assignment_group.id==assignment.assignment_group_id }}>
@@ -47,49 +61,80 @@
             </option>
             {% endfor %}
           </select>
-        </div>
-        <div class="styled-div child-float">
-          <h2>Modules</h2>
+        {{ endblob() }}
+        
+        {{ blob("Modules", id="modules") }}
           <select id="modules" name="modules" size="{{ groups_count }}" multiple>
             {% for module in modules %}
             <option value="{{ module.id }}" class="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
             {% endfor %}
           </select>
-        </div>
-        <div class="styled-div child-float">
-          <h2>Submission Types</h2>
+        {{ endblob() }}
+
+        {{ blob("Submission Types", id="submission-types") }}
           <select id="submission-types" name="submission_types" size="{{ groups_count }}" class="submission-types" multiple>
             {% for submission_type in submission_types %}
             <option value="{{ submission_type }}" class="{{ submission_type }}" {{ 'selected' if submission_type in assignment.submission_types }}{{ 'selected' if assignment is none and submission_type in default_submission_types }}>{{ submission_type }}</option>
             {% endfor %}
           </select>
+        {{ endblob() }}
+
+        <!-- Old file picker -->
+        <div class="styled-div child-float"
+             id="attach-zone"
+             ondrop="event.preventDefault(); event.stopPropagation(); dropHandler(event);"
+             ondragover="dragOverHandler(event)"
+             ondragenter="dragEnterHandler(event)"
+             ondragleave="dragLeaveHander(event)"
+             ondragend="dragEndHandler(event)"
+             style="display: none;">
+              <h2 for="file">Attach File</h2>
+              <label for="file" class="file-label">Upload file</label>
+              <input type="file" id="file" name="file">
         </div>
-        <div class="styled-div child-float">
-          <h2 for="file">Attach File</h2>
-          <label for="file" class="file-label">Upload file</label>
-          <input type="file" id="file" name="file">
-        </div>
-      </div>
+
+        <!-- https://codepen.io/Scribblerockerz/pen/qdWzJw
+        https://stackoverflow.com/a/45249452 -->
+        {{ blob("Attach File", id="assignment-attachment") }}
+          <div class="file-area">
+            <input type="file" id="assignment-attachment" name="assignment-attachment" required/>
+            <span id="assignment-attachment-status" class="file-placeholder">Drop a file here</span>
+            <div class="file-placeholder" id="assignment-attachment-placeholder">
+              <div class="file-success">
+                Success
+                <!-- File will be uploaded and inserted at the end of this assignment's description. -->
+              </div>
+              <div class="file-unset">
+                Attach a file here.
+              </div>
+            </div>
+          </div>
+        {{ endblob() }}
+
+      <!-- </div> -->
   
+      
+      <!-- <div class="break"></div> -->
+
       <!-- Third row -->
-      <div class="parent-float">
-        <div class="styled-div child-float">
-          <h2>External Tool URL</h2>
+      <!-- <div class="parent-float"> -->
+        {{ blob("External Tool URL", id="url") }}
           <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
           <br><button type="button" onClick="popupMyOpenMathFormatter()">Paste MyOpenMath Link</button>
-        </div>
-        <div class="styled-div child-float">
+        <!-- </div>
+        <div class="styled-div child-float"> -->
           <h2>New Tab</h2>
           <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
-        </div>
-      </div>
+        {{ endblob() }}
+      <!-- </div> -->
+
+      <div class="break"></div>
   
       <!-- TinyMCE editor -->
-      <div class="parent-float">
-      <div class="styled-div child-float">
-        <h2>Description</h2>
+      <!-- <div class="parent-float"> -->
+        {{ blob("Description", id="description") }}
         <textarea id="description" name="description"></textarea>
-      </div>
+        {{ endblob() }}
       
       <div id="raw-description-container" class="styled-div child-float">
         <h2>Description</h2>

@@ -1,0 +1,44 @@
+{% extends 'page_template.html' %}
+
+{% block title %}
+Canvas - Assignment Details
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/assignment.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/assignments_list.css') }}">
+<script src="{{ url_for('static', filename='js/functions.js') }}"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css"> -->
+<script src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static',filename='css/jquery.datetimepicker.min.css') }}">
+<script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+{% include 'assignments_sidebar.html' %}
+<div class="details" id="assignments-list">
+    <div class="assignments-table-div">
+        <table class="assignments-table">
+            <tr class="header" id="assignments-header">
+                <th id="name-column">Name</th>
+                <th id="date-column">Due Date</th>
+                <th id="points-column">Points</th>
+                <th id="description-column">Description</th>
+            </tr>
+            {% for assignment in assignments %}
+            <tr>
+                <td><a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=assignment.id) }}">{{assignment.name}}</a></td>
+                <td>{{assignment.due_at | format_date }}</td>
+                <td>{{assignment.points_possible}}</td>
+                <td>{{assignment.description|safe}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

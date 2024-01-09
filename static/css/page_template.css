@@ -1,6 +1,7 @@
 :root {
   --red-color: rgb(224 91 91);
-  --lightred-color: rgba(224,91,91,50%);--blue-color: rgb(150 182 210);
+  --light-red-color: rgba(224,91,91,50%);--blue-color: rgb(150 182 210);
+  --lighter-red-color: #f1b3b3;
   --lightblue-color: rgba(150,182,210,50%);--hover-color: #919191;
 --background-color: #666666;
 --sidebar-color: #a8a8a8;
@@ -56,11 +57,11 @@ h1 {
   /* width: fit-content; */
   /* width: 95%; */
   text-align: center;
-  color: white;
-}
-
-div#published-float {
-    flex: 0.5;
+  /* color: white; */
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  /* row-gap: 0.4em; */
 }
 
 /* Styling for the heading */
@@ -72,6 +73,7 @@ div#published-float {
   /* text-align: center; */
   padding-bottom: 5px;
   /* border-bottom: 1px solid #ccc; */
+  flex: none;
 }
 
 .mce-content-body {

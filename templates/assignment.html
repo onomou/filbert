@@ -58,14 +58,14 @@ Canvas - Assignment Details
       // toggle collapsed
       sidebar.removeClass('collapsed');
       // replace all with longname
-      $('.sidebar-assignment-name').each(function() {
+      $('.secondary-sidebar-name').each(function() {
         $(this).html($(this).data('longname'));
       })
     } else {
       // toggle collapsed
       sidebar.addClass('collapsed');
       // replace all with shortname
-      $('.sidebar-assignment-name').each(function() {
+      $('.secondary-sidebar-name').each(function() {
         $(this).html($(this).data('shortname'));
       })
     }
@@ -107,6 +107,20 @@ Canvas - Assignment Details
       this.value = '';
     }
   });
+
+  $("#assignment-attachment").change(function() {
+    if(this.files.length > 0) {
+        $(this).addClass('file-present')
+        $(this).parent().parent().addClass('changed')
+        $("#assignment-attachment-status").text(this.files[0].name)
+        console.log("File")
+    } else {
+        $(this).removeClass('file-present')
+        $(this).parent().parent().removeClass('changed')
+        $("#assignment-attachment-status").text("Drop a file here")
+        console.log("No file")
+    }
+  })
 
   // Scroll to show selected assignment
   const selectedAssignment = document.querySelector(".secondary-sidebar .item.active")

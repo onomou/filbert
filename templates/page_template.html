@@ -33,14 +33,14 @@
                         // toggle collapsed
                         sidebar.removeClass('collapsed');
                         // replace all with longname
-                        $('.sidebar-course').each(function() {
+                        $('.sidebar-link').each(function() {
                             $(this).html($(this).data('longname'));
                         })
                     } else {
                         // toggle collapsed
                         sidebar.addClass('collapsed');
                         // replace all with shortname
-                        $('.sidebar-course').each(function() {
+                        $('.sidebar-link').each(function() {
                             $(this).html($(this).data('shortname'));
                         })
                     }
