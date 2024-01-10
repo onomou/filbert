@@ -17,10 +17,13 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: #fff;
-    padding: 20px;
+    padding: 1em;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     text-align: center;
+    overflow-y: scroll;
+    max-height: 90%;
+    width: 70%;
 }
 
 /* Styles for the flash messages */
@@ -45,8 +48,23 @@
 .diff-table tbody, th, td {
     border: 1px solid black;
     padding: .3em;
+    line-break: anywhere;
+}
+
+th:nth-child(1) {
+    width: 6em;
+}
+
+td:nth-child(1) {
 }
 
 .diff-table {
     border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+table#assignment-diff {
+    table-layout: fixed;
+    width: 100%;
 }
