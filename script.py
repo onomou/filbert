@@ -324,8 +324,6 @@ def parse_url(url=None):
         action='assignments',
     )
 
-
-
 @flask_app.route("/courses", methods=["GET"], strict_slashes=False)
 def courses_page():
     return redirect(url_for('index'))
@@ -463,7 +461,7 @@ def update_assignment(course_id, assignment_id=0):
         # update existing assignment
         changes = {}
         assignment = get_assignment(course_id, assignment_id)
-        response['external_tool_tag_attributes'] = getattr(assignment,'external_tool_tag_attributes',{}) | response['external_tool_tag_attributes']
+        response['external_tool_tag_attributes'] = getattr(assignment,'external_tool_tag_attributes',{}) | response.get('external_tool_tag_attributes', {})
 
         # get differences between original and new data
         for key, val in response.items():
@@ -472,9 +470,9 @@ def update_assignment(course_id, assignment_id=0):
         if changes == {}:
             diff_message += 'No changes to assignment'
         else:
-            # diff_message = 'Differences: \n'
-            diff_message += '<table class="diff-table">'
-            diff_message += '<tr><th colspan="3">Assignment Differences</th></tr>'
+            diff_message = '<h3>Assignment Differences</h3>'
+            diff_message += '<table class="diff-table" id="assignment-diff">'
+            # diff_message += '<tr><th colspan="3">Assignment Differences</th></tr>'
             diff_message += '<tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>'
             assignment.edit(assignment={key: val['new'] for key, val in changes.items()})
             for field, change in changes.items():
@@ -534,7 +532,7 @@ def update_assignment(course_id, assignment_id=0):
             # flash(','.join(module_name for module_name in deleted_module_items))
 
             diff_message = ''
-            diff_message += '<table class="diff-table">'
+            diff_message += '<table class="diff-table" id="modules-diff">'
             diff_message += '<tr><th colspan="2">Modules</th></tr>'
             diff_message += '<tr><th>Added To</th><th>Removed From</th></tr>'
             diff_message += '<tr><td>' + '\n'.join(module.name for module in created_module_items) + '</td><td>' + '\n'.join(module_name for module_name in deleted_module_items) + '</tr>'
@@ -916,6 +914,8 @@ def quiz_question_upload(course_id, quiz_id, question_id):
     # match row with original
     new_data = []
     flash_message = []
+    old_message = []
+    new_message = []
     for x in all_responses_graded:
         original = all_responses.get(str(x['question_id']) + str(x['user_id']), None)
         editable_fields = ['points', 'comment']
@@ -927,9 +927,14 @@ def quiz_question_upload(course_id, quiz_id, question_id):
             n_data = n_set - o_set
             if o_data != set() or n_data != set():
                 flash_message.append(['old: ' + str(o_data) + '\nnew: ' + str(n_data) + '\n'])
+                old_message.append(str(o_data))
+                new_message.append(str(n_data))
                 n_data.update([('question_id', original['question_id']), ('user_id', original['user_id']), ('attempt', original['attempt'])])
                 new_data.append(dict(n_data))
+    flash_message = '<table><tr>' + ''.join(f'<td>{x}</td><td>{y}</td>' for x, y in zip(old_message, new_message)) + '</tr></table>'
+    
     flash(flash_message)
+    
 
     updates = {}
     for x in new_data:
