@@ -462,7 +462,8 @@ def update_assignment(course_id, assignment_id=0):
         changes = {}
         assignment = get_assignment(course_id, assignment_id)
         response['external_tool_tag_attributes'] = getattr(assignment,'external_tool_tag_attributes',{}) | response.get('external_tool_tag_attributes', {})
-
+        if len(response['external_tool_tag_attributes']) == 0:
+            _ = response.pop('external_tool_tag_attributes', None)
         # get differences between original and new data
         for key, val in response.items():
             if str(getattr(assignment,key,None)) != str(val):
