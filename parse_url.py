@@ -29,13 +29,15 @@ def parse_canvas_url(url,include=[]):
 
     # Parse URL based on its structure
     if path_components[0] == 'courses':
-        course_id = path_components[1]
-        action = path_components[2] if len(path_components) > 2 else None
+        if len(path_components) > 1:
+            course_id = path_components[1]
+            code_lines += [f'course = canvas.get_course({course_id})']
+            action = path_components[2] if len(path_components) > 2 else None
 
-        if action in canvas_actions:
-            code_lines += canvas_actions[action](course_id, path_components[3:], parse_qs(parsed_url.query))
-        else:
-            print("Unknown action:", action)
+            if action in canvas_actions:
+                code_lines += canvas_actions[action](course_id, path_components[3:], parse_qs(parsed_url.query))
+            else:
+                print("Unknown action:", action)
     elif path_components[0] == 'files':
         code_lines += canvas_actions['file'](path_components[1:])
     else:
