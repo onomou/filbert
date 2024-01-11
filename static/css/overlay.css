@@ -26,6 +26,13 @@
     width: 70%;
 }
 
+.alert.alert-message {
+    border: 0.5px solid gray;
+    margin-bottom: 1em;
+    padding: 1em;
+    border-radius: 1em;
+}
+
 /* Styles for the flash messages */
 .flash-message {
     margin-bottom: 10px;

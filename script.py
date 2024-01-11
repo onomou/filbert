@@ -457,6 +457,8 @@ def update_assignment(course_id, assignment_id=0):
             assignment=response
         )
         flash('<em>Created new assignment</em>')
+        flash('<h2><a href="' + assignment.html_url + '" target="_blank" rel="noopener noreferrer">🔗 ' + assignment.name + '</a></h2>')
+        flash(assignment.description)
     else:
         # update existing assignment
         changes = {}
@@ -484,10 +486,9 @@ def update_assignment(course_id, assignment_id=0):
                 diff_message += '<td>' + str(change['new']) + '</td>'
                 diff_message += '</tr>'
             diff_message += '</table>'
-    diff_message += '\n'
-    flash('<h2><a href="' + assignment.html_url + '" target="_blank" rel="noopener noreferrer">🔗 ' + assignment.name + '</a></h2>')
-    flash(diff_message)
-    flash('<br>')
+        diff_message += '\n'
+        flash('<h2><a href="' + assignment.html_url + '" target="_blank" rel="noopener noreferrer">🔗 ' + assignment.name + '</a></h2>')
+        flash(diff_message)
     
     if assignment is not None:
         # add assignment to selected modules
