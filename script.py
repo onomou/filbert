@@ -31,6 +31,62 @@ windows_badnames = (
     "PRN",
     "NUL",
 )
+user_fields = [
+    'id',
+    'name',
+    'short_name',
+    'sortable_name',
+    # 'title',
+    # 'bio',
+    'primary_email',
+    'login_id',
+    # 'time_zone',
+    # 'last_login',
+    # 'locale',
+    # 'last_name',
+    # 'first_name',
+    # "sis_user_id",
+    # "sis_import_id",
+    # "integration_id",
+    # "avatar_url",
+    # "avatar_state",
+    "enrollments",
+    "email",
+]
+profile_fields = [
+    'id',
+    'name',
+    'short_name',
+    'sortable_name',
+    'avatar_url',
+    'title',
+    'bio',
+    'primary_email',
+    'login_id',
+    # 'sis_user_id',
+    # 'integration_id',
+    'time_zone',
+    'locale',
+]
+enrollment_fields = [
+    'id',
+    'user_id',
+    'course_id',
+    'type',
+    'role',
+    'enrollment_state',
+]
+enrollment_user_fields = [
+    'id',
+    'name',
+    'created_at',
+    'sortable_name',
+    'short_name',
+    'sis_user_id',
+    'integration_id',
+    'root_account',
+    'login_id',
+]
 
 
 def load_config(filename):
@@ -106,7 +162,8 @@ def reload_assignments(course_id = None):
 def get_courses(partial_refresh=False, refresh=False):
     if partial_refresh:
         print('partial refresh courses')
-        courses = canvas_d['canvas'].get_courses(include=['course_image'])
+        canvas = canvas_d['canvas']
+        courses = canvas.get_courses(include=['course_image'])
         for course in courses:
             if course.id not in canvas_d['courses']:
                 canvas_d['courses'][course.id] = {'course': course}
@@ -116,6 +173,8 @@ def get_courses(partial_refresh=False, refresh=False):
                 canvas_d['courses'][course.id]['users'] = {}
                 canvas_d['courses'][course.id]['enrollments'] = {}
                 canvas_d['courses'][course.id]['modules'] = {}
+            else:
+                canvas_d['courses'][course.id]['course'] = course
     if refresh:
         print('refresh courses')
         API_URL = config.get("Canvas", "API_URL") # TODO: handle missing config key
@@ -242,6 +301,36 @@ def get_users(course_id, refresh=False):
         canvas_d['courses'][course_id]['users'] = {x.id: {'user': x} for x in course.get_users()}
     return [x['user'] for x in canvas_d['courses'][course_id]['users'].values()]
 
+def get_user(course_id, user_id, refresh=False):
+    course_id = int(course_id)
+    user_id = int(user_id)
+    if user_id not in canvas_d['courses'][course_id]['users'] or refresh:
+        print(f'refresh user {user_id} in {course_id}')
+        course = canvas_d['courses'][course_id]['course']
+        canvas_d['courses'][course_id]['users'][user_id]['user'] = course.get_user(user_id)
+    return canvas_d['courses'][course_id]['users'][user_id]['user']
+
+def get_profile(course_id, user_id, refresh=False):
+    course_id = int(course_id)
+    user_id = int(user_id)
+    user = get_user(course_id, user_id)
+    if 'profile' not in canvas_d['courses'][course_id]['users'][user_id]:
+        print(f'refresh profile {user_id} in {course_id}')
+        try:
+            response = canvas_d['courses'][course_id]['users'][user_id]['profile'] = user.get_profile()
+        except:
+            print(f'error for {user_id}',response)
+    return canvas_d['courses'][course_id]['users'][user_id]['profile']
+
+
+def get_enrollments(course_id, refresh=False):
+    course_id = int(course_id)
+    if canvas_d['courses'][course_id]['enrollments'] == {} or refresh:
+        print('refresh enrollments: ' + str(course_id))
+        course = canvas_d['courses'][course_id]['course']
+        canvas_d['courses'][course_id]['enrollments'] = {x.id: {'enrollment': x} for x in course.get_enrollments()}
+    return [x['enrollment'] for x in canvas_d['courses'][course_id]['enrollments'].values()]
+
 # other helper functions
 def fix_module_ordering(course_id, module_id):
     module_items = get_module_items(course_id, module_id, refresh=True).values()
@@ -295,7 +384,7 @@ def index():
         "index.html",
     )
 
-# refresh everything
+
 @flask_app.route("/refresh", methods=["GET"])
 def refresh_everything():
     flash('trying to refresh')
@@ -303,6 +392,154 @@ def refresh_everything():
     flash('Reloaded everything')
     return redirect(request.referrer)
 
+
+@flask_app.route("/example")
+def example():
+    return render_template(
+        "example.html",
+    )
+
+
+@flask_app.route("/settings", strict_slashes=False)
+@flask_app.route("/courses/<int:course_id>/settings", methods=["GET"])
+def course_settings(course_id=None):
+    if course_id is None:
+        course = None
+        course_defaults = {}
+    else:
+        course = get_course(course_id)
+        course_defaults = config[str(course_id)]
+    return render_template(
+        "settings.html",
+        active_course=course,
+        options=list(course_defaults.keys()),
+        action='settings',
+        link_url=make_url(course_id, 'settings'),
+    )
+
+
+@flask_app.route("/courses/<int:course_id>/users/data")
+def users_data(course_id=None):
+    print('tick 1')
+    if course_id is None:
+        return jsonify({x: '' for x in user_fields})
+    
+    users = get_users(course_id)
+    print('tick 2')
+    rows = []#[{**{x: getattr(user,x,'') for x in user_fields}, **{'profile.'+x:}} for user in users]
+    for user in users:
+        print('tick')
+        user_data = {x: getattr(user,x,'') for x in user_fields}
+        # user_profile = user.get_profile()
+        user_profile = get_profile(course_id, user.id)
+        profile_data = {'profile_'+x: user_profile.get(x,'') for x in profile_fields}
+        rows.append(user_data | profile_data)
+    print('tick 3')
+    columns = [{'id': x, 'name': x, 'field': x} for x in rows[0].keys()]
+    response = jsonify({'rows': rows, 'columns': columns})
+    print('tick 4')
+    # raise Exception
+    return response
+
+
+def make_url(course_id, action, id=None): # options = {'action': {}, 'id': #}
+    url = canvas_d['API_URL'] + '/courses/' + str(course_id)
+    o = [
+        'announcements',
+        'discussion_topics',
+        'grades',
+        'users',
+        'wiki',
+        'files',
+        'outcomes',
+        'rubrics',
+        'quizzes',
+        'modules',
+        'collaborations',
+        'settings',
+        'assignments',
+        'syllabus', # should follow assignments
+    ]
+    url += '/' + str(action)
+    if id is not None:
+        url += '/' + str(id)
+    return url
+
+@flask_app.route("/courses/<int:course_id>/users", strict_slashes=False)
+def users_page(course_id=None):
+    if course_id is None:
+        course = None
+        users = None
+    else:
+        course = get_course(course_id)
+        users = get_users(course_id)
+    return render_template(
+        "table_page.html",
+        active_course = course,
+        users=users,
+        data_name='users_data',
+        action='users',
+        link_url=make_url(course_id, 'users'),
+    )
+
+@flask_app.route("/courses/<int:course_id>/users/<int:user_id>", strict_slashes=False)
+def user_details(course_id=None, user_id=None):
+    if course_id is None:
+        course = None
+        users = None
+        active_user = None
+    else:
+        course = get_course(course_id)
+        if user_id is None:
+            users = None
+            active_user = None
+        else:
+            users = get_users(course_id)
+            active_user = get_user(course_id, user_id)
+    return render_template(
+        "table_page.html",
+        active_course = course,
+        users=users,
+        active_user=active_user,
+        action='users',
+        link_url=make_url(course_id, 'users', user_id),
+    )
+
+
+@flask_app.route("/courses/<int:course_id>/enrollments/data")
+def enrollments_data(course_id=None):
+    if course_id is None:
+        return jsonify({x: '' for x in enrollment_fields + enrollment_user_fields})
+    
+    users = get_users(course_id)
+    enrollments = get_enrollments(course_id)
+    rows = []
+    for enrollment in enrollments:
+        enrollment_data = {x: getattr(enrollment,x,'') for x in enrollment_fields}
+        user_profile = enrollment.user
+        enrollment_user_data = {'enrollment_user_'+x: user_profile.get(x,'') for x in enrollment_user_fields}
+        rows.append(enrollment_data | enrollment_user_data)
+    columns = [{'id': x, 'name': x, 'field': x} for x in rows[0].keys()]
+    response = jsonify({'rows': rows, 'columns': columns})
+    # raise Exception
+    return response
+
+@flask_app.route("/courses/<int:course_id>/enrollments", strict_slashes=False)
+def enrollments_page(course_id=None):
+    if course_id is None:
+        course = None
+        users = None
+    else:
+        course = get_course(course_id)
+        users = get_users(course_id)
+    return render_template(
+        "table_page.html",
+        active_course = course,
+        users=users,
+        data_name='enrollments_data',
+        action='enrollments',
+        link_url=make_url(course_id, 'enrollments'),
+    )
 
 @flask_app.route("/parse_form/", methods=["GET"])
 def parse_url_form():
@@ -349,6 +586,8 @@ def course_action(course_id, action='assignments'):
             return redirect(f'/courses/{course_id}/list_quiz')
         case 'quiz_question_details':
             return redirect(f'/courses/{course_id}/quiz_question_details')
+        case 'users':
+            return redirect(f'/courses/{course_id}/users')
         case _ :
             return redirect(url_for('course_page', course_id=course_id))
 
@@ -389,7 +628,7 @@ def delete_assignment(course_id, assignment_id):
     result = assignment.delete()
     flash('Deleted assignment ' + str(assignment_id))
     refresh_assignments(course_id)
-    return redirect(url_for('assignments', course_id=course_id))
+    return redirect(url_for('assignments_page', course_id=course_id))
 
 
 # call with assignment_id=0 to create new
@@ -503,29 +742,35 @@ def update_assignment(course_id, assignment_id=0):
         created_module_items = []
         print(selected_module_ids)
         for module_id in module_insertions:
-            module = get_module(course_id, module_id)
-            selected_modules.append(module)
-            print(module.name)
-            fix_module_ordering(course_id, module_id)
+            try:
+                module = get_module(course_id, module_id)
+                selected_modules.append(module)
+                print(module.name)
+                fix_module_ordering(course_id, module_id)
 
-            module_item = module.create_module_item(
-                module_item={
-                    "type": "assignment",
-                    "content_id": assignment.id,
-                    "position": module.items_count+1,
-                }
-            )
-            created_module_items.append(module)
+                module_item = module.create_module_item(
+                    module_item={
+                        "type": "assignment",
+                        "content_id": assignment.id,
+                        "position": module.items_count+1,
+                    }
+                )
+                created_module_items.append(module)
+            except:
+                print('failed to create module item')
         deleted_module_items = []
         for module_id in module_deletions:
-            module = get_module(course_id, module_id)
-            module_items = get_module_items(course_id, module_id)
-            for module_item in module_items.values():
-                print(str(getattr(module_item,'content_id',0)) + ' vs ' + str(module_id) + ' is ' + str(getattr(module_item,'content_id',0) == module_id))
-                if getattr(module_item,'content_id',0) == assignment.id:
-                    module_item.delete()
-                    deleted_module_items.append(module.name)
-            fix_module_ordering(course_id, module_id)
+            try:
+                module = get_module(course_id, module_id)
+                module_items = get_module_items(course_id, module_id)
+                for module_item in module_items.values():
+                    print(str(getattr(module_item,'content_id',0)) + ' vs ' + str(module_id) + ' is ' + str(getattr(module_item,'content_id',0) == module_id))
+                    if getattr(module_item,'content_id',0) == assignment.id:
+                        module_item.delete()
+                        deleted_module_items.append(module.name)
+                fix_module_ordering(course_id, module_id)
+            except:
+                print('failed to delete module item')
         if len(created_module_items) + len(deleted_module_items) > 0:
             # flash('<h3>Modules</h3>')
             # flash('<b>Added to:</b>')
@@ -597,18 +842,20 @@ def get_assignment_details(course_id, assignment_id):
     the_details['default_times'] = default_times
     the_details['default_submission_types'] = default_submission_types
     the_details['submission_types'] = submission_types
+    the_details['link_url'] = getattr(assignment,'html_url',make_url(course_id,'assignments'))
 
     return the_details
 
 
 
 @flask_app.route("/courses/<int:course_id>/render_topbar")
-def render_topbar(course_id):
+@flask_app.route("/courses/<int:course_id>/render_topbar/<path:url>")
+def render_topbar(course_id, url=None):
     active_course = get_course(course_id)
-    print('something',active_course.id)
     return render_template(
         "topbar.html",
         active_course=active_course,
+        link_url=url,
     )
 
 
@@ -630,6 +877,7 @@ def assignments_page(course_id, assignment_id=None):
     return render_template(
         "assignments.html",
         **the_details,
+        today=datetime.today().astimezone(),
         action="assignments",
     )
 
@@ -643,12 +891,14 @@ def assignments_list(course_id):
         "assignments_list.html",
         assignments=assignments,
         active_course=course,
-        action="assignments_list"
+        action="assignments_list",
+        link_url=make_url(course_id, 'assignments'),
     )
 
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/")
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/<list:assignment_ids>", methods=["GET"])
-def get_selected_assignments(course_id, assignment_ids=[]):
+def get_selected_assignments(course_id, assignment_ids=None):
+    assignment_ids = assignment_ids or []
     assignments = []
     for x in assignment_ids:
         assignments.append(get_assignment(course_id, x))
@@ -671,20 +921,23 @@ def get_selected_assignments(course_id, assignment_ids=[]):
 
 
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/update/<list:assignment_ids>", methods=["POST"])
-def assignments_bulk_update(course_id,assignment_ids=[]):
+def assignments_bulk_update(course_id,assignment_ids=None):
+    assignment_ids = assignment_ids or []
     # TODO: implement this
     return redirect(request.referrer)
 
 
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/delete/<list:assignment_ids>", methods=["POST"])
-def assignments_bulk_delete(course_id,assignment_ids=[]):
+def assignments_bulk_delete(course_id,assignment_ids=None):
+    assignment_ids = assignment_ids or []
     # TODO: implement this
     return redirect(request.referrer)
 
 
 @flask_app.route("/courses/<int:course_id>/assignments_bulk", methods=["GET"], strict_slashes=False)
 @flask_app.route("/courses/<int:course_id>/assignments_bulk/<list:assignment_ids>", methods=["GET"])
-def assignments_bulk(course_id,assignment_ids=[]):
+def assignments_bulk(course_id,assignment_ids=None):
+    assignment_ids = assignment_ids or []
     # course = canvas.get_course(course_id)
     course = get_course(course_id)
     modules = get_modules(course_id)
@@ -709,6 +962,7 @@ def assignments_bulk(course_id,assignment_ids=[]):
         quiz=None,
         modules=modules,
         action="assignments_bulk",
+        link_url=make_url(course_id, 'assignments'),
     )
 
 
@@ -727,6 +981,7 @@ def quiz_page(course_id):
         quizzes=quizzes,
         modules=modules,
         action="list_quiz",
+        link_url=make_url(course_id, 'quizzes'),
     )
 
 
@@ -748,6 +1003,7 @@ def quiz_details(course_id, quiz_id):
         quizzes=quizzes,
         modules=modules,
         action="list_quiz",
+        link_url=make_url(course_id, 'quizzes', quiz_id),
     )
 
 
@@ -790,6 +1046,7 @@ def quiz_question_details(course_id, quiz_id, question_id):
         quizzes=quizzes,
         modules=modules,
         action="quiz_question_details",
+        link_url=make_url(course_id, 'quizzes', quiz_id),
     )
 
 
@@ -984,6 +1241,7 @@ def assignments_grid(course_id):
         data=data, 
         columns=columns,
         action='grid',
+        link_url=make_url(course_id, 'assignments'),
     )
 
 
