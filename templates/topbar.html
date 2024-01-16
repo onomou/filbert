@@ -1,7 +1,9 @@
+{% if link_url is none %}
 {% if assignment %}
-{% set link_url = 'https://canvas.instructure.com/courses/' + active_course.id|string + '/assignments/' + assignment.id|string %}
+{% set link_url = 'https://canvas.instructure.com/courses/' + active_course.id|string %}
 {% else %}
 {% set link_url = None %}
+{% endif %}
 {% endif %}
 <div id="topbar" class="topbar">
     <ul id="topbar-left">

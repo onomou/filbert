@@ -16,18 +16,23 @@
 
   <ul>
     {% for for_assignment in assignments %}
-    <li class="sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}">
+    <li class="sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}{{ ' published' if for_assignment and for_assignment['published'] }}">
       <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
         class="sidebar-assignment-link" id="sidebar-assignment-{{ for_assignment.id }}"
         data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
-        data-parseurl="{{ url_for('render_topbar',course_id=active_course.id) }}">
+        data-parseurl="{{ url_for('render_topbar',course_id=active_course.id,url=for_assignment.html_url) }}">
         <div class="secondary-sidebar-name" data-shortname="{{ for_assignment.name[:10] }}..."
           data-longname="{{ for_assignment.name }}"
           title="{{ for_assignment.name }}&#13;Due: {{ for_assignment.due_at if for_assignment.short_date else 'Not set' }}">
           {{ for_assignment.name }}
         </div>
-        <div class="secondary-sidebar-date">
-          {{ for_assignment.short_date }}
+        <div class="secondary-sidebar-details">
+          <span class="date">
+            {{ for_assignment.short_date }}
+          </span>
+          <span class="points">
+            {{ for_assignment.points_possible }}
+          </span>
         </div>
       </a>
     </li>
@@ -52,8 +57,12 @@
       }
     })
     .then(() => {
+      // reinit interactive elements
       initTinyMCE();
       initDatePicker();
+      initChangeHandler();
+
+      // change which item is active
       $(".secondary-sidebar .sidebar-item").removeClass('active');
       $(this).parent().addClass('active');
 
@@ -61,8 +70,7 @@
       console.log(parse_url)
       fetch(parse_url)
       .then(response => {return response.text()})
-      .then(data => {$("#topbar").innerHTML = data})
-      console.log('did something')
+      .then(data => {$("#topbar").html(data)})
     });
     // event.preventDefault();
     return false;
