@@ -74,23 +74,7 @@ Canvas - Assignment Details
   $(document).ready(function () {
     initTinyMCE();
     initDatePicker();
-    document.querySelectorAll('input').forEach(input => {
-    // Gather initial values
-    if(input.type == "checkbox") {
-      initialValues[input.id] = input.checked
-    } else {
-      initialValues[input.id] = input.value;
-    }
-    // Add event listeners to input elements
-    input.addEventListener('input', handleInputChange);
-  });
-  document.querySelectorAll('select').forEach(input => {
-    // Gather initial values
-    initialValues[input.id] = [...input.selectedOptions].map(x => x.value);
-    // Add event listeners to input elements
-    input.addEventListener('change', handleInputChange);
-  });
-  
+    initChangeHandler();
 
   
   // initialValues['description'] = JSON.stringify(document.getElementById("description").innerHTML)

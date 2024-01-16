@@ -17,9 +17,10 @@
 
         {% include 'topbar.html' %}
         <div class="main">
+            {% include 'overlay.html' %}
 
             {% include 'courses_sidebar.html' %}
-            {% include 'overlay.html' %}
+            {% block sidebars %}{% endblock %}
 
             <div class="content">
                 {% block body %}{% endblock %}

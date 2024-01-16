@@ -1,8 +1,9 @@
 from urllib.parse import urlparse, parse_qs, unquote
 
-def parse_canvas_url(url,include=[]):
+def parse_canvas_url(url,include=None):
     if url is None:
         return ''
+    include = include or []
     code_lines = []
     parsed_url = urlparse(unquote(url))
     base_url = parsed_url.scheme + "://" + parsed_url.netloc

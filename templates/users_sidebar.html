@@ -1,0 +1,67 @@
+<div id="users-sidebar" class="sidebar secondary-sidebar">
+  <div class="users-sticky">
+    <h3 id="toggle-users">Users</h3>
+    <ul>
+      <li class="sidebar-item" id="users-refresh">
+        <a href="/courses/{{ active_course.id }}/users/refresh">Refresh ↺</a>
+      </li>
+      <li class="sidebar-item">
+        <a href="/courses/{{ active_course.id }}/users">List ≡</a>
+      </li>
+    </ul>
+  </div>
+
+  <ul>
+    {% for for_user in users %}
+    <li class="sidebar-item{{ ' active' if user and user['id'] == for_user.id }}">
+      <a href="{{ url_for('users_page', course_id=active_course.id, user_id=for_user.id) }}"
+        class="sidebar-user-link" id="sidebar-user-{{ for_user.id }}">
+        <div class="secondary-sidebar-name" data-shortname="{{ for_user.short_name[:10] }}..."
+          data-longname="{{ for_user.short_name }}"
+          title="{{ for_user.short_name }}">
+          {{ for_user.short_name }}
+        </div>
+        <div class="secondary-sidebar-details">
+          <span class="user-id">
+            {{ for_user.id }}
+          </span>
+        </div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<script>
+  // handle click on users sidebar items
+  $('a.sidebar-user-link').on('click', function(event) {
+    if( event.ctrlKey || event.shiftKey || !document.getElementById('user-details') ) return true;
+    var data_url = $(this).data('dataurl');
+    var history_url = $(this).attr('href');
+    window.history.pushState(null,"",history_url);
+    fetch(data_url)
+    .then(response => {return response.text()})
+    .then(data => {
+      if (data) {
+        document.getElementById('user-details').innerHTML = data
+      } else {
+        document.getElementById('user-details').innerHTML = ""
+      }
+    })
+    .then(() => {
+      initTinyMCE();
+      initDatePicker();
+      initChangeHandler();
+      $(".secondary-sidebar .sidebar-item").removeClass('active');
+      $(this).parent().addClass('active');
+
+      var parse_url = $(this).data('parseurl');
+      console.log(parse_url)
+      fetch(parse_url)
+      .then(response => {return response.text()})
+      .then(data => {$("#topbar").html(data)})
+    });
+    // event.preventDefault();
+    return false;
+  })
+</script>

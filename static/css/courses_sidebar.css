@@ -1,140 +1,35 @@
-/* Styling for sidebar */.sidebar > li {
+/* Styling for sidebar */
+
+
+.ended {
+    /* background-color: var(--light-red-color); */
+    box-shadow: inset 0 0 0 0.1em var(--light-red-color);
 }
 
-.sidebar li:hover {
-    background-color: #dfc9c9;
-    transition: 0.35s;
-}
-
-.sidebar h3 {
-    margin: 0px;
-    color: #000000;
-    padding: 5px 0px;
-    text-align: center;
-    font-weight: bold;
-    height: 22px;
-    /* padding: 0; */
-    cursor: pointer;
-}
-
-.sidebar ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+.started:not(.ended) {
+    /* background-color: var(--light-blue-color); */
+    /* background-image: linear-gradient(#000, #000), linear-gradient(#0f0, #0f0); */
+    /* background-size: 100% 1em, 100%; */
+    box-shadow: inset 0 0 0 0.1em  var(--blue-color);
 }
 
 
-.sidebar li {
-    font-size: smaller;
-    font-family: math;
-    position: relative;
-}
 
-.sidebar a {
-    display: block;
-    /* text-decoration: none; */
-    color: black;
-}
-
-.sidebar-item {
-    padding: 5px;
-    font-family: math;
-    font-size: smaller;
+span.points {
+    float: right;
 }
 
 
-.primary-sidebar {
-    /* float: left; */
-    /* position: relative; */
-    width: 7em;
-    height: 100%;
-    background-color: var(--sidebar-color);
-    padding: 0px;
-    display: block;
-    min-width: 6em;
-}
-
-.primary-sidebar.collapsed {
-    width: 2em;
-    /* font-size: small; */
-    max-width: 2em;
-    /* overflow: hidden; */
-    min-width: 2em;
-    font-weight: bold;
-}
-
-.primary-sidebar.collapsed a {
-    writing-mode: vertical-lr;
-    transform: rotate(180deg);
-}
-
-.primary-sidebar h3 {
-    background: #c97a7a;
-    position: sticky;
-    /* top: 0; */
-    overflow: clip;
-    /* width: 2em; */
-    /* rotate: 90deg; */
-    /* transform: rotate(90deg); */
-}
-
-.secondary-sidebar.collapsed {
-    width: 18em;
-    /* max-width: 3em; */
-    min-width: 6em !important;
-}
-
-.secondary-sidebar.collapsed > .sidebar-item {
-    /* font-size: small; */
-}
-
-.secondary-sidebar.collapsed .secondary-sidebar-date {
-    font-size: xx-small;
-    display: none;
-}
-
-.secondary-sidebar-date {
-    color: #707070;
-    font-size: x-small;
-}
-
-.secondary-sidebar h3 {
-    background: #f59595c9;
-    /* position: sticky; */
-    /* top: 0; */
-}
-
-.tertiary-sidebar h3 {
-    background: #f59595c9;
-    cursor: pointer;
-    /* position: sticky; */
-    /* top: 0; */
-}
-
-.primary-sidebar a {
-    display: block;
-    padding: 0.5em 0.2em;
-    /* text-decoration: none; */
-    color: var(--sidebar-text-color);
-    /* font-family: math; */
-}
-
-.sidebar-item.active {
-    /* font-weight: bold; */
-    background-color: var(--background-color);
-    color: white;
-}
-
-.sidebar-item.active > a {
-    color: white;
-}
-
-.sidebar-item.active .secondary-sidebar-date {
-    color: var(--secondary-sidebar-color);
+.sidebar-item.published {
+    /* border: 5px solid red; */
+    /* box-shadow: inset 0 0 0 0.1em var(--light-blue-color); */
+    background-color: var(--light-blue-color);
 }
 
 .sidebar-course:hover .course-actions {
     display: block;
+    border: 1px solid #5f778c;
+    box-shadow: inset 0 0 7px 1px #7592ac;
 }
 
 .course-actions {
@@ -150,28 +45,6 @@
     text-wrap: nowrap;
 }
 
-/* Styling for inner sidebar */
-.secondary-sidebar {
-    --secondary-sidebar-width: 8em;
-    /* float: left; */
-    /* position: relative; */
-    /* top: 0px; */
-    /* left: 0px; */
-    width: var(--secondary-sidebar-width);
-    height: 100%;
-    background-color: var(--secondary-sidebar-color);
-    padding: 0px;
-    display: block;
-    overflow-y: auto;
-    overflow-x: clip;
-    min-width: var(--secondary-sidebar-width);
-}
-
-.sidebar.collapsed {
-    width: 7em;
-    min-width: 1em;
-    text-wrap: nowrap;
-}
 
 #courses-refresh, #assignments-refresh {
     /* color: blue; */
@@ -183,15 +56,4 @@
 
 #courses-refresh > a {
     padding: 0;
-}
-
-.content {
-    /* margin-left: 200px; */
-    /* Adjust this value based on the sidebar width */
-    /* padding: 20px; */
-    height: 100%;
-    position: relative;
-    display: flex;
-    width: 100%;
-    /* overflow: auto; */
 }

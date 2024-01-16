@@ -137,4 +137,14 @@
     </form>
     <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
     <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update">Duplicate</button>
+    <span class="copyto-span">
+      <button id="copyto-button" class="action-button">Copy To</button>
+      <span class="course-popup">
+        <ul>
+          {% for course in all_courses() %}
+          <button class="copyto-button" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
+          {% endfor %}
+        </ul>
+      </span>
+    </span>
     <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>

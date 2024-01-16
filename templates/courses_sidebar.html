@@ -9,7 +9,7 @@
     </div>
     <ul>
         {% for course in all_courses() %}
-            <li class="sidebar-item{{ ' active' if active_course and active_course.id == course.id }} sidebar-course">
+            <li class="sidebar-item{{ ' active' if active_course and active_course.id == course.id }} sidebar-course{{ ' ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' started' if today and course.start_at_date and course.start_at_date < today }}">
                 <a href="{{ url_for('course_page', course_id=course.id) + action }}"
                    id="{{ course.id }}" 
                    data-shortname="{{ course.course_code }}"
@@ -20,6 +20,8 @@
                 <div class="course-actions">
                     <a href="{{ url_for('assignments_page', course_id=course.id) }}">→ Assignments</a>
                     <a href="{{ url_for('quiz_page', course_id=course.id) }}">→ Quizzes</a>
+                    <a href="{{ url_for('users_page', course_id=course.id) }}">→ Users</a>
+                    <a href="{{ url_for('enrollments_page', course_id=course.id) }}">→ Enrollments</a>
                 </div>
             </li>
         {% endfor %}

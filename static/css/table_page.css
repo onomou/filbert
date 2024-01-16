@@ -1,0 +1,18 @@
+span.option-label {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+[draggable=true] {
+    cursor: move;
+}
+
+div#table-page {
+    overflow: auto;
+    width: 54em;
+}
+
+div#main-grid {
+    /* height: 100%; */
+    /* width: 100%; */
+}

@@ -146,11 +146,11 @@ input#id {
   font-size: small;
 }
 
-.secondary-sidebar-date {
+.secondary-sidebar-details {
   color: #707070;
   font-size: x-small;
 }
 
-.secondary-sidebar-date.collapsed {
+.secondary-sidebar-details.collapsed {
   font-size: xx-small;
 }

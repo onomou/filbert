@@ -6,8 +6,18 @@ function initTinyMCE() {
   catch {};
   tinymce.init({
     selector: '#description',
-    toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code | numlist bullist | link',
-    plugins: 'lists autolink link',
+    menubar: false,
+    toolbar_location: 'bottom',
+    toolbar_mode: 'wrap',
+    toolbar: [
+      { name: 'history', items: [ 'undo', 'redo' ] },
+      { name: 'styles', items: [ 'styles', 'numlist', 'bullist', 'link' ] },
+      { name: 'formatting', items: [ 'bold', 'italic' ] },
+      { name: 'alignment', items: [ 'alignleft', 'aligncenter', 'alignright', 'alignjustify' ] },
+      { name: 'indentation', items: [ 'outdent', 'indent' ] },
+      { name: 'extra', items: ['code']}
+    ],
+    plugins: 'lists autolink link quickbars',
     default_link_target: '_blank',
     link_default_protocol: 'https',
     apply_source_formatting: true,
@@ -41,6 +51,26 @@ function initDatePicker() {
   });
 
   $('#due_at').on('change.datetimepicker', handleInputChange);
+}
+
+function initChangeHandler() {
+  
+  document.querySelectorAll('input').forEach(input => {
+    // Gather initial values
+    if(input.type == "checkbox") {
+      initialValues[input.id] = input.checked
+    } else {
+      initialValues[input.id] = input.value;
+    }
+    // Add event listeners to input elements
+    input.addEventListener('input', handleInputChange);
+  });
+  document.querySelectorAll('select').forEach(input => {
+    // Gather initial values
+    initialValues[input.id] = [...input.selectedOptions].map(x => x.value);
+    // Add event listeners to input elements
+    input.addEventListener('change', handleInputChange);
+  });
 }
 
 function isValidDate(dateString) {

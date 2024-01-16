@@ -8,6 +8,7 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent gray background */
     z-index: 9999; /* Ensure it's above other content */
+    flex: 0;
 }
 
 /* Styles for the message container */
@@ -58,12 +59,11 @@
     line-break: anywhere;
 }
 
-th:nth-child(1) {
-    width: 6em;
+.overlay th:nth-child(1) {
+    min-width: 8em;
 }
 
-td:nth-child(1) {
-}
+.diff-table td:nth-child(1) {}
 
 .diff-table {
     border-collapse: collapse;
