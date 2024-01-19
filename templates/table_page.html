@@ -10,7 +10,6 @@ Canvas - Assignment Details
 <script>
     var data_url = "{{ url_for(data_name, course_id=active_course.id)}}"
 </script>
-<script src="{{ url_for('static', filename='js/table_page.js') }}"></script>
 
 <link href="https://unpkg.com/tabulator-tables@5.5.2/dist/css/tabulator.min.css" rel="stylesheet">
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.5.2/dist/js/tabulator.min.js"></script>
@@ -22,6 +21,26 @@ Canvas - Assignment Details
 
 {% block body %}
 <div id="table-page">
+    <div>
+        <select id="filter-field">
+          <option></option>
+        </select>
+      
+        <select id="filter-type">
+          <option value="=">=</option>
+          <option value="<"><</option>
+          <option value="<="><=</option>
+          <option value=">">></option>
+          <option value=">=">>=</option>
+          <option value="!=">!=</option>
+          <option value="like">like</option>
+        </select>
+      
+        <input id="filter-value" type="text" placeholder="value to filter">
+      
+        <button id="filter-clear">Clear Filter</button>
+      </div>
+
     <div class="download-buttons">
         <button type="button" onclick="table.download('csv', '{{data_name|string}}.csv');">Download CSV</button>
         <button type="button" onclick="table.download('json', '{{data_name|string}}.json');">Download JSON</button>
@@ -33,25 +52,6 @@ Canvas - Assignment Details
 {% endblock %}
 
 {% block footer %}
-<script>
-    $(document).ready(function () {
-        data = fetch(data_url)
-            .then(response => {return response.json()})
-            .then(data => {
-                rows = data['rows'];
-                // columns = data['columns'];
-                // table = new Slick.Grid("#main-grid", rows, columns, options);
-                //initialize table
-                table = new Tabulator("#main-grid", {
-                    data:rows, //assign data to table
-                    // responsiveLayout:"hide",  //hide columns that don't fit on the table
-                    movableColumns:true,      //allow column order to be changed
-                    // layout:"fitColumns",
-                    autoColumns:true, //create columns from data field names
-                });
-            })
-            .catch(error => console.log(error));
-    })
-</script>
 
+<script src="{{ url_for('static', filename='js/table_page.js') }}"></script>
 {% endblock %}

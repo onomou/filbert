@@ -505,6 +505,10 @@ def user_details(course_id=None, user_id=None):
         link_url=make_url(course_id, 'users', user_id),
     )
 
+@flask_app.route("/courses/<int:course_id>/users/refresh", strict_slashes=False)
+def refresh_users(course_id=None):
+    _ = get_users(course_id, refresh=True)
+    return redirect(request.referrer)
 
 @flask_app.route("/courses/<int:course_id>/enrollments/data")
 def enrollments_data(course_id=None):
@@ -540,6 +544,11 @@ def enrollments_page(course_id=None):
         action='enrollments',
         link_url=make_url(course_id, 'enrollments'),
     )
+
+@flask_app.route("/courses/<int:course_id>/enrollments/refresh", strict_slashes=False)
+def refresh_enrollments(course_id=None):
+    _ = get_enrollments(course_id, refresh=True)
+    return redirect(request.referrer)
 
 @flask_app.route("/parse_form/", methods=["GET"])
 def parse_url_form():

@@ -25,6 +25,7 @@ Canvas - Assignment Details
                 <th id="name-column">Name</th>
                 <th id="date-column">Due Date</th>
                 <th id="points-column">Points</th>
+                <th id="assignment-group-column">Assignment Group</th>
                 <th id="description-column">Description</th>
             </tr>
             {% for assignment in assignments %}
@@ -32,6 +33,7 @@ Canvas - Assignment Details
                 <td><a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=assignment.id) }}">{{assignment.name}}</a></td>
                 <td>{{assignment.due_at | format_date }}</td>
                 <td>{{assignment.points_possible}}</td>
+                <td>{{assignment.assignment_group_id}}</td>
                 <td>{{assignment.description|safe}}</td>
             </tr>
             {% endfor %}

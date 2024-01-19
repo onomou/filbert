@@ -6,7 +6,7 @@ tbody, th, td {
     padding: 0.3em;
   }
   
-  td:nth-child(4) {
+  td:nth-child(5) {
       background: var(--secondary-sidebar-text-color);
       overflow-x: auto;
   }
@@ -30,17 +30,21 @@ tbody, th, td {
       /* outline: 1px solid; */
       /* border-collapse: separate; */
   }
+
+th#assignment-group-column {
+    width: 5em;
+}
   
   th#points-column {
       width: 3em;
   }
   
   th#date-column {
-      width: 6em;
+      width: 5em;
   }
   
   th#name-column {
-      width: 7em;
+      width: 8em;
   }
   
   table {

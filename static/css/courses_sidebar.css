@@ -46,7 +46,7 @@ span.points {
 }
 
 
-#courses-refresh, #assignments-refresh {
+.refresh-item {
     /* color: blue; */
     background-color: var(--blue-color);
     font-weight: bold;
