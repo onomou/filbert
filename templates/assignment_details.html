@@ -141,7 +141,7 @@
       <button id="copyto-button" class="action-button">Copy To</button>
       <span class="course-popup">
         <ul>
-          {% for course in all_courses() %}
+          {% for course in courses %}
           <button class="copyto-button" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
           {% endfor %}
         </ul>

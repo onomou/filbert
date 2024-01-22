@@ -29,6 +29,7 @@ def parse_canvas_url(url,include=None):
     # TODO: handle include[] to also setup other things, like users, assignments, modules, etc.
 
     # Parse URL based on its structure
+    course_id = None
     if path_components[0] == 'courses':
         if len(path_components) > 1:
             course_id = path_components[1]
@@ -45,7 +46,8 @@ def parse_canvas_url(url,include=None):
         print("Invalid Canvas URL")
 
     code = '\n'.join(code_lines)
-    return code
+    # raise Exception
+    return {'code': code, 'local_path': parsed_url.path, 'course_id': course_id}
 
 # Action functions for different URL types
 def basic_setup(base_url):
@@ -63,7 +65,6 @@ def basic_setup(base_url):
 
 def handle_assignment(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     code_lines.append(f'assignments = course.get_assignments()')
     if len(components) == 1:
         if components[0] == 'syllabus':
@@ -91,7 +92,6 @@ def handle_assignment(course_id, components, parameters=None):
 
 def handle_module(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     code_lines.append('modules = course.get_modules()')
     print(components)
     if len(components) == 2 and components[0] == 'items':
@@ -110,7 +110,6 @@ def handle_module(course_id, components, parameters=None):
 
 def handle_file(components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     code_lines.append('files = course.get_files()')
     if len(components) > 0:
         file_id = components[0]
@@ -119,7 +118,6 @@ def handle_file(components, parameters=None):
     return code_lines
 def handle_file_folder(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     path = '/'.join(components[1:])
     print(path)
     code_lines.append(f"folder_path = course.resolve_path('{ path }')")
@@ -127,7 +125,6 @@ def handle_file_folder(course_id, components, parameters=None):
     return code_lines
 def handle_rubric(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     code_lines.append('rubrics = course.get_rubrics()')
     if len(components) > 0:
         rubric_id = components[0]
@@ -135,7 +132,6 @@ def handle_rubric(course_id, components, parameters=None):
     return code_lines
 def handle_user(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     code_lines.append('users = course.get_users()')
     if len(components) > 0:
         user_id = components[0]
@@ -143,7 +139,6 @@ def handle_user(course_id, components, parameters=None):
     return code_lines
 def handle_quiz(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     code_lines.append('quizzes = course.get_quizzes()')
     if len(components) > 0:
         quiz_id = components[0]
@@ -152,7 +147,6 @@ def handle_quiz(course_id, components, parameters=None):
 
 def handle_grades(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     # TODO: handle general grades -- redirect to /gradebook
     
     if len(components) > 0:
@@ -162,15 +156,12 @@ def handle_grades(course_id, components, parameters=None):
     return code_lines
 def handle_discussion(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     return code_lines
 def handle_announcement(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     return code_lines
 def handle_gradebook(course_id, components, parameters=None):
     code_lines = []
-    code_lines.append(f'course = canvas.get_course({course_id})')
     return code_lines
 
 

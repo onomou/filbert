@@ -12,7 +12,7 @@
     <div class="page-container">
         <div id="index-content">
             <ul>
-                {% for course in all_courses() %}
+                {% for course in courses %}
                 <li class="flex-item">
                     <a href="{{ url_for('course_page', course_id = course.id) }}"
                     id="{{ course.id }}" 

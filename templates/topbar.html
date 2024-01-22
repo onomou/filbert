@@ -9,6 +9,9 @@
     <ul id="topbar-left">
         <li><a href="/" title="Courses List">◰</a></li>
         <li><a href="{{ url_for('parse_url', url=link_url) }}" title="Parse URL">📝</a></li>
+        {% if local_link %}
+        <li><a href="{{ local_link }}" title="Local: {{ local_link }}">✒️</a></li>
+        {% endif %}
         {% if active_course %}
         <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}" target="_blank"
                 rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></li>

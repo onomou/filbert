@@ -197,6 +197,8 @@ def get_courses(partial_refresh=False, refresh=False):
     return [x['course'] for x in canvas_d['courses'].values()]
 
 def get_course(course_id):
+    if course_id is None:
+        return None
     course_id = int(course_id)
     return canvas_d['courses'][course_id]['course']
 
@@ -371,10 +373,18 @@ def get_submission_types(course_id):
 
 # Template context globals
 # used in courses_sidebar.html to list courses
-@flask_app.template_global()
-def all_courses():
-    return get_courses()
+# @flask_app.template_global()
+# def all_courses():
+#     return 
 
+
+@flask_app.context_processor
+def inject_globals():
+    courses = get_courses()
+    return {
+        'today': datetime.today().astimezone(),
+        'courses': sorted(courses, key=lambda x: (getattr(x, 'start_at_date', datetime.now().astimezone()), x.name))
+    }
 
 # Routes section
 @flask_app.route("/", methods=["GET", "POST"])
@@ -559,13 +569,15 @@ def parse_url_form():
 @flask_app.route("/parse_url/<path:url>", methods=["GET"])
 def parse_url(url=None):
     from parse_url import parse_canvas_url
-    code = parse_canvas_url(url)
-
+    details = parse_canvas_url(url)
+    course = get_course(details['course_id'])
+    path = request.root_url[:-1] + details['local_path']
     return render_template(
         "parse_url.html",
         url=url,
-        code=code,
-        active_course=None,
+        code=details['code'],
+        local_link=path,
+        active_course=course,
         assignment=None,
         action='assignments',
     )
@@ -886,7 +898,6 @@ def assignments_page(course_id, assignment_id=None):
     return render_template(
         "assignments.html",
         **the_details,
-        today=datetime.today().astimezone(),
         action="assignments",
     )
 

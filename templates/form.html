@@ -8,7 +8,7 @@
     <form action="/course" method="GET">
         <label for="course-select">Courses:</label>
         <select id="course-select" name="course_id">
-            {% for course in all_courses() %}
+            {% for course in courses %}
             <option value="{{ course.id }}">{{ course.name }}</option>
             {% endfor %}
         </select>
@@ -18,7 +18,7 @@
     <div class="sidebar">
         <h1>Course Selection</h1>
         <ul>
-            {% for course in all_courses() %}
+            {% for course in courses %}
             <li style="{% if selected == course.id %}font-weight: bold background: gray{% endif %}"><a href="/courses/{{ course.id }}">{{ course.name }}</a></li>
             {% endfor %}
     </div>
