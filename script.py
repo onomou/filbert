@@ -888,12 +888,24 @@ def push_page(course_id, assignment_id):
         **the_details
     )
 
+@flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
+def new_assignment(course_id):
+    the_details = get_assignment_details(course_id)
+    return render_template(
+        "assignments.html",
+        **the_details,
+        action="assignments",
+    )
 
 @flask_app.route("/courses/<int:course_id>/assignments", methods=["GET"], strict_slashes=False)
-@flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
 def assignments_page(course_id, assignment_id=None):
     the_details = get_assignment_details(course_id, assignment_id)
+    if assignment_id is None:
+        return redirect(url_for('new_assignment', course_id=course_id))
+    elif the_details['assignment'] is None:
+        flash(f'Assignment {assignment_id} does not exist')
+        return redirect(url_for('new_assignment', course_id=course_id))
     return render_template(
         "assignments.html",
         **the_details,
