@@ -58,7 +58,7 @@ def basic_setup(base_url):
     code_lines.append('    config = ConfigParser()')
     code_lines.append('    config.read(filename)')
     code_lines.append('    return config')
-    code_lines.append('config = load_config("accounts.ini")')
+    code_lines.append('config = load_config("config.ini")')
     code_lines.append(f"canvas = Canvas(access_token=config['Canvas']['ACCESS_TOKEN'], base_url='{base_url}')")
     code_lines.append('courses = canvas.get_courses()')
     return code_lines

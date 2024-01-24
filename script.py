@@ -132,10 +132,10 @@ def favicon():
 # assignment_groups = {}
 canvas_d = {}
 '''
-canvas = Canvas(API_URL, API_KEY)
+canvas = Canvas(BASE_URL, ACCESS_TOKEN)
 courses = canvas.get_courses(include=['course_image'])
-canvas_d = {'API_URL': API_URL,
-            'API_KEY': API_KEY,
+canvas_d = {'BASE_URL': BASE_URL,
+            'ACCESS_TOKEN': ACCESS_TOKEN,
             'canvas': canvas,
             'courses': {x.id: {'course': x} for x in courses},
             }
@@ -181,14 +181,14 @@ def get_courses(partial_refresh=False, refresh=False):
                 canvas_d['courses'][course.id]['course'] = course
     if refresh:
         print('refresh courses')
-        API_URL = config.get("Canvas", "API_URL") # TODO: handle missing config key
-        API_KEY = config.get("Canvas", "API_KEY") # TODO: handle missing config key
-        canvas = Canvas(API_URL, API_KEY)
+        BASE_URL = config.get("Canvas", "BASE_URL") # TODO: handle missing config key
+        ACCESS_TOKEN = config.get("Canvas", "ACCESS_TOKEN") # TODO: handle missing config key
+        canvas = Canvas(BASE_URL, ACCESS_TOKEN)
         courses = canvas.get_courses(include=['course_image'])
         # assignments_d = {course.id:{x.id for x in course.get_assignments()} for course in courses}
         # assignment_groups = {}
-        canvas_d['API_URL'] = API_URL
-        canvas_d['API_KEY'] = API_KEY
+        canvas_d['BASE_URL'] = BASE_URL
+        canvas_d['ACCESS_TOKEN'] = ACCESS_TOKEN
         canvas_d['canvas'] = canvas
         canvas_d['courses'] = {x.id: {'course': x} for x in courses}
         for course_id in canvas_d['courses'].keys():
@@ -464,7 +464,7 @@ def users_data(course_id=None):
 
 
 def make_url(course_id, action, id=None): # options = {'action': {}, 'id': #}
-    url = canvas_d['API_URL'] + '/courses/' + str(course_id)
+    url = canvas_d['BASE_URL'] + '/courses/' + str(course_id)
     o = [
         'announcements',
         'discussion_topics',
@@ -717,7 +717,7 @@ def update_assignment(course_id, assignment_id=0):
                 print('uploaded file ' + canvas_file['display_name'])
                 response['description'] += '<p><a class="instructure_file_link instructure_scribd_file auto_open"'\
                     + ' title="' + canvas_file['display_name'] + '"'\
-                    + ' href="' + canvas_d['API_URL'] + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
+                    + ' href="' + canvas_d['BASE_URL'] + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
                     + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
                     + canvas_file["display_name"] + '</a></p>'
                     # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
