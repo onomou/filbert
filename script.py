@@ -151,7 +151,6 @@ for course_id in canvas_d['courses'].keys():
 selected_course = None
 
 def reload_assignments(course_id = None):
-    global canvas_d
     target_course_ids = [course_id] if course_id is not None else canvas_d['courses'].keys()
     for course_id in target_course_ids:
         course = canvas_d['courses'][course_id]['course']
@@ -670,7 +669,6 @@ def delete_assignment(course_id, assignment_id):
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/update", methods=["POST"])
 def update_assignment(course_id, assignment_id=0):
     log_action(f'update_assignment({course_id}, {assignment_id})')
-    global canvas_d
     course = get_course(course_id)
     fields = ['name', 'description', 'points_possible', 'due_at', 'published', 'assignment_group_id']
     response = {x: request.form.get(x) for x in fields}
@@ -1286,6 +1284,6 @@ def update_assignments(course_id):
     return jsonify({'message': 'Data updated successfully'})
 
 
+_ = get_courses(refresh=True)
 if __name__ == "__main__":
-    _ = get_courses(refresh=True)
     flask_app.run(debug=True)
