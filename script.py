@@ -88,13 +88,18 @@ enrollment_user_fields = [
     'login_id',
 ]
 
+def log_action(*the_strings):
+    with open('log.txt', 'a') as file:
+        for string in the_strings:
+            current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            file.write('[' + current_datetime + '] ' + string + '\n')
 
 def load_config(filename):
     config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
     config.read(filename)
     return config
 
-
+log_action('start filbert')
 config = load_config("config.ini")
 
 # Flask section
@@ -335,17 +340,20 @@ def get_enrollments(course_id, refresh=False):
 
 # other helper functions
 def fix_module_ordering(course_id, module_id):
+    log_action(f'fix_module_ordering({course_id}, {module_id})')
     module_items = get_module_items(course_id, module_id, refresh=True).values()
     if not all(x.position == i for i, x in enumerate(module_items, 1)):
         print('reorder modules: reverse')
         for index, module_item in reversed(list(enumerate(module_items, 1))):
             if module_item.position != index:
                 print(index,module_item.position)
+                log_action(f"module_item.edit(module_item={{'position':{max(index,module_item.position)}}})")
                 module_item.edit(module_item={'position':max(index,module_item.position)})
         print('reorder modules: forward')
         for index, module_item in enumerate(get_module_items(course_id, module_id, refresh=True).values(),1):
             if module_item.position != index:
                 print(index,module_item.position)
+                log_action(f"module_item.edit(module_item={{'position':{index}}})")
                 module_item.edit(module_item={'position':index})
 
 def get_times(course_id):
@@ -646,6 +654,8 @@ def refresh_assignments(course_id):
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/delete", methods=["POST"])
 def delete_assignment(course_id, assignment_id):
     assignment = get_assignment(course_id, assignment_id)
+    log_action(f'delete_assignment({course_id}, {assignment_id})')
+    log_action(f'assignment.delete()')
     result = assignment.delete()
     flash('Deleted assignment ' + str(assignment_id))
     refresh_assignments(course_id)
@@ -655,6 +665,7 @@ def delete_assignment(course_id, assignment_id):
 # call with assignment_id=0 to create new
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/update", methods=["POST"])
 def update_assignment(course_id, assignment_id=0):
+    log_action(f'update_assignment({course_id}, {assignment_id})')
     global canvas_d
     course = get_course(course_id)
     fields = ['name', 'description', 'points_possible', 'due_at', 'published', 'assignment_group_id']
@@ -713,9 +724,8 @@ def update_assignment(course_id, assignment_id=0):
     diff_message = ''
     if assignment_id == 0:
         # create new assignment
-        assignment = course.create_assignment(
-            assignment=response
-        )
+        log_action(f'assignment = course.create_assignment(assignment={response})')
+        assignment = course.create_assignment(assignment=response)
         flash('<em>Created new assignment</em>')
         flash('<h2><a href="' + assignment.html_url + '" target="_blank" rel="noopener noreferrer">🔗 ' + assignment.name + '</a></h2>')
         flash(assignment.description)
@@ -737,7 +747,11 @@ def update_assignment(course_id, assignment_id=0):
             diff_message += '<table class="diff-table" id="assignment-diff">'
             # diff_message += '<tr><th colspan="3">Assignment Differences</th></tr>'
             diff_message += '<tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>'
-            assignment.edit(assignment={key: val['new'] for key, val in changes.items()})
+            changes_dict = {key: val['new'] for key, val in changes.items()}
+            old_values = {key: val['old'] for key, val in changes.items()}
+            log_action(f"assignment old values {old_values})")
+            log_action(f"assignment.edit(assignment={changes_dict})")
+            assignment.edit(assignment=changes_dict)
             for field, change in changes.items():
                 # diff_message += '<em>' + field + '</em>: ' + str(change)
                 diff_message += '<tr>'
@@ -768,14 +782,13 @@ def update_assignment(course_id, assignment_id=0):
                 selected_modules.append(module)
                 print(module.name)
                 fix_module_ordering(course_id, module_id)
-
-                module_item = module.create_module_item(
-                    module_item={
-                        "type": "assignment",
-                        "content_id": assignment.id,
-                        "position": module.items_count+1,
-                    }
-                )
+                item_details = {
+                    "type": "assignment",
+                    "content_id": assignment.id,
+                    "position": module.items_count+1,
+                }
+                log_action(f'module_item = module.create_module_item(module_item={item_details})')
+                module_item = module.create_module_item(module_item=item_details)
                 created_module_items.append(module)
             except:
                 print('failed to create module item')
@@ -787,6 +800,7 @@ def update_assignment(course_id, assignment_id=0):
                 for module_item in module_items.values():
                     print(str(getattr(module_item,'content_id',0)) + ' vs ' + str(module_id) + ' is ' + str(getattr(module_item,'content_id',0) == module_id))
                     if getattr(module_item,'content_id',0) == assignment.id:
+                        log_action(f'module_item.delete(): {module_item}')
                         module_item.delete()
                         deleted_module_items.append(module.name)
                 fix_module_ordering(course_id, module_id)
@@ -1039,21 +1053,22 @@ def quiz_question_details(course_id, quiz_id, question_id):
     quiz_question = quiz.get_question(question_id)
 
     if request.method == "POST":
+        log_action(f'quiz_question_details({course_id}, {quiz_id}, {question_id})')
         # code to update the quiz question
         question_name = request.form.get("question_name")
         question_text = request.form.get("question_text")
         position = request.form.get("position")
         points_possible = request.form.get("points_possible")
-        question = quiz_question.edit(
-            {
-                "quiz_id": quiz.id,
-                "id": question_id,
-                "question_text": question_text,
-                "question_name": question_name,
-                "position": position,
-                "points_possible": points_possible,
-            }
-        )
+        details = {
+            "quiz_id": quiz.id,
+            "id": question_id,
+            "question_text": question_text,
+            "question_name": question_name,
+            "position": position,
+            "points_possible": points_possible,
+        }
+        log_action(f'question = quiz_question.edit({details})')
+        question = quiz_question.edit(details)
 
         flash("Quiz question updated!")
         return redirect(request.referrer)
