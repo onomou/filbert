@@ -230,7 +230,11 @@ def get_assignment(course_id, assignment_id):
         print('missed assignment ' + str(assignment_id) + ' in course ' + str(course_id))
         # canvas_d['courses'][course_id]['assignments'][assignment_id] = {'assignment': course.get_assignment(assignment_id)}
         get_assignments(course_id, True)
-    return canvas_d['courses'][course_id]['assignments'][assignment_id]['assignment']
+    assignment = None
+    if assignment_id in canvas_d['courses'][course_id]['assignments']:
+        assignment = canvas_d['courses'][course_id]['assignments'][assignment_id]['assignment']
+    return assignment
+    
 
 def get_assignment_groups(course_id, refresh=False):
     course_id = int(course_id)
@@ -828,36 +832,22 @@ def update_assignment(course_id, assignment_id=0):
         flash('This feature is not yet implemented.')
         return redirect(request.referrer)
 
-def get_assignment_details(course_id, assignment_id):
+def get_assignment_details(course_id, assignment_id=None):
     the_details = {}
-    course = get_course(course_id)#canvas_d['courses'][course_id]['course']
+    course = get_course(course_id)
     if assignment_id is None:
         # creating new assignment
         assignment = None
     else:
-        try:
-            assignment = get_assignment(course_id, assignment_id)
-        except:
-            assignment = None # TODO: redirect to /assignments
-
-    # assignments = sorted(get_assignments(course_id), key=lambda x: getattr(x,'due_at','') or '')
+        assignment = get_assignment(course_id, assignment_id)
+    
     assignments = get_assignments(course_id)
-    # for x in assignments:
-    #     x.safe_description = Markup(x.description)
-    #     if x.due_at is not None:
-    #         x.due_at_local = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d %H:%M')
-    #         x.short_date = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d')
     assignment_groups = get_assignment_groups(course_id)
     modules = get_modules(course_id)
     
-    # groups_count = min(int(config.get('DEFAULT', 'MIN_LINES', fallback=5)), max(len(list(assignment_groups)), len(list(modules))))
     groups_count = int(config.get('DEFAULT', 'MIN_LINES', fallback=5))
     
     assignment_modules = get_assignment_module_ids(course_id, assignment_id) #
-    # raise(Exception)
-    # print(assignment_modules)
-    # return redirect(f"/courses/{course_id}/new_assignment")
-    # return redirect(API_URL + '/courses/' + str(course_id) + '/assignments/' + str(assignment_id))
     default_times = get_times(course_id)
     default_submission_types = get_submission_types(course_id)
     # print('check this out: ' + str(default_times))
@@ -878,10 +868,7 @@ def get_assignment_details(course_id, assignment_id):
     the_details['default_submission_types'] = default_submission_types
     the_details['submission_types'] = submission_types
     the_details['link_url'] = getattr(assignment,'html_url',make_url(course_id,'assignments'))
-
     return the_details
-
-
 
 @flask_app.route("/courses/<int:course_id>/render_topbar")
 @flask_app.route("/courses/<int:course_id>/render_topbar/<path:url>")
@@ -892,8 +879,6 @@ def render_topbar(course_id, url=None):
         active_course=active_course,
         link_url=url,
     )
-
-
 
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/silent")
 def push_page(course_id, assignment_id):
