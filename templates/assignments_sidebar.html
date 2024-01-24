@@ -50,10 +50,11 @@
     fetch(data_url)
     .then(response => {return response.text()})
     .then(data => {
+      var details = document.getElementById('assignment-details')
       if (data) {
-        document.getElementById('assignment-details').innerHTML = data
+        details.innerHTML = data
       } else {
-        document.getElementById('assignment-details').innerHTML = ""
+        details.innerHTML = ""
       }
     })
     .then(() => {

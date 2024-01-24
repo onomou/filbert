@@ -307,6 +307,7 @@ input#id {
 #description-box {
     flex: 5;
     min-width: 20em;
+    min-height: 15em;
 }
 
 div#due_at-box {
@@ -334,4 +335,10 @@ div#points_possible-box {
   z-index: 1;
   /* border-bottom: 2px solid var(--background-color); */
   box-shadow: 0px 0px 5px 1px var(--background-color);
+}
+
+
+textarea#description {
+    visibility: hidden;
+    display: none;
 }

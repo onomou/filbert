@@ -19,8 +19,8 @@
       <h1>
         {% if assignment is not none %}
         <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
-          target="_blank" rel="noopener noreferrer">🔗 {{ assignment.name }}
-        </a>
+          target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
+        </a><span style="float: right;">&nbsp;</span>
         {% else %}
         Creating New Assignment
         {% endif %}
