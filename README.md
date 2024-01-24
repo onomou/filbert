@@ -37,12 +37,16 @@ This is a Flask app for quickly adding and changing information in Canvas. The p
 
 ## Screenshots
 
+### Edit Assignment
 ![Assignment Editing](/docs/images/assignment.png)
 
+### Results After Editing
 ![Assignment Editing - Change Report](/docs/images/assignment_changes.png)
 
+### Generate Code (Top-Left Icon)
 ![Generate Code](/docs/images/setup_code.png)
 
+### Other Features
 ![Other Options](/docs/images/other_options.png)
 
 ## Future
