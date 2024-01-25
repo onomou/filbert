@@ -428,6 +428,7 @@ def index():
     # raise(Exception)
     return render_template(
         "index.html",
+        action='index'
     )
 
 
@@ -605,6 +606,8 @@ def parse_url_form():
 @flask_app.route("/parse_url/<path:url>", methods=["GET"])
 def parse_url(url=None):
     from parse_url import parse_canvas_url
+    if url is None:
+        url = config.get("Canvas", "BASE_URL")
     details = parse_canvas_url(url)
     course = get_course(details['course_id'])
     path = request.root_url[:-1] + details['local_path']
@@ -625,27 +628,30 @@ def courses_page():
 
 @flask_app.route("/courses/<int:course_id>/", methods=["GET"])
 def course_page(course_id):
-    return redirect(f'/courses/{course_id}/assignments') # TODO: consider implementing course front page view
+    print(get_course(course_id))
+    # if get_course(course_id) is None:
+    #     return redirect(url_for('courses_page'))
+    return redirect(url_for('new_assignment', course_id=course_id)) # TODO: consider implementing course front page view
 
 
 @flask_app.route("/courses/<int:course_id>/<action>", methods=["GET"])
 def course_action(course_id, action='assignments'):
     match action:
         case 'assignments':
-            return redirect(f"/courses/{course_id}/assignments")
+            return redirect(url_for('assignments_page', course_id=course_id))
         case 'assignments_list':
-            return redirect(f"/courses/{course_id}/assignments/list")
+            return redirect(url_for('assignments_list', course_id=course_id))
         case "list_quiz":
-            return redirect(f"/courses/{course_id}/quizzes")
+            return redirect(url_for('quiz_page', course_id=course_id))
         case 'assignments_bulk':
-            return redirect(f'/courses/{course_id}/assignments_bulk')
-        case 'list_quiz':
-            return redirect(f'/courses/{course_id}/list_quiz')
-        case 'quiz_question_details':
-            return redirect(f'/courses/{course_id}/quiz_question_details')
+            return redirect(url_for('assignments_bulk', course_id=course_id))
+        # case 'quiz_question_details':
+        #     return redirect(url_for('quiz_question_details', course_id=course_id)) # TODO: handle quiz_id and question_id
         case 'users':
-            return redirect(f'/courses/{course_id}/users')
+            return redirect(url_for('users_page', course_id=course_id))
         case _ :
+            flash('Invalid URL')
+            flash(request.url)
             return redirect(url_for('course_page', course_id=course_id))
 
 '''
@@ -850,7 +856,7 @@ def update_assignment(course_id, assignment_id=0):
         else:
             flash('<em>Modules unchanged</em>')
 
-        return redirect(f"/courses/{course_id}/assignments/{assignment.id}")
+        return redirect(url_for('assignments_page', course_id=course_id, assignment_id=assignment.id))
     else:
         flash('This feature is not yet implemented.')
         return redirect(request.referrer)
