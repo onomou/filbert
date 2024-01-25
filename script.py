@@ -163,6 +163,14 @@ def reload_assignments(course_id = None):
 
 
 # canvas helper dict functions
+def ensure_course_exists(f):
+    def wrapper(*args, **kwargs):
+        if len(args) == 0 or args[0] not in canvas_d['courses']:
+            return None
+        else:
+            return f(*args, **kwargs)
+    return wrapper
+
 def get_courses(partial_refresh=False, refresh=False):
     if partial_refresh:
         print('partial refresh courses')
@@ -200,12 +208,14 @@ def get_courses(partial_refresh=False, refresh=False):
             canvas_d['courses'][course_id]['modules'] = {}
     return [x['course'] for x in canvas_d['courses'].values()]
 
+@ensure_course_exists
 def get_course(course_id):
-    if course_id is None:
-        return None
     course_id = int(course_id)
-    return canvas_d['courses'][course_id]['course']
+    if course_id in canvas_d['courses']:
+        return canvas_d['courses'][course_id]['course']
+    return None
 
+@ensure_course_exists
 def get_assignments(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['assignments'] == {} or refresh:
@@ -222,6 +232,7 @@ def get_assignments(course_id, refresh=False):
     # TODO: choose sort type
     return sorted(assignments, key=lambda x: getattr(x,'due_at','') or '')
 
+@ensure_course_exists
 def get_assignment(course_id, assignment_id):
     course_id = int(course_id)
     assignment_id = int(assignment_id)
@@ -235,6 +246,7 @@ def get_assignment(course_id, assignment_id):
     return assignment
     
 
+@ensure_course_exists
 def get_assignment_groups(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['assignment_groups'] == {} or refresh:
@@ -243,6 +255,7 @@ def get_assignment_groups(course_id, refresh=False):
         canvas_d['courses'][course_id]['assignment_groups'] = {x.id: {'assignment_group': x} for x in course.get_assignment_groups()}
     return [x['assignment_group'] for x in canvas_d['courses'][course_id]['assignment_groups'].values()]
 
+@ensure_course_exists
 def get_modules(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['modules'] == {} or refresh:
@@ -253,6 +266,7 @@ def get_modules(course_id, refresh=False):
         # canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x, 'module_items': {y.id: y for y in x.get_module_items()}} for x in course.get_modules()}
     return [x['module'] for x in canvas_d['courses'][course_id]['modules'].values()]
 
+@ensure_course_exists
 def get_module(course_id, module_id, refresh=False):
     course_id = int(course_id)
     module_id = int(module_id)
@@ -263,6 +277,7 @@ def get_module(course_id, module_id, refresh=False):
         canvas_d['courses'][course_id]['modules'][module_id] = {'module': module, 'module_items': {module_item.id: module_item for module_item in module.get_module_items()}}
     return canvas_d['courses'][course_id]['modules'][module_id]['module']
 
+@ensure_course_exists
 def get_assignment_module_ids(course_id, assignment_id, refresh=False):
     course_id = int(course_id)
     if assignment_id is None:
@@ -279,6 +294,7 @@ def get_assignment_module_ids(course_id, assignment_id, refresh=False):
                 assignment_modules.append(module_id)
     return assignment_modules
 
+@ensure_course_exists
 def get_module_items(course_id, module_id, refresh=False):
     course_id = int(course_id)
     module_id = int(module_id)
@@ -286,6 +302,7 @@ def get_module_items(course_id, module_id, refresh=False):
         get_module(course_id, module_id, True)
     return canvas_d['courses'][course_id]['modules'][module_id]['module_items']
 
+@ensure_course_exists
 def get_quizzes(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['quizzes'] == {} or refresh:
@@ -294,6 +311,7 @@ def get_quizzes(course_id, refresh=False):
         canvas_d['courses'][course_id]['quizzes'] = {x.id: {'quiz': x} for x in course.get_quizzes()}
     return [x['quiz'] for x in canvas_d['courses'][course_id]['quizzes'].values()]
 
+@ensure_course_exists
 def get_quiz(course_id, quiz_id, refresh=False):
     course_id = int(course_id)
     quiz_id = int(quiz_id)
@@ -303,6 +321,7 @@ def get_quiz(course_id, quiz_id, refresh=False):
         canvas_d['courses'][course_id]['quizzes'][quiz_id] = {'quiz': course.get_quiz(quiz_id)}
     return canvas_d['courses'][course_id]['quizzes'][quiz_id]['quiz']
 
+@ensure_course_exists
 def get_users(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['users'] == {} or refresh:
@@ -311,6 +330,7 @@ def get_users(course_id, refresh=False):
         canvas_d['courses'][course_id]['users'] = {x.id: {'user': x} for x in course.get_users()}
     return [x['user'] for x in canvas_d['courses'][course_id]['users'].values()]
 
+@ensure_course_exists
 def get_user(course_id, user_id, refresh=False):
     course_id = int(course_id)
     user_id = int(user_id)
@@ -320,6 +340,7 @@ def get_user(course_id, user_id, refresh=False):
         canvas_d['courses'][course_id]['users'][user_id]['user'] = course.get_user(user_id)
     return canvas_d['courses'][course_id]['users'][user_id]['user']
 
+@ensure_course_exists
 def get_profile(course_id, user_id, refresh=False):
     course_id = int(course_id)
     user_id = int(user_id)
@@ -333,6 +354,7 @@ def get_profile(course_id, user_id, refresh=False):
     return canvas_d['courses'][course_id]['users'][user_id]['profile']
 
 
+@ensure_course_exists
 def get_enrollments(course_id, refresh=False):
     course_id = int(course_id)
     if canvas_d['courses'][course_id]['enrollments'] == {} or refresh:
@@ -342,6 +364,7 @@ def get_enrollments(course_id, refresh=False):
     return [x['enrollment'] for x in canvas_d['courses'][course_id]['enrollments'].values()]
 
 # other helper functions
+@ensure_course_exists
 def fix_module_ordering(course_id, module_id):
     log_action(f'fix_module_ordering({course_id}, {module_id})')
     module_items = get_module_items(course_id, module_id, refresh=True).values()
@@ -359,6 +382,7 @@ def fix_module_ordering(course_id, module_id):
                 log_action(f"module_item.edit(module_item={{'position':{index}}})")
                 module_item.edit(module_item={'position':index})
 
+@ensure_course_exists
 def get_times(course_id):
     course_id = str(course_id)
     course_times = config.getlist(course_id, "DUE_TIMES", fallback=[])
@@ -374,6 +398,7 @@ def get_times(course_id):
     else:
         return default_times['default'] + default_times['shared']
     
+@ensure_course_exists
 def get_submission_types(course_id):
     course_id = str(course_id)
     submission_types = config.getlist(course_id, "SUBMISSION_TYPES", fallback=[])
@@ -833,6 +858,8 @@ def update_assignment(course_id, assignment_id=0):
 def get_assignment_details(course_id, assignment_id=None):
     the_details = {}
     course = get_course(course_id)
+    if course is None:
+        return None
     if assignment_id is None:
         # creating new assignment
         assignment = None
@@ -889,6 +916,9 @@ def push_page(course_id, assignment_id):
 @flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
 def new_assignment(course_id):
     the_details = get_assignment_details(course_id)
+    if the_details is None:
+        flash('Course not found')
+        return redirect(url_for('index'))
     return render_template(
         "assignments.html",
         **the_details,
@@ -899,7 +929,9 @@ def new_assignment(course_id):
 @flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
 def assignments_page(course_id, assignment_id=None):
     the_details = get_assignment_details(course_id, assignment_id)
-    if assignment_id is None:
+    if the_details is None:
+        return redirect(url_for('index'))
+    elif assignment_id is None:
         return redirect(url_for('new_assignment', course_id=course_id))
     elif the_details['assignment'] is None:
         flash(f'Assignment {assignment_id} does not exist')
