@@ -419,7 +419,8 @@ def inject_globals():
     courses = get_courses()
     return {
         'today': datetime.today().astimezone(),
-        'courses': sorted(courses, key=lambda x: (getattr(x, 'start_at_date', datetime.now().astimezone()), x.name))
+        'courses': sorted(courses, key=lambda x: (getattr(x, 'start_at_date', datetime.now().astimezone()), x.name)),
+        'base_url': canvas_d['BASE_URL'],
     }
 
 # Routes section
@@ -467,24 +468,19 @@ def course_settings(course_id=None):
 
 @flask_app.route("/courses/<int:course_id>/users/data")
 def users_data(course_id=None):
-    print('tick 1')
     if course_id is None:
         return jsonify({x: '' for x in user_fields})
     
     users = get_users(course_id)
-    print('tick 2')
     rows = []#[{**{x: getattr(user,x,'') for x in user_fields}, **{'profile.'+x:}} for user in users]
     for user in users:
-        print('tick')
         user_data = {x: getattr(user,x,'') for x in user_fields}
         # user_profile = user.get_profile()
         user_profile = get_profile(course_id, user.id)
         profile_data = {'profile_'+x: user_profile.get(x,'') for x in profile_fields}
         rows.append(user_data | profile_data)
-    print('tick 3')
     columns = [{'id': x, 'name': x, 'field': x} for x in rows[0].keys()]
     response = jsonify({'rows': rows, 'columns': columns})
-    print('tick 4')
     # raise Exception
     return response
 

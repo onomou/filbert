@@ -28,8 +28,8 @@ span.points {
 
 .sidebar-course:hover .course-actions {
     display: block;
-    border: 1px solid #5f778c;
-    box-shadow: inset 0 0 7px 1px #7592ac;
+    border: 1px solid var(--background-color);
+    box-shadow: 0 0 3px 1px var(--background-color);
 }
 
 .course-actions {

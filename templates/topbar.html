@@ -13,7 +13,7 @@
         <li><a href="{{ local_link }}" title="Local: {{ local_link }}">✒️</a></li>
         {% endif %}
         {% if active_course %}
-        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}" target="_blank"
+        <li><a href="{{ base_url }}/courses/{{ active_course.id }}" target="_blank"
                 rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></li>
         <li><a href="/courses/{{ active_course.id }}/assignments/new">New Assignment</a></li>
         <li><a href="/courses/{{ active_course.id }}/assignments_bulk">Bulk</a></li>

@@ -8,7 +8,7 @@
       <li class="sidebar-item">
         <a href="/courses/{{ active_course.id }}/assignments/list">List ≡</a>
       </li>
-      <li class="sidebar-item{{ ' active' if not assignment or not assignment['id'] }}">
+      <li class="sidebar-item{{ ' active' if not assignment or not assignment['id'] }}" id="sidebar-new-assignment">
         <a href="/courses/{{ active_course.id }}/assignments/new" class="sidebar-new-assignment">New Assignment</a>
       </li>
     </ul>

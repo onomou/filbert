@@ -14,137 +14,109 @@
 
 
 <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
-      enctype=multipart/form-data>
-      <!-- Assignment Title -->
-      <h1>
-        {% if assignment is not none %}
-        <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
-          target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
-        </a><span style="float: right;">&nbsp;</span>
-        {% else %}
-        Creating New Assignment
-        {% endif %}
-      </h1>
-  
-      <!-- First row -->
-      <div class="parent-float">
-        {{ blob("Assignment Name", id="name") }}
-          <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
-          <label id="id-label" for="id">ID: </label>
-          <input type="text" id="id" name="id"
-            value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
-        {{ endblob() }}
+  enctype=multipart/form-data>
+  <!-- Assignment Title -->
+  <h1>
+    {% if assignment is not none %}
+    <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
+      target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
+    </a><span style="float: right;">&nbsp;</span>
+    {% else %}
+    Creating New Assignment
+    {% endif %}
+  </h1>
 
-        {{ blob("Points", id="points_possible") }}
-          <input type="number" id="points_possible" name="points_possible" min="0"
-            value="{{ assignment.points_possible }}">
-        {{ endblob() }}
-  
-        {{ blob("Due Date", id="due_at") }}
-          <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
-        {{ endblob() }}
+  <div class="parent-float">
+    {{ blob("Assignment Name", id="name") }}
+    <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
+    <label id="id-label" for="id">ID: </label>
+    <input type="text" id="id" name="id"
+      value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
+    {{ endblob() }}
 
-        {{ blob("Published", id="published") }}
-          <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
-        {{ endblob() }}
-      <!-- </div> -->
-      
-      
-      <!-- <div class="break"></div> -->
-      <!-- Second row -->
-      <!-- <div class="parent-float"> -->
-        {{ blob("Assignment Group", id="assignment_group_id") }}
-          <select id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
-            {% for assignment_group in assignment_groups %}
-            <option value="{{ assignment_group.id }}" {{ 'selected' if assignment_group.id==assignment.assignment_group_id }}>
-              {{ assignment_group.name }}
-            </option>
-            {% endfor %}
-          </select>
-        {{ endblob() }}
-        
-        {{ blob("Modules", id="modules") }}
-          <select id="modules" name="modules" size="{{ groups_count }}" multiple>
-            {% for module in modules %}
-            <option value="{{ module.id }}" class="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
-            {% endfor %}
-          </select>
-        {{ endblob() }}
+    {{ blob("Points", id="points_possible") }}
+    <input type="number" id="points_possible" name="points_possible" min="0"
+      value="{{ assignment.points_possible }}">
+    {{ endblob() }}
 
-        {{ blob("Submission Types", id="submission-types") }}
-          <select id="submission-types" name="submission_types" size="{{ groups_count }}" class="submission-types" multiple>
-            {% for submission_type in submission_types %}
-            <option value="{{ submission_type }}" class="{{ submission_type }}" {{ 'selected' if submission_type in assignment.submission_types }}{{ 'selected' if assignment is none and submission_type in default_submission_types }}>{{ submission_type }}</option>
-            {% endfor %}
-          </select>
-        {{ endblob() }}
+    {{ blob("Due Date", id="due_at") }}
+    <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
+    {{ endblob() }}
 
-        <!-- Old file picker -->
-        <div class="styled-div child-float"
-             id="attach-zone"
-             ondrop="event.preventDefault(); event.stopPropagation(); dropHandler(event);"
-             ondragover="dragOverHandler(event)"
-             ondragenter="dragEnterHandler(event)"
-             ondragleave="dragLeaveHander(event)"
-             ondragend="dragEndHandler(event)"
-             style="display: none;">
-              <h2 for="file">Attach File</h2>
-              <label for="file" class="file-label">Upload file</label>
-              <input type="file" id="file" name="file">
-        </div>
+    {{ blob("Published", id="published") }}
+    <input type="checkbox" id="published" name="published" {{ 'checked' if assignment.published }}>
+    {{ endblob() }}
+    
+    {{ blob("Assignment Group", id="assignment_group_id") }}
+    <select id="assignment_group_id" name="assignment_group_id" size="{{ groups_count }}">
+      {% for assignment_group in assignment_groups %}
+      <option value="{{ assignment_group.id }}" {{ 'selected' if assignment_group.id==assignment.assignment_group_id }}>
+        {{ assignment_group.name }}
+      </option>
+      {% endfor %}
+    </select>
+    {{ endblob() }}
+    
+    {{ blob("Modules", id="modules") }}
+    <select id="modules" name="modules" size="{{ groups_count }}" multiple>
+      {% for module in modules %}
+      <option value="{{ module.id }}" class="{{ module.id }}" {{ 'selected' if module.id in assignment_modules }}>{{ module.name }}</option>
+      {% endfor %}
+    </select>
+    {{ endblob() }}
 
-        <!-- https://codepen.io/Scribblerockerz/pen/qdWzJw
-        https://stackoverflow.com/a/45249452 -->
-        {{ blob("Attach File", id="assignment-attachment") }}
-          <div class="file-area">
-            <input type="file" id="assignment-attachment" name="assignment-attachment"/>
-              <span id="assignment-attachment-status" class="file-placeholder">Drop a file here</span>
-          </div>
-        {{ endblob() }}
+    {{ blob("Submission Types", id="submission-types") }}
+    <select id="submission-types" name="submission_types" size="{{ groups_count }}" class="submission-types" multiple>
+      {% for submission_type in submission_types %}
+      <option value="{{ submission_type }}" class="{{ submission_type }}" {{ 'selected' if submission_type in assignment.submission_types }}{{ 'selected' if assignment is none and submission_type in default_submission_types }}>{{ submission_type }}</option>
+      {% endfor %}
+    </select>
+    {{ endblob() }}
 
-      <!-- </div> -->
-  
-      
-      <!-- <div class="break"></div> -->
-
-      <!-- Third row -->
-      <!-- <div class="parent-float"> -->
-        {{ blob("External Tool URL", id="url") }}
-          <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
-          <br><button type="button" onClick="popupMyOpenMathFormatter()">Paste MyOpenMath Link</button>
-        <!-- </div>
-        <div class="styled-div child-float"> -->
-          <h2>New Tab</h2>
-          <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
-        {{ endblob() }}
-      </div>
-
-      <!-- <div class="break"></div> -->
-  
-      <!-- TinyMCE editor -->
-      <div class="parent-float">
-        {{ blob("Description", id="description") }}
-        <textarea id="description" name="description"></textarea>
-        {{ endblob() }}
-      
-      <div id="raw-description-container" class="styled-div child-float">
-        <h2>Description</h2>
-        <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
-      </div>
+    <!-- https://codepen.io/Scribblerockerz/pen/qdWzJw
+    https://stackoverflow.com/a/45249452 -->
+    {{ blob("Attach File", id="assignment-attachment") }}
+    <div class="file-area">
+      <input type="file" id="assignment-attachment" name="assignment-attachment"/>
+        <span id="assignment-attachment-status" class="file-placeholder">Drop a file here</span>
     </div>
+    {{ endblob() }}
+    
+    {{ blob("External Tool URL", id="url") }}
+    <input class="external-tool-options" type="text" id="url" name="url" value="{{ assignment.external_tool_tag_attributes.url if assignment.external_tool_tag_attributes }}" disabled>
+    <button type="button" onClick="popupMyOpenMathFormatter()">Paste MyOpenMath Link</button>
+    
+    <h2>New Tab</h2>
+    <input class="external-tool-options" type="checkbox" id="new-tab" name="new_tab" {{ 'checked' if assignment.external_tool_tag_attributes and assignment.external_tool_tag_attributes.new_tab }} disabled>
+    {{ endblob() }}
+  </div>
+
+  <!-- TinyMCE editor -->
+  <div class="parent-float">
+    {{ blob("Description", id="description") }}
+    <textarea id="description" name="description"></textarea>
+    {{ endblob() }}
   
-  
-    </form>
-    <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
-    <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update">Duplicate</button>
-    <span class="copyto-span">
-      <button id="copyto-button" class="action-button">Copy To</button>
-      <span class="course-popup">
-        <ul>
-          {% for course in courses %}
-          <button class="copyto-button" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
-          {% endfor %}
-        </ul>
-      </span>
+  <div id="raw-description-container" class="styled-div child-float">
+    <h2>Description</h2>
+    <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
+  </div>
+</div>
+
+
+</form>
+<button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
+<span class="additional-actions">
+  <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Duplicate</button>
+  <span class="copyto-span">
+    <button id="copyto-button" class="action-button">Copy To</button>
+    <span class="course-popup">
+      <ul>
+        {% for course in courses %}
+        <button class="copyto-button" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
+        {% endfor %}
+      </ul>
     </span>
-    <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
+  </span>
+  <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
+</span>

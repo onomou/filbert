@@ -51,6 +51,7 @@ a {
   /* width: 100%; */
   /* overflow: auto; */
   flex: 1;
+  /* padding: 5px; */
 }
 
 h1 {
@@ -59,6 +60,8 @@ h1 {
   /* text-align: center; */
   background: var(--blue-color);
   font-size: x-large;
+  /* height: 1.4em; */
+  /* line-height: 0em; */
 }
 
 /* Styling for the container div */
@@ -98,6 +101,14 @@ h1 {
 .sidebar li:hover {
   background-color: #dfc9c9;
   transition: 0.35s;
+}
+
+li.sidebar-item.published.active {
+    box-shadow: -2px 0px 4px 1px var(--blue-color);
+    background: linear-gradient(-135deg, var(--light-blue-color) 6px, transparent 6px);
+    /* background-size: 100% 100%; */
+    /* padding-left: 10px; */
+    z-index: 0;
 }
 
 .sidebar-item.active > a {
@@ -228,6 +239,7 @@ h1 {
   /* font-weight: bold; */
   background-color: var(--background-color) !important;
   color: white;
+  /* margin-left: 1em; */
 }
 .sidebar-item.active .secondary-sidebar-details {
     color: var(--secondary-sidebar-color);
@@ -283,6 +295,8 @@ h1 {
   overflow-y: auto;
   overflow-x: clip;
   min-width: var(--secondary-sidebar-width);
+  box-shadow: 0px 0px 4px 1px var(--background-color);
+  z-index: 1;
 }
 
 .sidebar.collapsed {

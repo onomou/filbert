@@ -43,7 +43,9 @@ Canvas - Assignment Details
 
 {% block footer %}
 <script>
-  document.getElementById("delete-button").disabled = ( '{{ assignment.id }}' == 0 )
+  $(".additional-actions button").each(function() {
+    $(this).prop('disabled', '{{ assignment.id }}' == 0)
+  })
   document.getElementById("submission-types").addEventListener('change', function(event) {
     //  document.getElementById("url").disabled = !([...event.target.selectedOptions].map(x => x.value).includes('external_tool'))
     document.querySelectorAll(".external-tool-options").forEach(x => {

@@ -1,44 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/page_template.css') }}">
-    <title>Course Selection</title>
-</head>
-<body>
-    <div id="topbar" class="topbar">
-        <h1>Course Selection</h1>
-    </div>
-    <div class="page-container">
-        <div id="index-content">
-            <ul>
-                {% for course in courses %}
-                <li class="flex-item">
-                    <a href="{{ url_for('course_page', course_id = course.id) }}"
-                    id="{{ course.id }}" 
-                    data-shortname="{{ course.course_code }}"
-                    data-longname="{{ course.name }}">
-                    <!-- <img src="{{ course.image_download_url }}" class="course-image"> -->
-                    <div class="course-image" style="background-image: url({{ course.image_download_url }});">
-                        <div class="image-overlay"></div>
-                    </div>
-                    <div class="course-name">
-                        {{ course.name }}
-                    </div>
-                    <div class="course-shortname">
-                        {{ course.course_code }}
-                    </div>
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-        </div>
-    </div>
-    <script>
-        document.querySelectorAll('.image-overlay').forEach(function (overlay) {
-            overlay.style.backgroundColor = '#' + (Math.random().toString(16) + "000000").substring(2,8)
-        }
-        )
-    </script>
-</body>
-</html>
+{% extends 'page_template.html' %}
+
+{% block title %}
+Course Selection
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/index.css') }}">
+{% endblock %}
+
+
+{% block body %}
+<div id="index-content">
+    <ul>
+        {% for course in courses %}
+        <li class="flex-item">
+            <a href="{{ url_for('course_page', course_id = course.id) }}"
+            id="{{ course.id }}" 
+            data-shortname="{{ course.course_code }}"
+            data-longname="{{ course.name }}">
+            <!-- <img src="{{ course.image_download_url }}" class="course-image"> -->
+            <div class="course-image" style="background-image: url({{ course.image_download_url }});">
+                <div class="image-overlay"></div>
+            </div>
+            <div class="course-description">
+                <div class="course-name">
+                    {{ course.name }}
+                </div>
+                <div class="course-shortname">
+                    {{ course.course_code }}
+                </div>
+            </div>
+        </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block footer %}
+<script>
+document.querySelectorAll('.image-overlay').forEach(function (overlay) {
+    overlay.style.backgroundColor = '#' + (Math.random().toString(16) + "000000").substring(2,8)
+})
+</script>
+{% endblock %}
