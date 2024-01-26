@@ -1,0 +1,47 @@
+{% extends 'page_template.html' %}
+
+{% block title %}
+Canvas - Settings
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/settings.css') }}">
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+<div id="settings-page">
+    <h1>Edit Settings</h1>
+    <form id="settings-form" method="post" action="/update_settings">
+        <select id="section-selection" name="section-selection" size="4">
+            {% for section in config.sections() %}
+            <option value="{{section}}">{{section}}</option>
+            {% endfor %}
+        </select>
+
+        <div id="section-settings">
+            Initial Values
+        </div>
+        <input type="submit" value="Save">
+    </form>
+
+    <div id="hidden">
+        {% for section in config.sections() %}
+        <div id="{{section}}">
+            {% for key, value in config[section].items() %}
+            <label for="{{ key }}">{{ key }}:</label>
+            <input type="text" name="{{ key }}" value="{{ value }}"><br>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+<script>
+    $(document).ready(function () {
+    })
+</script>
+{% endblock %}

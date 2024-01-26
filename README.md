@@ -1,4 +1,4 @@
-# Filbert
+# Filbert: A brush for your Canvas LMS
 
 This is a Flask app for quickly adding and changing information in Canvas. The primary focus is on managing assignments.
 
@@ -46,6 +46,9 @@ This is a Flask app for quickly adding and changing information in Canvas. The p
 ### Generate Code (Top-Left Icon)
 ![Generate Code](/docs/images/setup_code.png)
 
+### Switch Profiles and Edit Server Settings
+![Switch Profiles](/docs/images/settings.png)
+
 ### Other Features
 ![Other Options](/docs/images/other_options.png)
 
@@ -58,10 +61,18 @@ This is a Flask app for quickly adding and changing information in Canvas. The p
  - [ ] Handle multiple users
  - [ ] OAuth2 authentication
  - [ ] Local config file support
- - [ ] Config file editor
+ - [X] Config file editor
  - [ ] Log file configuration
 
 ## Notes
+
+If you have a self-signed certificate for your server, you can add it to Filbert by inserting these lines at the top of `script.py`.
+```python
+url = 'https://canvas.mshome.net'
+cert_path = 'canvas-mshome-net.pem' # your certificate path, of course
+import os
+os.environ['REQUESTS_CA_BUNDLE'] = cert_path
+```
 
 Every `PUT` call to Canvas is logged to `log.txt` in the base directory. If you accidentally change an assignment's details, the old values are also logged.
 

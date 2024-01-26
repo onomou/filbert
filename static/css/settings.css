@@ -1,0 +1,66 @@
+#settings-page {
+
+width: 100%;
+
+position: relative;
+
+margin: 1em;
+
+display: flex;
+
+flex-direction: column;
+
+gap: 1em;
+}
+
+#hidden {
+    display: none;
+}
+
+.options-panel {
+
+/* margin-top: auto; */
+}
+
+div#used-options {/* height: 100%; */flex: 1;border: 1px solid black;}
+
+#available-options {
+    margin-top: auto;
+    display: flex;
+    /* position: absolute; */
+    /* bottom: 0; */
+    gap: 1em;
+    width: 100%;
+    flex-wrap: wrap;
+    flex-direction: row;
+}
+
+.option {
+    /* flex: 0 0 10em; */
+    /* width: 12em; */
+    /* height: 5em; */
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 1em;
+    background-color: var(--light-blue-color);
+    display: inline-block;
+}
+
+.used-options {
+
+}
+
+.available-options {
+
+}
+
+
+
+span.option-label {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+[draggable=true] {
+    cursor: move;
+}

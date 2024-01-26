@@ -1,40 +1,46 @@
 /* Styling for topbar */
 #topbar {
     float: top;
+    display: flex;
     position: relative;
     /* top: 0px; */
     /* left: 0px; */
     /* width: 100%; */
-    /* min-height: 70px; */
+    min-height: 2em;
     background-color: var(--red-color);
     /* padding: 0px; */
     z-index: 1;
     /* box-shadow: 0px 1px 1px var(--red-color); */
     /* color: white; */
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-#messages,
-#topbar #refresh a {
+.topbar-button {
     color: black !important;
     background-color: var(--blue-color);
     border-radius: 4px;
-    /* border-width: 4px; */
     margin-left: 1em;
-    /* border-color: black; */
+    margin: 4px;
     /* border: 1px solid black; */
     box-shadow: 0px 0px 3px 0px var(--background-color);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#refresh:hover {
-}
-
-#messages,
 #topbar a {
-    padding: 10px;
+    padding: 8px;
     text-decoration: none;
     color: white;
     font-family: math;
     font-size: medium;
+}
+
+#topbar .topbar-button a {
+    color: black;
 }
 
 #topbar a.active {
@@ -86,11 +92,6 @@ button#messages {border: none;}
     word-wrap: break-word;
 }
 
-
-#topbar .refresh li a {
-    color: black !important;
-}
-
 #topbar-left {
     float: left;
 }
@@ -104,4 +105,12 @@ button#messages {border: none;}
 
 #topbar-right {
     float: right;
+}
+
+
+.topbar div {
+}
+
+.spacer {
+    flex: 1;
 }

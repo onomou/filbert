@@ -6,35 +6,34 @@
 {% endif %}
 {% endif %}
 <div id="topbar" class="topbar">
-    <ul id="topbar-left">
-        <li><a href="/" title="Courses List">◰</a></li>
-        <li><a href="{{ url_for('parse_url', url=link_url) }}" title="Parse URL">📝</a></li>
+    <!-- <ul id="topbar-ul"> -->
+        <div><a href="/" title="Courses List">◰</a></div>
+        <div><a href="{{ url_for('parse_url', url=link_url) }}" title="Parse URL">📝</a></div>
         {% if local_link %}
-        <li><a href="{{ local_link }}" title="Local: {{ local_link }}">✒️</a></li>
+        <div><a href="{{ local_link }}" title="Local: {{ local_link }}">✒️</a></div>
         {% endif %}
         {% if active_course %}
-        <li><a href="{{ base_url }}/courses/{{ active_course.id }}" target="_blank"
-                rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></li>
-        <li><a href="/courses/{{ active_course.id }}/assignments/new">New Assignment</a></li>
-        <li><a href="/courses/{{ active_course.id }}/assignments_bulk">Bulk</a></li>
-        <li><a href="/courses/{{ active_course.id }}/quizzes">Quizzes</a></li>
+        <div><a href="{{ base_url }}/courses/{{ active_course.id }}" target="_blank"
+                rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></div>
+        <div><a href="/courses/{{ active_course.id }}/assignments/new">New Assignment</a></div>
+        <div><a href="/courses/{{ active_course.id }}/assignments_bulk">Bulk</a></div>
+        <div><a href="/courses/{{ active_course.id }}/quizzes">Quizzes</a></div>
         {% endif %}
-        <!-- <li>Grade Quiz</li> -->
-        <!-- <li>Quiz Editor</li> -->
-        <!-- <li>Student Information</li> -->
-        <!-- <li><form action="/refresh" method="POST"  id="myForm"><button type="submit" class="btn btn-sm btn-info" name="something">Refresh</button></form> -->
+        <!-- <div>Grade Quiz</div> -->
+        <!-- <div>Quiz Editor</div> -->
+        <!-- <div>Student Information</div> -->
+        <!-- <div><form action="/refresh" method="POST"  id="myForm"><button type="submit" class="btn btn-sm btn-info" name="something">Refresh</button></form> -->
                 
-        <li class="refresh" id="refresh"><a class="refresh" href="/refresh">Refresh</a></li>
-    </ul>
-    <ul id="topbar-center">
-        <li><button id="messages" onClick="document.getElementById('overlay').style.display='block'; okButton.focus();">Messages</a></li>
-    </ul>
-    {% if active_course %}
-    <ul id="topbar-right">
-        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments" target="_blank"
-                rel="noopener noreferrer">🔗 Assignments</a></li>
-        <li><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/modules" target="_blank"
-                rel="noopener noreferrer">🔗 Modules</a></li>
-    </ul>
-    {% endif %}
+        <div class="spacer"></div>
+        <div class="refresh topbar-button" id="refresh"><a class="refresh" href="/refresh">Refresh</a></div>
+        <div class="topbar-button"><a id="messages" onClick="document.getElementById('overlay').style.display='block'; okButton.focus();">Messages</a></div>
+        {% if active_course %}
+        <div class="spacer"></div>
+        <div><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments" target="_blank"
+                rel="noopener noreferrer">🔗 Assignments</a></div>
+        <div><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/modules" target="_blank"
+                rel="noopener noreferrer">🔗 Modules</a></div>
+        {% endif %}
+        <div><a href="{{ url_for('settings', url=link_url) }}" title="Settings">🛠️</a></div>
+    <!-- </ul> -->
 </div>

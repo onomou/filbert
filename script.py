@@ -87,6 +87,7 @@ enrollment_user_fields = [
     'root_account',
     'login_id',
 ]
+required_system_fields = ['access_token', 'base_url', 'custom_certificate']
 
 def log_action(*the_strings):
     with open('log.txt', 'a') as file:
@@ -94,13 +95,27 @@ def log_action(*the_strings):
             current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             file.write('[' + current_datetime + '] ' + string + '\n')
 
-def load_config(filename):
-    config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
-    config.read(filename)
-    return config
+def load_config(filename, required_fields=None):
+    the_config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
+    the_config.read(filename)
+    if required_fields:
+        for field in required_fields:
+            for section in the_config.sections():
+                if field not in the_config[section]:
+                    the_config.set(section, field, '')
+    return the_config
+
+def write_config(filename, config):
+    with open(filename, 'w') as config_file:
+        config.write(config_file)
 
 log_action('start filbert')
-config = load_config("config.ini")
+system_config_filename = 'my_config.ini'
+if not os.path.exists(system_config_filename):
+    system_config_filename = 'config.ini'
+system_config = load_config(system_config_filename, required_system_fields)
+course_defaults = load_config('course_defaults.ini')
+active_profile = 'Canvas'
 
 # Flask section
 flask_app = Flask(__name__, static_folder="static")
@@ -163,7 +178,21 @@ def reload_assignments(course_id = None):
 
 
 # canvas helper dict functions
+def ensure_canvas_valid(f):
+    def wrapper(*args, **kwargs):
+        if canvas_d.get('canvas') is None:
+            return None
+        try:
+            if canvas_d.get('valid') is None:
+                canvas_d['canvas'].get_current_user() # will fail if canvas url or key are invalid
+                canvas_d['valid'] = True
+            return f(*args, **kwargs)
+        except:
+            return None
+    return wrapper
+
 def ensure_course_exists(f):
+    @ensure_canvas_valid
     def wrapper(*args, **kwargs):
         if len(args) == 0 or args[0] not in canvas_d['courses']:
             return None
@@ -172,6 +201,9 @@ def ensure_course_exists(f):
     return wrapper
 
 def get_courses(partial_refresh=False, refresh=False):
+    global canvas_d
+    if canvas_d.get('canvas') is None:
+        refresh = True
     if partial_refresh:
         print('partial refresh courses')
         canvas = canvas_d['canvas']
@@ -189,14 +221,24 @@ def get_courses(partial_refresh=False, refresh=False):
                 canvas_d['courses'][course.id]['course'] = course
     if refresh:
         print('refresh courses')
-        BASE_URL = config.get("Canvas", "BASE_URL") # TODO: handle missing config key
-        ACCESS_TOKEN = config.get("Canvas", "ACCESS_TOKEN") # TODO: handle missing config key
-        canvas = Canvas(BASE_URL, ACCESS_TOKEN)
+        base_url = system_config.get(active_profile, 'base_url', fallback='') # TODO: handle missing config key
+        access_token = system_config.get(active_profile, 'access_token', fallback='-1') # TODO: handle missing config key
+        if system_config.get(active_profile, 'custom_certificate') is None or system_config.get(active_profile, 'custom_certificate') in ['None', '']:
+            _ = os.environ.pop('REQUESTS_CA_BUNDLE', '')
+        else:
+            os.environ['REQUESTS_CA_BUNDLE'] = system_config.get(active_profile, 'custom_certificate')
+        try:
+            canvas = Canvas(base_url, access_token)
+            canvas.get_current_user() # will fail if canvas url or key are invalid
+            canvas_d['valid'] = True
+        except:
+            canvas_d['canvas'] = None
+            return None
         courses = canvas.get_courses(include=['course_image'])
         # assignments_d = {course.id:{x.id for x in course.get_assignments()} for course in courses}
         # assignment_groups = {}
-        canvas_d['BASE_URL'] = BASE_URL
-        canvas_d['ACCESS_TOKEN'] = ACCESS_TOKEN
+        canvas_d['base_url'] = base_url
+        canvas_d['access_token'] = access_token
         canvas_d['canvas'] = canvas
         canvas_d['courses'] = {x.id: {'course': x} for x in courses}
         for course_id in canvas_d['courses'].keys():
@@ -385,9 +427,9 @@ def fix_module_ordering(course_id, module_id):
 @ensure_course_exists
 def get_times(course_id):
     course_id = str(course_id)
-    course_times = config.getlist(course_id, "DUE_TIMES", fallback=[])
-    default_times = config.getlist('DEFAULTS', "DUE_TIMES", fallback=[])
-    shared_times = config.getlist('DEFAULTS', "SHARED_TIMES", fallback=[])
+    course_times = course_defaults.getlist(course_id, 'DUE_TIMES', fallback=[])
+    default_times = course_defaults.getlist('DEFAULTS', 'DUE_TIMES', fallback=[])
+    shared_times = course_defaults.getlist('DEFAULTS', 'SHARED_TIMES', fallback=[])
 
     all_times = course_times + shared_times
     if course_times == []:
@@ -401,7 +443,7 @@ def get_times(course_id):
 @ensure_course_exists
 def get_submission_types(course_id):
     course_id = str(course_id)
-    submission_types = config.getlist(course_id, "SUBMISSION_TYPES", fallback=[])
+    submission_types = course_defaults.getlist(course_id, 'SUBMISSION_TYPES', fallback=[])
     return submission_types
     
 # reload_assignments()
@@ -417,16 +459,24 @@ def get_submission_types(course_id):
 @flask_app.context_processor
 def inject_globals():
     courses = get_courses()
+    if courses is None:
+        courses = []
+    else:
+        courses = sorted(courses, key=lambda x: (getattr(x, 'start_at_date', datetime.now().astimezone()), x.name))
     return {
         'today': datetime.today().astimezone(),
-        'courses': sorted(courses, key=lambda x: (getattr(x, 'start_at_date', datetime.now().astimezone()), x.name)),
-        'base_url': canvas_d['BASE_URL'],
+        'courses': courses,
+        'base_url': canvas_d.get('base_url'),
     }
 
 # Routes section
 @flask_app.route("/", methods=["GET", "POST"])
 def index():
-    # raise(Exception)
+    if not canvas_d.get('valid'):
+        flash('Your server information is invalid. Ensure your base_url and access_token are correct.')
+        flash('Make sure your server is reachable and that its certificate is valid.')
+        # raise Exception()
+        return redirect(url_for('settings'))
     return render_template(
         "index.html",
         action='index'
@@ -435,7 +485,6 @@ def index():
 
 @flask_app.route("/refresh", methods=["GET"])
 def refresh_everything():
-    flash('trying to refresh')
     reload_assignments()
     flash('Reloaded everything')
     return redirect(request.referrer)
@@ -448,19 +497,45 @@ def example():
     )
 
 
-@flask_app.route("/settings", strict_slashes=False)
-@flask_app.route("/courses/<int:course_id>/settings", methods=["GET"])
+@flask_app.route('/settings', strict_slashes=False)
+def settings():
+    # my_config = config
+    return render_template(
+        'settings.html',
+        active_profile=active_profile,
+        config=system_config,
+        action='settings',
+    )
+
+@flask_app.route('/update_settings', methods=['POST'])
+def update_settings():
+    global system_config, active_profile
+    # Update settings based on the form data
+    active_profile = request.form.get('section-selection')
+    for key in request.form:
+        if key != 'section-selection':
+            system_config[active_profile][key] = request.form[key]
+
+    # Save the updated settings
+    write_config('my_config.ini', system_config)
+    system_config = load_config('my_config.ini', required_system_fields)
+    _ = canvas_d.pop('valid', None)
+    _ = get_courses(refresh=True)
+
+    return redirect('/')
+
+@flask_app.route('/courses/<int:course_id>/settings', methods=['GET'])
 def course_settings(course_id=None):
     if course_id is None:
         course = None
-        course_defaults = {}
+        # course_defaults = {} # TODO
     else:
         course = get_course(course_id)
-        course_defaults = config[str(course_id)]
+        # course_defaults = course_defaults[str(course_id)]
     return render_template(
-        "settings.html",
+        'course_settings.html',
         active_course=course,
-        options=list(course_defaults.keys()),
+        # options=list(course_defaults.keys()),
         action='settings',
         link_url=make_url(course_id, 'settings'),
     )
@@ -872,7 +947,7 @@ def get_assignment_details(course_id, assignment_id=None):
     assignment_groups = get_assignment_groups(course_id)
     modules = get_modules(course_id)
     
-    groups_count = int(config.get('DEFAULT', 'MIN_LINES', fallback=5))
+    groups_count = int(course_defaults.get('DEFAULT', 'MIN_LINES', fallback=5))
     
     assignment_modules = get_assignment_module_ids(course_id, assignment_id) #
     default_times = get_times(course_id)
