@@ -24,6 +24,25 @@ html, body {
   /* width: 100%; */
 }
 
+.action-button {
+  cursor: pointer;
+  font-size: larger;
+  padding: 12px 15px;
+  font-weight: bold;
+  border-radius: 6px;
+  /* width: 105px; */
+  border-width: 0;
+  background: var(--blue-color);
+}
+
+.action-button.small {
+    font-size: smaller;
+}
+
+.action-button.warning {
+    background: var(--red-color);
+}
+
 a {
   text-decoration: none;
 }
@@ -65,6 +84,14 @@ h1 {
 }
 
 /* Styling for the container div */
+
+.parent-float {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  margin-bottom: 0.4em;
+}
+
 .styled-div {
   border: 1px solid #ccc;
   border-radius: 5px;

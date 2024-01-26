@@ -12,29 +12,55 @@ Canvas - Settings
 
 {% block body %}
 <div id="settings-page">
-    <h1>Edit Settings</h1>
+    <h1>Edit Site Settings</h1>
     <form id="settings-form" method="post" action="/update_settings">
-        <select id="section-selection" name="section-selection" size="4">
-            {% for section in config.sections() %}
-            <option value="{{section}}">{{section}}</option>
-            {% endfor %}
-        </select>
-
-        <div id="section-settings">
-            Initial Values
+        <div class="parent-float">
+            <div class="styled-div">
+                <h2>Profile</h2>
+                <select id="section-selection" name="section-selection" size="4">
+                    <option value="">&lt;new profile&gt;</option>
+                    {% for section in config.sections() %}
+                    <option value="{{section}}">{{section}}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="action-button small warning" formaction="{{ url_for('delete_profile') }}">Delete</button>
+            </div>
+            <div class="styled-div">
+                <h2>Settings</h2>
+                <div id="section-settings">
+                </div>
+            </div>
         </div>
-        <input type="submit" value="Save">
+        <input type="submit" value="Save" class="action-button">
     </form>
 
     <div id="hidden">
         {% for section in config.sections() %}
         <div id="{{section}}">
+            <div class="section-settings">
+                <label for="section-name">Section Name:</label>
+                <input type="text" name="section-name" id="section-name" value="{{ section }}">
+            </div>
             {% for key, value in config[section].items() %}
-            <label for="{{ key }}">{{ key }}:</label>
-            <input type="text" name="{{ key }}" value="{{ value }}"><br>
+            <div class="section-settings">
+                <label for="{{ key }}">{{ key }}:</label>
+                <input type="text" name="{{ key }}" id="{{ key }}" value="{{ value }}">
+            </div>
             {% endfor %}
         </div>
         {% endfor %}
+        <div id="new-section">
+            <div class="section-settings">
+                <label for="section-name">Section Name:</label>
+                <input type="text" name="section-name" id="section-name" value="">
+            </div>
+            {% for key in required_fields %}
+            <div class="section-settings">
+                <label for="{{ key }}">{{ key }}:</label>
+                <input type="text" name="{{ key }}" value="">
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
 {% endblock %}

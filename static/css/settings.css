@@ -1,28 +1,27 @@
 #settings-page {
-
-width: 100%;
-
-position: relative;
-
-margin: 1em;
-
-display: flex;
-
-flex-direction: column;
-
-gap: 1em;
+    width: 100%;
+    position: relative;
+    margin: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
 }
 
 #hidden {
     display: none;
 }
 
-.options-panel {
-
-/* margin-top: auto; */
+div#used-options {
+    /* height: 100%; */
+    flex: 1;
+    border: 1px solid black;
 }
 
-div#used-options {/* height: 100%; */flex: 1;border: 1px solid black;}
+#section-selection {
+    overflow: auto;
+    width: 9em;
+    padding: 5px;
+}
 
 #available-options {
     margin-top: auto;
@@ -46,16 +45,6 @@ div#used-options {/* height: 100%; */flex: 1;border: 1px solid black;}
     display: inline-block;
 }
 
-.used-options {
-
-}
-
-.available-options {
-
-}
-
-
-
 span.option-label {
     display: table-cell;
     vertical-align: middle;
@@ -63,4 +52,18 @@ span.option-label {
 
 [draggable=true] {
     cursor: move;
+}
+
+.section-settings {
+    width: 100%;
+}
+
+div#section-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.original-section-name {
+    display: none;
 }

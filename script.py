@@ -128,7 +128,7 @@ flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 
 # Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-from util import ListConverter, format_date
+from util import ListConverter, format_date, rename_section
 flask_app.url_map.converters['list'] = ListConverter
 flask_app.jinja_env.filters['format_date'] = format_date
 
@@ -200,6 +200,7 @@ def ensure_course_exists(f):
             return f(*args, **kwargs)
     return wrapper
 
+@ensure_canvas_valid
 def get_courses(partial_refresh=False, refresh=False):
     global canvas_d
     if canvas_d.get('canvas') is None:
@@ -503,6 +504,7 @@ def settings():
         'settings.html',
         active_profile=active_profile,
         config=system_config,
+        required_fields=required_system_fields,
         action='settings',
     )
 
@@ -511,17 +513,44 @@ def update_settings():
     global system_config, active_profile
     # Update settings based on the form data
     active_profile = request.form.get('section-selection')
+    if active_profile not in system_config:
+        active_profile = request.form.get('section-name')
+        system_config.add_section(active_profile)
+        for field in required_system_fields:
+            system_config.set(active_profile, field, '')
     for key in request.form:
-        if key != 'section-selection':
+        if key not in ['section-selection', 'section-name']:
+            if request.form.get('section-name') != active_profile:
+                # section has been renamed
+                new_section_name = request.form.get('section-name')
+                rename_section(system_config, active_profile, new_section_name)
+                # system_config._sections[new_section_name] = system_config._sections.pop(active_profile)
+                active_profile = new_section_name
             system_config[active_profile][key] = request.form[key]
 
     # Save the updated settings
     write_config('my_config.ini', system_config)
     system_config = load_config('my_config.ini', required_system_fields)
     _ = canvas_d.pop('valid', None)
-    _ = get_courses(refresh=True)
+    result = get_courses(refresh=True)
+    if result is None:
+        flash('Your server information is invalid. Ensure your base_url and access_token are correct.')
+        flash('Make sure your server is reachable and that its certificate is valid.')
+    return redirect(request.referrer)
 
-    return redirect('/')
+
+@flask_app.route('/delete_profile', methods=['POST'])
+def delete_profile():
+    profile_name = request.form.get('section-selection')
+    if profile_name in system_config:
+        log_action(f'deleted profile {profile_name} that had values {[(key, val) for key, val in system_config[profile_name].items()]}')
+        system_config.remove_section(profile_name)
+        write_config('my_config.ini', system_config)
+        flash('Profile '+ profile_name +' deleted!')
+    else:
+        flash('Profile '+ profile_name +' does not exist!')
+    return redirect(request.referrer)
+
 
 @flask_app.route('/courses/<int:course_id>/settings', methods=['GET'])
 def course_settings(course_id=None):
@@ -560,7 +589,7 @@ def users_data(course_id=None):
 
 
 def make_url(course_id, action, id=None): # options = {'action': {}, 'id': #}
-    url = canvas_d['BASE_URL'] + '/courses/' + str(course_id)
+    url = system_config.get(active_profile, 'base_url') + '/courses/' + str(course_id)
     o = [
         'announcements',
         'discussion_topics',
@@ -677,7 +706,7 @@ def parse_url_form():
 def parse_url(url=None):
     from parse_url import parse_canvas_url
     if url is None:
-        url = config.get("Canvas", "BASE_URL")
+        url = system_config.get(active_profile, 'base_url')
     details = parse_canvas_url(url)
     course = get_course(details['course_id'])
     path = request.root_url[:-1] + details['local_path']
@@ -818,7 +847,7 @@ def update_assignment(course_id, assignment_id=0):
                 print('uploaded file ' + canvas_file['display_name'])
                 response['description'] += '<p><a class="instructure_file_link instructure_scribd_file auto_open"'\
                     + ' title="' + canvas_file['display_name'] + '"'\
-                    + ' href="' + canvas_d['BASE_URL'] + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
+                    + ' href="' + system_config.get("Canvas", "base_url") + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
                     + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
                     + canvas_file['display_name'] + '</a></p>'
                     # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
