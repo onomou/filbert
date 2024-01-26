@@ -6,7 +6,7 @@ def parse_canvas_url(url,include=None):
     include = include or []
     code_lines = []
     parsed_url = urlparse(unquote(url))
-    base_url = parsed_url.scheme + "://" + parsed_url.netloc
+    base_url = parsed_url.scheme + '://' + parsed_url.netloc
     code_lines += basic_setup(base_url)
     
     path_components = parsed_url.path.strip('/').split('/')
@@ -39,11 +39,11 @@ def parse_canvas_url(url,include=None):
             if action in canvas_actions:
                 code_lines += canvas_actions[action](course_id, path_components[3:], parse_qs(parsed_url.query))
             else:
-                print("Unknown action:", action)
+                print('Unknown action:', action)
     elif path_components[0] == 'files':
         code_lines += canvas_actions['file'](path_components[1:])
     else:
-        print("Invalid Canvas URL")
+        print('Invalid Canvas URL')
 
     code = '\n'.join(code_lines)
     # raise Exception
@@ -58,7 +58,7 @@ def basic_setup(base_url):
     code_lines.append('    config = ConfigParser()')
     code_lines.append('    config.read(filename)')
     code_lines.append('    return config')
-    code_lines.append('config = load_config("config.ini")')
+    code_lines.append("config = load_config('config.ini')")
     code_lines.append(f"canvas = Canvas(access_token=config['Canvas']['ACCESS_TOKEN'], base_url='{base_url}')")
     code_lines.append('courses = canvas.get_courses()')
     return code_lines
@@ -68,15 +68,15 @@ def handle_assignment(course_id, components, parameters=None):
     code_lines.append(f'assignments = course.get_assignments()')
     if len(components) == 1:
         if components[0] == 'syllabus':
-            print(f"View assignments syllabus for {course_id}")
+            print(f'View assignments syllabus for {course_id}')
         else:
             assignment_id = components[0]
-            print(f"View assignment {assignment_id} for course {course_id}")
+            print(f'View assignment {assignment_id} for course {course_id}')
             code_lines.append(f'assignment = course.get_assignment({assignment_id})')
             code_lines.append('if assignment.is_quiz_assignment:')
             code_lines.append('    quiz = course.get_quiz(assignment.quiz_id)')
     else:
-        print(f"View all assignments for course {course_id}")
+        print(f'View all assignments for course {course_id}')
     if parameters is not None:
         if 'module_item_id' in parameters:
             code_lines.append('modules = course.get_modules()')
@@ -95,7 +95,7 @@ def handle_module(course_id, components, parameters=None):
     code_lines.append('modules = course.get_modules()')
     print(components)
     if len(components) == 2 and components[0] == 'items':
-        print(f"View module item {components[1]} for course {course_id}")
+        print(f'View module item {components[1]} for course {course_id}')
         code_lines.append('module_items_d = {module: module.get_module_items() for module in modules}')
         code_lines.append('def find_module_item(modules_dict, item_id):')
         code_lines.append('    for module, module_items in module_items_d.items():')
@@ -105,7 +105,7 @@ def handle_module(course_id, components, parameters=None):
         code_lines.append('    return None, None  # Return None if the id is not found in any list')
         code_lines.append(f'module, module_item = find_module_item(module_items_d, { components[1] })')
     else:
-        print(f"View all modules for course {course_id}")
+        print(f'View all modules for course {course_id}')
     return code_lines
 
 def handle_file(components, parameters=None):
@@ -188,6 +188,6 @@ urls = [
 
 # Parse and perform actions for each URL
 for url in urls:
-    print("\nParsing:", url)
+    print('\nParsing:', url)
     print(parse_canvas_url(url))
     print()

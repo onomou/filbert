@@ -19,17 +19,17 @@ import os
 # from werkzeug.utils import secure_filename
 import re
 windows_badnames = (
-    "CON",
-    "AUX",
-    "COM1",
-    "COM2",
-    "COM3",
-    "COM4",
-    "LPT1",
-    "LPT2",
-    "LPT3",
-    "PRN",
-    "NUL",
+    'CON',
+    'AUX',
+    'COM1',
+    'COM2',
+    'COM3',
+    'COM4',
+    'LPT1',
+    'LPT2',
+    'LPT3',
+    'PRN',
+    'NUL',
 )
 user_fields = [
     'id',
@@ -45,13 +45,13 @@ user_fields = [
     # 'locale',
     # 'last_name',
     # 'first_name',
-    # "sis_user_id",
-    # "sis_import_id",
-    # "integration_id",
-    # "avatar_url",
-    # "avatar_state",
-    "enrollments",
-    "email",
+    # 'sis_user_id',
+    # 'sis_import_id',
+    # 'integration_id',
+    # 'avatar_url',
+    # 'avatar_state',
+    'enrollments',
+    'email',
 ]
 profile_fields = [
     'id',
@@ -92,7 +92,7 @@ required_system_fields = ['access_token', 'base_url', 'custom_certificate']
 def log_action(*the_strings):
     with open('log.txt', 'a') as file:
         for string in the_strings:
-            current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             file.write('[' + current_datetime + '] ' + string + '\n')
 
 def load_config(filename, required_fields=None):
@@ -118,11 +118,11 @@ course_defaults = load_config('course_defaults.ini')
 active_profile = 'Canvas'
 
 # Flask section
-flask_app = Flask(__name__, static_folder="static")
-flask_app.static_folder = "static"
-flask_app.static_url_path = "/static"
-flask_app.secret_key = "fjeioaijcvmew908jcweio320"
-flask_app.config['UPLOAD_FOLDER'] = config.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
+flask_app = Flask(__name__, static_folder='static')
+flask_app.static_folder = 'static'
+flask_app.static_url_path = '/static'
+flask_app.secret_key = 'fjeioaijcvmew908jcweio320'
+flask_app.config['UPLOAD_FOLDER'] = system_config.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
 flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 20MB
 
 # Ensure the upload folder exists; create it if necessary
@@ -134,12 +134,12 @@ flask_app.jinja_env.filters['format_date'] = format_date
 
 
 
-@flask_app.route("/favicon.ico")
+@flask_app.route('/favicon.ico')
 def favicon():
     return send_from_directory(
-        os.path.join(flask_app.root_path, "static"),
-        "favicon.ico",
-        mimetype="image/vnd.microsoft.icon",
+        os.path.join(flask_app.root_path, 'static'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon',
     )
 
 # Canvas section
@@ -455,7 +455,6 @@ def get_submission_types(course_id):
 # def all_courses():
 #     return 
 
-
 @flask_app.context_processor
 def inject_globals():
     courses = get_courses()
@@ -470,7 +469,7 @@ def inject_globals():
     }
 
 # Routes section
-@flask_app.route("/", methods=["GET", "POST"])
+@flask_app.route('/', methods=['GET', 'POST'])
 def index():
     if not canvas_d.get('valid'):
         flash('Your server information is invalid. Ensure your base_url and access_token are correct.')
@@ -478,22 +477,22 @@ def index():
         # raise Exception()
         return redirect(url_for('settings'))
     return render_template(
-        "index.html",
+        'index.html',
         action='index'
     )
 
 
-@flask_app.route("/refresh", methods=["GET"])
+@flask_app.route('/refresh', methods=['GET'])
 def refresh_everything():
     reload_assignments()
     flash('Reloaded everything')
     return redirect(request.referrer)
 
 
-@flask_app.route("/example")
+@flask_app.route('/example')
 def example():
     return render_template(
-        "example.html",
+        'example.html',
     )
 
 
@@ -541,7 +540,7 @@ def course_settings(course_id=None):
     )
 
 
-@flask_app.route("/courses/<int:course_id>/users/data")
+@flask_app.route('/courses/<int:course_id>/users/data')
 def users_data(course_id=None):
     if course_id is None:
         return jsonify({x: '' for x in user_fields})
@@ -583,7 +582,7 @@ def make_url(course_id, action, id=None): # options = {'action': {}, 'id': #}
         url += '/' + str(id)
     return url
 
-@flask_app.route("/courses/<int:course_id>/users", strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/users', strict_slashes=False)
 def users_page(course_id=None):
     if course_id is None:
         course = None
@@ -592,7 +591,7 @@ def users_page(course_id=None):
         course = get_course(course_id)
         users = get_users(course_id)
     return render_template(
-        "table_page.html",
+        'table_page.html',
         active_course = course,
         users=users,
         data_name='users_data',
@@ -600,7 +599,7 @@ def users_page(course_id=None):
         link_url=make_url(course_id, 'users'),
     )
 
-@flask_app.route("/courses/<int:course_id>/users/<int:user_id>", strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/users/<int:user_id>', strict_slashes=False)
 def user_details(course_id=None, user_id=None):
     if course_id is None:
         course = None
@@ -615,7 +614,7 @@ def user_details(course_id=None, user_id=None):
             users = get_users(course_id)
             active_user = get_user(course_id, user_id)
     return render_template(
-        "table_page.html",
+        'table_page.html',
         active_course = course,
         users=users,
         active_user=active_user,
@@ -623,12 +622,12 @@ def user_details(course_id=None, user_id=None):
         link_url=make_url(course_id, 'users', user_id),
     )
 
-@flask_app.route("/courses/<int:course_id>/users/refresh", strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/users/refresh', strict_slashes=False)
 def refresh_users(course_id=None):
     _ = get_users(course_id, refresh=True)
     return redirect(request.referrer)
 
-@flask_app.route("/courses/<int:course_id>/enrollments/data")
+@flask_app.route('/courses/<int:course_id>/enrollments/data')
 def enrollments_data(course_id=None):
     if course_id is None:
         return jsonify({x: '' for x in enrollment_fields + enrollment_user_fields})
@@ -646,7 +645,7 @@ def enrollments_data(course_id=None):
     # raise Exception
     return response
 
-@flask_app.route("/courses/<int:course_id>/enrollments", strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/enrollments', strict_slashes=False)
 def enrollments_page(course_id=None):
     if course_id is None:
         course = None
@@ -655,7 +654,7 @@ def enrollments_page(course_id=None):
         course = get_course(course_id)
         users = get_users(course_id)
     return render_template(
-        "table_page.html",
+        'table_page.html',
         active_course = course,
         users=users,
         data_name='enrollments_data',
@@ -663,18 +662,18 @@ def enrollments_page(course_id=None):
         link_url=make_url(course_id, 'enrollments'),
     )
 
-@flask_app.route("/courses/<int:course_id>/enrollments/refresh", strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/enrollments/refresh', strict_slashes=False)
 def refresh_enrollments(course_id=None):
     _ = get_enrollments(course_id, refresh=True)
     return redirect(request.referrer)
 
-@flask_app.route("/parse_form/", methods=["GET"])
+@flask_app.route('/parse_form/', methods=['GET'])
 def parse_url_form():
     request_url = request.args.get('url') or None
     return redirect(url_for('parse_url', url=request_url))
 
-@flask_app.route("/parse_url", methods=["GET"], strict_slashes=False)
-@flask_app.route("/parse_url/<path:url>", methods=["GET"])
+@flask_app.route('/parse_url', methods=['GET'], strict_slashes=False)
+@flask_app.route('/parse_url/<path:url>', methods=['GET'])
 def parse_url(url=None):
     from parse_url import parse_canvas_url
     if url is None:
@@ -683,7 +682,7 @@ def parse_url(url=None):
     course = get_course(details['course_id'])
     path = request.root_url[:-1] + details['local_path']
     return render_template(
-        "parse_url.html",
+        'parse_url.html',
         url=url,
         code=details['code'],
         local_link=path,
@@ -692,12 +691,12 @@ def parse_url(url=None):
         action='assignments',
     )
 
-@flask_app.route("/courses", methods=["GET"], strict_slashes=False)
+@flask_app.route('/courses', methods=['GET'], strict_slashes=False)
 def courses_page():
     return redirect(url_for('index'))
 
 
-@flask_app.route("/courses/<int:course_id>/", methods=["GET"])
+@flask_app.route('/courses/<int:course_id>/', methods=['GET'])
 def course_page(course_id):
     print(get_course(course_id))
     # if get_course(course_id) is None:
@@ -705,14 +704,14 @@ def course_page(course_id):
     return redirect(url_for('new_assignment', course_id=course_id)) # TODO: consider implementing course front page view
 
 
-@flask_app.route("/courses/<int:course_id>/<action>", methods=["GET"])
+@flask_app.route('/courses/<int:course_id>/<action>', methods=['GET'])
 def course_action(course_id, action='assignments'):
     match action:
         case 'assignments':
             return redirect(url_for('assignments_page', course_id=course_id))
         case 'assignments_list':
             return redirect(url_for('assignments_list', course_id=course_id))
-        case "list_quiz":
+        case 'list_quiz':
             return redirect(url_for('quiz_page', course_id=course_id))
         case 'assignments_bulk':
             return redirect(url_for('assignments_bulk', course_id=course_id))
@@ -744,19 +743,19 @@ def list_assignments(course_id):
     )
 '''
 
-@flask_app.route("/courses/refresh", methods=["GET"])
+@flask_app.route('/courses/refresh', methods=['GET'])
 def refresh_courses():
     _ = get_courses(partial_refresh=True)
     return redirect(request.referrer)
 
-@flask_app.route("/courses/<int:course_id>/assignments/refresh", methods=["GET"])
+@flask_app.route('/courses/<int:course_id>/assignments/refresh', methods=['GET'])
 def refresh_assignments(course_id):
     _ = get_assignments(course_id, True)
     _ = get_modules(course_id, True)
     _ = get_assignment_groups(course_id, True)
     return redirect(request.referrer)
 
-@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/delete", methods=["POST"])
+@flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/delete', methods=['POST'])
 def delete_assignment(course_id, assignment_id):
     assignment = get_assignment(course_id, assignment_id)
     log_action(f'delete_assignment({course_id}, {assignment_id})')
@@ -768,7 +767,7 @@ def delete_assignment(course_id, assignment_id):
 
 
 # call with assignment_id=0 to create new
-@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/update", methods=["POST"])
+@flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/update', methods=['POST'])
 def update_assignment(course_id, assignment_id=0):
     log_action(f'update_assignment({course_id}, {assignment_id})')
     course = get_course(course_id)
@@ -782,7 +781,7 @@ def update_assignment(course_id, assignment_id=0):
         response['external_tool_tag_attributes'] = {'url': request.form.get('url'), 'new_tab': True}
     
     # handle due_at separately
-    due_at_text = request.form.get("due_at")
+    due_at_text = request.form.get('due_at')
     try:
         due_at = pytz.timezone(course.time_zone).localize(dateutil.parser.parse(due_at_text)).astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
@@ -804,7 +803,7 @@ def update_assignment(course_id, assignment_id=0):
         else:
             # filename = secure_filename(file.filename)
             # https://stackoverflow.com/a/71199182 -- of course I trust the regex
-            filename = re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", "-", file.filename)
+            filename = re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", '-', file.filename)
             if filename in windows_badnames:
                 filename = filename + '_'
             print('filename: ' + filename)
@@ -821,7 +820,7 @@ def update_assignment(course_id, assignment_id=0):
                     + ' title="' + canvas_file['display_name'] + '"'\
                     + ' href="' + canvas_d['BASE_URL'] + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
                     + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
-                    + canvas_file["display_name"] + '</a></p>'
+                    + canvas_file['display_name'] + '</a></p>'
                     # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
                     #     data-api-returntype="File">\
     
@@ -853,8 +852,8 @@ def update_assignment(course_id, assignment_id=0):
             diff_message += '<tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>'
             changes_dict = {key: val['new'] for key, val in changes.items()}
             old_values = {key: val['old'] for key, val in changes.items()}
-            log_action(f"assignment old values {old_values})")
-            log_action(f"assignment.edit(assignment={changes_dict})")
+            log_action(f'assignment old values {old_values})')
+            log_action(f'assignment.edit(assignment={changes_dict})')
             assignment.edit(assignment=changes_dict)
             for field, change in changes.items():
                 # diff_message += '<em>' + field + '</em>: ' + str(change)
@@ -871,7 +870,7 @@ def update_assignment(course_id, assignment_id=0):
     if assignment is not None:
         # add assignment to selected modules
         assignment_module_ids = get_assignment_module_ids(assignment.course_id, assignment.id)
-        selected_module_ids = [int(x) for x in request.form.getlist("modules")]
+        selected_module_ids = [int(x) for x in request.form.getlist('modules')]
         # TODO: split selected_module_ids into insertions and deletions, and handle each
         module_insertions = set([x for x in selected_module_ids if x not in assignment_module_ids])
         print('will add to ' + str(module_insertions))
@@ -887,9 +886,9 @@ def update_assignment(course_id, assignment_id=0):
                 print(module.name)
                 fix_module_ordering(course_id, module_id)
                 item_details = {
-                    "type": "assignment",
-                    "content_id": assignment.id,
-                    "position": module.items_count+1,
+                    'type': 'assignment',
+                    'content_id': assignment.id,
+                    'position': module.items_count+1,
                 }
                 log_action(f'module_item = module.create_module_item(module_item={item_details})')
                 module_item = module.create_module_item(module_item=item_details)
@@ -972,17 +971,17 @@ def get_assignment_details(course_id, assignment_id=None):
     the_details['link_url'] = getattr(assignment,'html_url',make_url(course_id,'assignments'))
     return the_details
 
-@flask_app.route("/courses/<int:course_id>/render_topbar")
-@flask_app.route("/courses/<int:course_id>/render_topbar/<path:url>")
+@flask_app.route('/courses/<int:course_id>/render_topbar')
+@flask_app.route('/courses/<int:course_id>/render_topbar/<path:url>')
 def render_topbar(course_id, url=None):
     active_course = get_course(course_id)
     return render_template(
-        "topbar.html",
+        'topbar.html',
         active_course=active_course,
         link_url=url,
     )
 
-@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>/silent")
+@flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/silent')
 def push_page(course_id, assignment_id):
     the_details = get_assignment_details(course_id, assignment_id)
     return render_template(
@@ -990,20 +989,20 @@ def push_page(course_id, assignment_id):
         **the_details
     )
 
-@flask_app.route("/courses/<int:course_id>/assignments/new", methods=["GET"], strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/assignments/new', methods=['GET'], strict_slashes=False)
 def new_assignment(course_id):
     the_details = get_assignment_details(course_id)
     if the_details is None:
         flash('Course not found')
         return redirect(url_for('index'))
     return render_template(
-        "assignments.html",
+        'assignments.html',
         **the_details,
-        action="assignments",
+        action='assignments',
     )
 
-@flask_app.route("/courses/<int:course_id>/assignments", methods=["GET"], strict_slashes=False)
-@flask_app.route("/courses/<int:course_id>/assignments/<int:assignment_id>", methods=["GET"])
+@flask_app.route('/courses/<int:course_id>/assignments', methods=['GET'], strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>', methods=['GET'])
 def assignments_page(course_id, assignment_id=None):
     the_details = get_assignment_details(course_id, assignment_id)
     if the_details is None:
@@ -1014,27 +1013,27 @@ def assignments_page(course_id, assignment_id=None):
         flash(f'Assignment {assignment_id} does not exist')
         return redirect(url_for('new_assignment', course_id=course_id))
     return render_template(
-        "assignments.html",
+        'assignments.html',
         **the_details,
-        action="assignments",
+        action='assignments',
     )
 
-@flask_app.route("/courses/<int:course_id>/assignments/all")
-@flask_app.route("/courses/<int:course_id>/assignments/list")
+@flask_app.route('/courses/<int:course_id>/assignments/all')
+@flask_app.route('/courses/<int:course_id>/assignments/list')
 def assignments_list(course_id):
     course = get_course(course_id)
     assignments = get_assignments(course_id)
     
     return render_template(
-        "assignments_list.html",
+        'assignments_list.html',
         assignments=assignments,
         active_course=course,
-        action="assignments_list",
+        action='assignments_list',
         link_url=make_url(course_id, 'assignments'),
     )
 
-@flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/")
-@flask_app.route("/courses/<int:course_id>/assignments_bulk/intersect/<list:assignment_ids>", methods=["GET"])
+@flask_app.route('/courses/<int:course_id>/assignments_bulk/intersect/')
+@flask_app.route('/courses/<int:course_id>/assignments_bulk/intersect/<list:assignment_ids>', methods=['GET'])
 def get_selected_assignments(course_id, assignment_ids=None):
     assignment_ids = assignment_ids or []
     assignments = []
@@ -1058,22 +1057,22 @@ def get_selected_assignments(course_id, assignment_ids=None):
     return response
 
 
-@flask_app.route("/courses/<int:course_id>/assignments_bulk/update/<list:assignment_ids>", methods=["POST"])
+@flask_app.route('/courses/<int:course_id>/assignments_bulk/update/<list:assignment_ids>', methods=['POST'])
 def assignments_bulk_update(course_id,assignment_ids=None):
     assignment_ids = assignment_ids or []
     # TODO: implement this
     return redirect(request.referrer)
 
 
-@flask_app.route("/courses/<int:course_id>/assignments_bulk/delete/<list:assignment_ids>", methods=["POST"])
+@flask_app.route('/courses/<int:course_id>/assignments_bulk/delete/<list:assignment_ids>', methods=['POST'])
 def assignments_bulk_delete(course_id,assignment_ids=None):
     assignment_ids = assignment_ids or []
     # TODO: implement this
     return redirect(request.referrer)
 
 
-@flask_app.route("/courses/<int:course_id>/assignments_bulk", methods=["GET"], strict_slashes=False)
-@flask_app.route("/courses/<int:course_id>/assignments_bulk/<list:assignment_ids>", methods=["GET"])
+@flask_app.route('/courses/<int:course_id>/assignments_bulk', methods=['GET'], strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/assignments_bulk/<list:assignment_ids>', methods=['GET'])
 def assignments_bulk(course_id,assignment_ids=None):
     assignment_ids = assignment_ids or []
     # course = canvas.get_course(course_id)
@@ -1092,38 +1091,38 @@ def assignments_bulk(course_id,assignment_ids=None):
     assignment_ids = [x.id for x in selected_assignments]
 
     return render_template(
-        "assignments_bulk.html",
+        'assignments_bulk.html',
         active_course=course,
         assignments=assignments,
         selected_assignments=selected_assignments,
         selected_assignment_ids=assignment_ids,
         quiz=None,
         modules=modules,
-        action="assignments_bulk",
+        action='assignments_bulk',
         link_url=make_url(course_id, 'assignments'),
     )
 
 
-@flask_app.route("/courses/<int:course_id>/quizzes", methods=["GET", "POST"])
+@flask_app.route('/courses/<int:course_id>/quizzes', methods=['GET', 'POST'])
 def quiz_page(course_id):
     course = get_course(course_id)
     modules = get_modules(course_id)
     quizzes = get_quizzes(course_id)
 
-    if request.method == "POST":
+    if request.method == 'POST':
         return redirect(request.referrer)
     return render_template(
-        "quiz_details.html",
+        'quiz_details.html',
         active_course=course,
         quiz=None,
         quizzes=quizzes,
         modules=modules,
-        action="list_quiz",
+        action='list_quiz',
         link_url=make_url(course_id, 'quizzes'),
     )
 
 
-@flask_app.route("/courses/<int:course_id>/quizzes/<quiz_id>", methods=["GET", "POST"])
+@flask_app.route('/courses/<int:course_id>/quizzes/<quiz_id>', methods=['GET', 'POST'])
 def quiz_details(course_id, quiz_id):
     course = get_course(course_id)
     modules = get_modules(course_id)
@@ -1131,22 +1130,22 @@ def quiz_details(course_id, quiz_id):
     quiz = get_quiz(course_id, quiz_id)
     quiz_questions = quiz.get_questions()
 
-    if request.method == "POST":
+    if request.method == 'POST':
         return redirect(request.referrer)
     return render_template(
-        "quiz_details.html",
+        'quiz_details.html',
         active_course=course,
         quiz=quiz,
         quiz_questions=quiz_questions,
         quizzes=quizzes,
         modules=modules,
-        action="list_quiz",
+        action='list_quiz',
         link_url=make_url(course_id, 'quizzes', quiz_id),
     )
 
 
 @flask_app.route(
-    "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>", methods=["GET", "POST"]
+    '/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>', methods=['GET', 'POST']
 )
 def quiz_question_details(course_id, quiz_id, question_id):
     course = get_course(course_id)
@@ -1156,41 +1155,41 @@ def quiz_question_details(course_id, quiz_id, question_id):
     quiz_questions = quiz.get_questions()
     quiz_question = quiz.get_question(question_id)
 
-    if request.method == "POST":
+    if request.method == 'POST':
         log_action(f'quiz_question_details({course_id}, {quiz_id}, {question_id})')
         # code to update the quiz question
-        question_name = request.form.get("question_name")
-        question_text = request.form.get("question_text")
-        position = request.form.get("position")
-        points_possible = request.form.get("points_possible")
+        question_name = request.form.get('question_name')
+        question_text = request.form.get('question_text')
+        position = request.form.get('position')
+        points_possible = request.form.get('points_possible')
         details = {
-            "quiz_id": quiz.id,
-            "id": question_id,
-            "question_text": question_text,
-            "question_name": question_name,
-            "position": position,
-            "points_possible": points_possible,
+            'quiz_id': quiz.id,
+            'id': question_id,
+            'question_text': question_text,
+            'question_name': question_name,
+            'position': position,
+            'points_possible': points_possible,
         }
         log_action(f'question = quiz_question.edit({details})')
         question = quiz_question.edit(details)
 
-        flash("Quiz question updated!")
+        flash('Quiz question updated!')
         return redirect(request.referrer)
     return render_template(
-        "quiz_question_details.html",
+        'quiz_question_details.html',
         active_course=course,
         quiz=quiz,
         quiz_questions=quiz_questions,
         quiz_question=quiz_question,
         quizzes=quizzes,
         modules=modules,
-        action="quiz_question_details",
+        action='quiz_question_details',
         link_url=make_url(course_id, 'quizzes', quiz_id),
     )
 
 
 @flask_app.route(
-    "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/download", methods=["POST"]
+    '/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/download', methods=['POST']
 )
 def quiz_question_download(course_id, quiz_id, question_id):
     question_id = int(question_id)
@@ -1245,7 +1244,7 @@ def quiz_question_download(course_id, quiz_id, question_id):
     return send_from_directory(flask_app.config['UPLOAD_FOLDER'], filename)#redirect(request.referrer)
 
 @flask_app.route(
-    "/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/upload", methods=["POST"]
+    '/courses/<int:course_id>/quizzes/<quiz_id>/question/<question_id>/upload', methods=['POST']
 )
 def quiz_question_upload(course_id, quiz_id, question_id):
     question_id = int(question_id)
@@ -1368,14 +1367,14 @@ def get_assignment_data(course_id):
     return data
 
 
-@flask_app.route("/courses/<int:course_id>/assignments/grid", methods=["GET", "POST"])
+@flask_app.route('/courses/<int:course_id>/assignments/grid', methods=['GET', 'POST'])
 def assignments_grid(course_id):
     course = get_course(course_id)
     assignments = get_assignments(course_id)
     data = [{'id': x.id, 'name': x.name, 'points_possible': x.points_possible, 'published': x.published} for x in assignments]
     columns = [{'id': x, 'name': x, 'field': x} for x in data[0].keys()]
     return render_template(
-        "assignments_grid.html", 
+        'assignments_grid.html', 
         active_course=course, 
         data=data, 
         columns=columns,
@@ -1384,7 +1383,7 @@ def assignments_grid(course_id):
     )
 
 
-@flask_app.route("/courses/<int:course_id>/assignments/update_data", methods=["POST"])
+@flask_app.route('/courses/<int:course_id>/assignments/update_data', methods=['POST'])
 def update_assignments(course_id):
     updated_data = request.get_json()  # Get the updated data sent from the client
     # Handle the updated data, e.g., update your database
@@ -1394,5 +1393,5 @@ def update_assignments(course_id):
 
 
 _ = get_courses(refresh=True)
-if __name__ == "__main__":
+if __name__ == '__main__':
     flask_app.run(debug=True)
