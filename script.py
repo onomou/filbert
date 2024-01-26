@@ -165,17 +165,6 @@ for course_id in canvas_d['courses'].keys():
 # canvas['courses'][course_id]['assignments']
 selected_course = None
 
-def reload_assignments(course_id = None):
-    target_course_ids = [course_id] if course_id is not None else canvas_d['courses'].keys()
-    for course_id in target_course_ids:
-        course = canvas_d['courses'][course_id]['course']
-        canvas_d['courses'][course_id]['assignments'] = {x.id: {'assignment': x} for x in course.get_assignments()}
-        # canvas_d['courses'][course_id]['assignment_groups'] = {x.id: {'assignment_group': x} for x in course.get_assignment_groups()}
-        # canvas_d['courses'][course_id]['quizzes'] = {x.id: {'quiz': x} for x in course.get_quizzes()}
-        # canvas_d['courses'][course_id]['users'] = {x.id: {'user': x} for x in course.get_users()}
-        # canvas_d['courses'][course_id]['enrollments'] = {x.id: {'enrollment': x} for x in course.get_enrollments()}
-        # canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x} for x in course.get_modules()}
-
 
 # canvas helper dict functions
 def ensure_canvas_valid(f):
@@ -201,13 +190,24 @@ def ensure_course_exists(f):
     return wrapper
 
 @ensure_canvas_valid
+def reload_assignments(course_id = None):
+    target_course_ids = [course_id] if course_id is not None else canvas_d['courses'].keys()
+    for course_id in target_course_ids:
+        course = canvas_d['courses'][course_id]['course']
+        canvas_d['courses'][course_id]['assignments'] = {x.id: {'assignment': x} for x in course.get_assignments()}
+        # canvas_d['courses'][course_id]['assignment_groups'] = {x.id: {'assignment_group': x} for x in course.get_assignment_groups()}
+        # canvas_d['courses'][course_id]['quizzes'] = {x.id: {'quiz': x} for x in course.get_quizzes()}
+        # canvas_d['courses'][course_id]['users'] = {x.id: {'user': x} for x in course.get_users()}
+        # canvas_d['courses'][course_id]['enrollments'] = {x.id: {'enrollment': x} for x in course.get_enrollments()}
+        # canvas_d['courses'][course_id]['modules'] = {x.id: {'module': x} for x in course.get_modules()}
+
 def get_courses(partial_refresh=False, refresh=False):
     global canvas_d
     if canvas_d.get('canvas') is None:
         refresh = True
     if partial_refresh:
         print('partial refresh courses')
-        canvas = canvas_d['canvas']
+        canvas = canvas_d['canvas'] # BUG: will throw error if canvas not valid
         courses = canvas.get_courses(include=['course_image'])
         for course in courses:
             if course.id not in canvas_d['courses']:
