@@ -16,15 +16,17 @@
 <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
   enctype=multipart/form-data>
   <!-- Assignment Title -->
+  {% if assignment is not none %}
   <h1>
-    {% if assignment is not none %}
     <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
       target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
     </a><span style="float: right;">&nbsp;</span>
-    {% else %}
-    Creating New Assignment
-    {% endif %}
   </h1>
+  {% else %}
+  <h1 class="new-assignment">
+    Creating New Assignment
+  </h1>
+  {% endif %}
 
   <div class="parent-float">
     {{ blob("Assignment Name", id="name") }}
@@ -108,6 +110,7 @@
 <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
 <span class="additional-actions">
   <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Duplicate</button>
+  <button id="template-button" class="action-button" type="submit" form="update" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
   <span class="copyto-span">
     <button id="copyto-button" class="action-button">Copy To</button>
     <span class="course-popup">

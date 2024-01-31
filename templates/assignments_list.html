@@ -30,7 +30,7 @@ Canvas - Assignment Details
             </tr>
             {% for assignment in assignments %}
             <tr>
-                <td><a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=assignment.id) }}">{{assignment.name}}</a></td>
+                <td><a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=assignment.id) }}">{{assignment.name}}</a><br>{{assignment.id}}</td>
                 <td>{{assignment.due_at | format_date }}</td>
                 <td>{{assignment.points_possible}}</td>
                 <td>{{assignment.assignment_group_id}}</td>
