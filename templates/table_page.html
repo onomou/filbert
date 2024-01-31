@@ -42,8 +42,8 @@ Canvas - Assignment Details
       </div>
 
     <div class="download-buttons">
-        <button type="button" onclick="table.download('csv', '{{data_name|string}}.csv');">Download CSV</button>
-        <button type="button" onclick="table.download('json', '{{data_name|string}}.json');">Download JSON</button>
+        <button type="button" onclick="table.download('csv', '{{active_course.course_code|string}} - Users Data.csv');">Download CSV</button>
+        <button type="button" onclick="table.download('json', '{{active_course.course_code|string}} - Users Data.json');">Download JSON</button>
     </div>
     <div id="main-grid">
 

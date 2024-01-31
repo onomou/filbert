@@ -14,8 +14,6 @@ var typeEl = document.getElementById("filter-type");
 var valueEl = document.getElementById("filter-value");
 
 $(document).ready(function () {
-    let table; // Define table outside the function
-
     fetch(data_url)
         .then(response => response.json())
         .then(data => {
@@ -80,3 +78,7 @@ document.getElementById("filter-clear").addEventListener("click", function(){
 
   table.clearFilter();
 });
+
+function download_csv() {
+  table.download('csv', 'users_data.csv');
+}
