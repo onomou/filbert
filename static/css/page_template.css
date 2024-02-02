@@ -33,6 +33,7 @@ html, body {
   /* width: 105px; */
   border-width: 0;
   background: var(--blue-color);
+  display: inline-block;
 }
 
 .action-button.small {
@@ -41,7 +42,6 @@ html, body {
 
 .action-button.warning {
     background: var(--red-color);
-    display: inline-block;
 }
 
 .action-button.left {
@@ -342,7 +342,7 @@ li.sidebar-item.published.active {
 
 .sidebar.collapsed {
   width: 7em;
-  min-width: 1em;
+  min-width: 2em;
   text-wrap: nowrap;
 }
 .secondary-sidebar h3 {
@@ -362,4 +362,9 @@ li.sidebar-item.published.active {
 
 .sidebar-item.active .secondary-sidebar-details {
   color: var(--secondary-sidebar-color);
+}
+
+
+.collapsed > .assignments-sticky ul {
+    display: none;
 }
