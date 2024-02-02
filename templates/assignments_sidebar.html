@@ -71,7 +71,7 @@
       console.log(parse_url)
       fetch(parse_url)
       .then(response => {return response.text()})
-      .then(data => {$("#topbar").html(data)})
+      .then(data => {$("#topbar-container").html(data)})
     });
     // event.preventDefault();
     return false;

@@ -27,8 +27,8 @@
         <div class="spacer"></div>
         <div class="refresh topbar-button" id="refresh"><a class="refresh" href="/refresh">Refresh</a></div>
         <div class="topbar-button"><a id="messages" onClick="document.getElementById('overlay').style.display='block'; okButton.focus();">Messages</a></div>
-        {% if active_course %}
         <div class="spacer"></div>
+        {% if active_course %}
         <div><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments" target="_blank"
                 rel="noopener noreferrer">🔗 Assignments</a></div>
         <div><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/modules" target="_blank"
