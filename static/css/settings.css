@@ -67,3 +67,8 @@ div#section-settings {
 .original-section-name {
     display: none;
 }
+
+
+details {
+    width: 16em;
+}

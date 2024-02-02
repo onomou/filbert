@@ -529,6 +529,13 @@ def log_page():
         action='assignments',
     )
 
+@flask_app.route('/log/clear')
+def clear_log():
+    with open(log_filename, 'w') as logfile:
+        logfile.write('')
+    log_action('log cleared')
+    return redirect(request.referrer)
+
 @flask_app.route('/settings', strict_slashes=False)
 def settings():
     # my_config = config
@@ -834,7 +841,7 @@ def delete_assignment(course_id, assignment_id):
 # call with assignment_id=0 to create new
 @flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/update', methods=['POST'])
 def update_assignment(course_id, assignment_id=0):
-    log_action(f'update_assignment({course_id}, {assignment_id})')
+    log_action(f'called update_assignment(course_id={course_id}, assignment_id={assignment_id})')
     course = get_course(course_id)
     fields = ['name', 'description', 'points_possible', 'due_at', 'published', 'assignment_group_id']
     response = {x: request.form.get(x) for x in fields}

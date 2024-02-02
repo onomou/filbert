@@ -41,6 +41,7 @@ html, body {
 
 .action-button.warning {
     background: var(--red-color);
+    display: inline-block;
 }
 
 .action-button.left {
@@ -53,6 +54,7 @@ html, body {
 
 a {
   text-decoration: none;
+  color: unset;
 }
 
 .main {

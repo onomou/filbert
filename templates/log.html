@@ -15,7 +15,9 @@ Logfile
 {% block body %}
 <div id="content">
     <h1>Log</h1>
-    
+    <div class="action-button small warning">
+        <a href="{{url_for('clear_log')}}">Clear Log</a>
+    </div>
     <pre id="code" name="code"><code class="language-python line-numbers" data-python-copy="Copy 🗍">{{logfile|join('\n')}}</code></pre>
 </div>
 {% endblock %}
