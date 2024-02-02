@@ -1,0 +1,8 @@
+.content {
+    display: block;
+    margin: 1em;
+    /* overflow-x: clip; */
+    width: 85vw;
+    flex: 1;
+    height: auto;
+}

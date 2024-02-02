@@ -90,8 +90,12 @@ enrollment_user_fields = [
 required_server_fields = ['access_token', 'base_url', 'custom_certificate']
 flask_options = ['TEMP_DIR', 'LAST_SERVER']
 
+log_filename = 'filbert.log'
+config_filename = 'config.ini'
+servers_filename = 'servers.ini'
+
 def log_action(*the_strings):
-    with open('log.txt', 'a') as file:
+    with open(log_filename, 'a') as file:
         for string in the_strings:
             current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             file.write('[' + current_datetime + '] ' + string + '\n')
@@ -112,14 +116,12 @@ def write_config(filename, config):
 
 log_action('start filbert')
 
-config_filename = 'config.ini'
 config = load_config(config_filename, flask_options)
 if 'Flask' not in config:
     config.add_section('Flask')
     write_config(config_filename, config)
     config = load_config(config_filename, flask_options)
 
-servers_filename = 'servers.ini'
 servers = load_config(servers_filename, required_server_fields)
 
 course_defaults = load_config('course_defaults.ini')
@@ -515,6 +517,17 @@ def example():
         'example.html',
     )
 
+
+@flask_app.route('/log')
+def log_page():
+    the_log = ''
+    with open(log_filename) as logfile:
+        the_log = logfile.read().splitlines()
+    return render_template(
+        'log.html',
+        logfile=the_log,
+        action='assignments',
+    )
 
 @flask_app.route('/settings', strict_slashes=False)
 def settings():
