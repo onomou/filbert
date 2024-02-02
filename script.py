@@ -13,7 +13,7 @@ from canvasapi import Canvas
 from datetime import datetime
 import dateutil.parser
 import pytz
-import configparser
+import configparser # TODO: consider using TOML/tomlkit instead
 import csv
 import os
 # from werkzeug.utils import secure_filename
@@ -87,7 +87,8 @@ enrollment_user_fields = [
     'root_account',
     'login_id',
 ]
-required_system_fields = ['access_token', 'base_url', 'custom_certificate']
+required_server_fields = ['access_token', 'base_url', 'custom_certificate']
+flask_options = ['TEMP_DIR', 'LAST_SERVER']
 
 def log_action(*the_strings):
     with open('log.txt', 'a') as file:
@@ -95,14 +96,14 @@ def log_action(*the_strings):
             current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             file.write('[' + current_datetime + '] ' + string + '\n')
 
-def load_config(filename, required_fields=None):
+def load_config(filename, required_fields=[]):
     the_config = configparser.ConfigParser(converters={'list': lambda x: [i.strip() for i in x.split(',')]})
+    the_config.write(open(filename, 'a')) # creates file if necessary
     the_config.read(filename)
-    if required_fields:
-        for field in required_fields:
-            for section in the_config.sections():
-                if field not in the_config[section]:
-                    the_config.set(section, field, '')
+    for field in required_fields:
+        for section in the_config.sections():
+            if field not in the_config[section]:
+                the_config[section][field] = ''
     return the_config
 
 def write_config(filename, config):
@@ -110,19 +111,28 @@ def write_config(filename, config):
         config.write(config_file)
 
 log_action('start filbert')
-system_config_filename = 'my_config.ini'
-if not os.path.exists(system_config_filename):
-    system_config_filename = 'config.ini'
-system_config = load_config(system_config_filename, required_system_fields)
+
+config_filename = 'config.ini'
+config = load_config(config_filename, flask_options)
+if 'Flask' not in config:
+    config.add_section('Flask')
+    write_config(config_filename, config)
+    config = load_config(config_filename, flask_options)
+
+servers_filename = 'servers.ini'
+servers = load_config(servers_filename, required_server_fields)
+
 course_defaults = load_config('course_defaults.ini')
-active_profile = 'Canvas'
+active_profile = config['Flask']['last_server']
+if active_profile not in servers:
+    active_profile = ''
 
 # Flask section
 flask_app = Flask(__name__, static_folder='static')
 flask_app.static_folder = 'static'
 flask_app.static_url_path = '/static'
 flask_app.secret_key = 'fjeioaijcvmew908jcweio320'
-flask_app.config['UPLOAD_FOLDER'] = system_config.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
+flask_app.config['UPLOAD_FOLDER'] = servers.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
 flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 20MB
 
 # Ensure the upload folder exists; create it if necessary
@@ -222,12 +232,12 @@ def get_courses(partial_refresh=False, refresh=False):
                 canvas_d['courses'][course.id]['course'] = course
     if refresh:
         print('refresh courses')
-        base_url = system_config.get(active_profile, 'base_url', fallback='') # TODO: handle missing config key
-        access_token = system_config.get(active_profile, 'access_token', fallback='-1') # TODO: handle missing config key
-        if system_config.get(active_profile, 'custom_certificate') is None or system_config.get(active_profile, 'custom_certificate') in ['None', '']:
+        base_url = servers.get(active_profile, 'base_url', fallback='') # TODO: handle missing config key
+        access_token = servers.get(active_profile, 'access_token', fallback='-1') # TODO: handle missing config key
+        if servers.get(active_profile, 'custom_certificate', fallback=None) is None or servers.get(active_profile, 'custom_certificate') in ['None', '']:
             _ = os.environ.pop('REQUESTS_CA_BUNDLE', '')
         else:
-            os.environ['REQUESTS_CA_BUNDLE'] = system_config.get(active_profile, 'custom_certificate')
+            os.environ['REQUESTS_CA_BUNDLE'] = servers.get(active_profile, 'custom_certificate')
         try:
             canvas = Canvas(base_url, access_token)
             canvas.get_current_user() # will fail if canvas url or key are invalid
@@ -469,6 +479,15 @@ def inject_globals():
         'base_url': canvas_d.get('base_url'),
     }
 
+def no_course_redirect(f):
+    def wrapper(*args, **kwargs):
+        if len(args) == 0 or args[0] not in canvas_d['courses']:
+            flash('Course not found')
+            return redirect(url_for('settings'))
+        else:
+            return f(*args, **kwargs)
+    return wrapper
+
 # Routes section
 @flask_app.route('/', methods=['GET', 'POST'])
 def index():
@@ -479,7 +498,7 @@ def index():
         return redirect(url_for('settings'))
     return render_template(
         'index.html',
-        action='index'
+        action='assignments',
     )
 
 
@@ -503,49 +522,52 @@ def settings():
     return render_template(
         'settings.html',
         active_profile=active_profile,
-        config=system_config,
-        required_fields=required_system_fields,
-        action='settings',
+        config=servers,
+        required_fields=required_server_fields,
+        action='assignments',
     )
 
 @flask_app.route('/update_settings', methods=['POST'])
 def update_settings():
-    global system_config, active_profile
+    global servers, active_profile
     # Update settings based on the form data
     active_profile = request.form.get('section-selection')
-    if active_profile not in system_config:
+    if active_profile not in servers:
         active_profile = request.form.get('section-name')
-        system_config.add_section(active_profile)
-        for field in required_system_fields:
-            system_config.set(active_profile, field, '')
+        servers.add_section(active_profile)
+        for field in required_server_fields:
+            servers.set(active_profile, field, '')
     for key in request.form:
         if key not in ['section-selection', 'section-name']:
             if request.form.get('section-name') != active_profile:
                 # section has been renamed
                 new_section_name = request.form.get('section-name')
-                rename_section(system_config, active_profile, new_section_name)
+                rename_section(servers, active_profile, new_section_name)
                 # system_config._sections[new_section_name] = system_config._sections.pop(active_profile)
                 active_profile = new_section_name
-            system_config[active_profile][key] = request.form[key]
+            servers[active_profile][key] = request.form[key]
 
     # Save the updated settings
-    write_config('my_config.ini', system_config)
-    system_config = load_config('my_config.ini', required_system_fields)
+    write_config(servers_filename, servers) # TODO: only write if changed
+    servers = load_config(servers_filename, required_server_fields)
     _ = canvas_d.pop('valid', None)
     result = get_courses(refresh=True)
     if result is None:
         flash('Your server information is invalid. Ensure your base_url and access_token are correct.')
         flash('Make sure your server is reachable and that its certificate is valid.')
+    else:
+        config['Flask']['last_server'] = active_profile
+        write_config(config_filename, config)
     return redirect(request.referrer)
 
 
 @flask_app.route('/delete_profile', methods=['POST'])
 def delete_profile():
     profile_name = request.form.get('section-selection')
-    if profile_name in system_config:
-        log_action(f'deleted profile {profile_name} that had values {[(key, val) for key, val in system_config[profile_name].items()]}')
-        system_config.remove_section(profile_name)
-        write_config('my_config.ini', system_config)
+    if profile_name in servers:
+        log_action(f'deleted profile {profile_name} that had values {[(key, val) for key, val in servers[profile_name].items()]}')
+        servers.remove_section(profile_name)
+        write_config('my_config.ini', servers)
         flash('Profile '+ profile_name +' deleted!')
     else:
         flash('Profile '+ profile_name +' does not exist!')
@@ -589,7 +611,7 @@ def users_data(course_id=None):
 
 
 def make_url(course_id, action, id=None): # options = {'action': {}, 'id': #}
-    url = system_config.get(active_profile, 'base_url') + '/courses/' + str(course_id)
+    url = servers.get(active_profile, 'base_url') + '/courses/' + str(course_id)
     o = [
         'announcements',
         'discussion_topics',
@@ -706,7 +728,7 @@ def parse_url_form():
 def parse_url(url=None):
     from parse_url import parse_canvas_url
     if url is None:
-        url = system_config.get(active_profile, 'base_url')
+        url = servers.get(active_profile, 'base_url')
     details = parse_canvas_url(url)
     course = get_course(details['course_id'])
     path = request.root_url[:-1] + details['local_path']
@@ -725,6 +747,7 @@ def courses_page():
     return redirect(url_for('index'))
 
 
+@no_course_redirect
 @flask_app.route('/courses/<int:course_id>/', methods=['GET'])
 def course_page(course_id):
     print(get_course(course_id))
@@ -847,7 +870,7 @@ def update_assignment(course_id, assignment_id=0):
                 print('uploaded file ' + canvas_file['display_name'])
                 response['description'] += '<p><a class="instructure_file_link instructure_scribd_file auto_open"'\
                     + ' title="' + canvas_file['display_name'] + '"'\
-                    + ' href="' + system_config.get("Canvas", "base_url") + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
+                    + ' href="' + servers.get("Canvas", "base_url") + '/courses/' + str(course.id) + '/files/' + str(canvas_file['id'])\
                     + '?wrap=1 target="_blank" rel="noopener" data-canvas-previewable="false">'\
                     + canvas_file['display_name'] + '</a></p>'
                     # data-api-endpoint="https://canvas.instructure.com/api/v1/courses/7675174/files/228895639"\
