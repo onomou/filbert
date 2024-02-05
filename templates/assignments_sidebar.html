@@ -8,6 +8,9 @@
       <li class="sidebar-item">
         <a href="/courses/{{ active_course.id }}/assignments/list">List ≡</a>
       </li>
+      <li class="sidebar-item" id="filter-item">
+        <input type="search"  oninput="liveFilter()" id="filterbox" placeholder="Filter">
+      </li>
       <li class="sidebar-item{{ ' active' if not assignment or not assignment['id'] }}" id="sidebar-new-assignment">
         <a href="/courses/{{ active_course.id }}/assignments/new" class="sidebar-new-assignment">New Assignment</a>
       </li>
@@ -16,7 +19,7 @@
 
   <ul>
     {% for for_assignment in assignments %}
-    <li class="sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}{{ ' published' if for_assignment and for_assignment['published'] }}">
+    <li class="assignment sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}{{ ' published' if for_assignment and for_assignment['published'] }}">
       <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
         class="sidebar-assignment-link" id="sidebar-assignment-{{ for_assignment.id }}"
         data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
@@ -76,4 +79,25 @@
     // event.preventDefault();
     return false;
   })
+
+  // https://css-tricks.com/in-page-filtered-search-with-vanilla-javascript/
+function liveFilter() {
+  // Locate the card elements
+  let sidebar_assignments = document.querySelectorAll('.assignment')
+  // Locate the search input
+  let search_query = document.getElementById("filterbox").value;
+  // Loop through the cards
+  for (var i = 0; i < sidebar_assignments.length; i++) {
+    // If the text is within the card...
+    if(sidebar_assignments[i].innerText.toLowerCase()
+      // ...and the text matches the search query...
+      .includes(search_query.toLowerCase())) {
+        // ...remove the `.is-hidden` class.
+        sidebar_assignments[i].classList.remove("is-hidden");
+    } else {
+      // Otherwise, add the class.
+      sidebar_assignments[i].classList.add("is-hidden");
+    }
+  }
+}
 </script>

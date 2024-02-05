@@ -319,8 +319,18 @@ div#points_possible-box {
   box-shadow: 0px 0px 5px 1px var(--background-color);
 }
 
-
 textarea#description {
     visibility: hidden;
     display: none;
 }
+
+.is-hidden {
+  display: none;
+}
+
+#filter-item {
+  background-color: var(--light-blue-color);
+  /* border: 1px solid black; */
+  box-shadow: inset 0px 0px 2px 0px var(--background-color);
+}
+
