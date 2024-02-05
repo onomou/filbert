@@ -474,7 +474,8 @@ def inject_globals():
     if courses is None:
         courses = []
     else:
-        courses = sorted(courses, key=lambda x: (getattr(x, 'start_at_date', datetime.now().astimezone()), x.name))
+        courses = sorted(courses, key=lambda x: x.name)
+        courses.sort(key=lambda x: getattr(x, 'start_at_date', datetime.now().astimezone()), reverse=True)
     return {
         'today': datetime.today().astimezone(),
         'courses': courses,
