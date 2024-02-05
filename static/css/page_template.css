@@ -140,7 +140,7 @@ h1.new-assignment {
 }
 
 .sidebar li:hover {
-  background-color: #dfc9c9;
+  background-color: var(--light-red-color);
   transition: 0.35s;
 }
 
@@ -276,6 +276,11 @@ li.sidebar-item.published.active {
   /* font-family: math; */
 }
 
+.primary-sidebar a:hover {
+    background-color: var(--light-red-color);
+    box-shadow: 0px 0px 2px 2px var(--light-red-color);
+}
+
 .sidebar-item.active {
   /* font-weight: bold; */
   background-color: var(--background-color) !important;
@@ -367,4 +372,8 @@ li.sidebar-item.published.active {
 
 .collapsed > .assignments-sticky ul {
     display: none;
+}
+
+.course-actions a {
+    padding: 0.6em;
 }
