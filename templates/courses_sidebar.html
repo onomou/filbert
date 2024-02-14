@@ -9,7 +9,7 @@
     </div>
     <ul>
         {% for course in courses %}
-            <li class="sidebar-item{{ ' active' if active_course and active_course.id == course.id }} sidebar-course{{ ' ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' started' if today and course.start_at_date and course.start_at_date < today }}">
+            <li class="sidebar-item{{ ' active' if active_course and active_course.id == course.id }} sidebar-course{{ ' course-ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' course-started' if today and course.start_at_date and course.start_at_date < today }}">
                 <a href="{{ url_for('course_page', course_id=course.id) + action }}"
                    id="{{ course.id }}" 
                    data-shortname="{{ course.course_code }}"

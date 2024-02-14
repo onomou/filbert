@@ -187,9 +187,13 @@ li.sidebar-item.published.active {
 }
 
 .sidebar-item {
-  padding: 5px;
+  /* padding: 5px; */
   font-family: math;
   font-size: smaller;
+}
+
+.sidebar-item a {
+    padding: 5px;
 }
 
 .sidebar-item.active {
@@ -217,10 +221,11 @@ li.sidebar-item.published.active {
 
 .primary-sidebar a {
   display: block;
-  padding: 0.5em 0.2em;
   /* text-decoration: none; */
   color: var(--sidebar-text-color);
   /* font-family: math; */
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .primary-sidebar h3 {
@@ -270,7 +275,7 @@ li.sidebar-item.published.active {
 
 .primary-sidebar a {
   display: block;
-  padding: 0.5em 0.2em;
+  /* padding: 0.5em 0.2em; */
   /* text-decoration: none; */
   color: var(--sidebar-text-color);
   /* font-family: math; */
@@ -376,4 +381,16 @@ li.sidebar-item.published.active {
 
 .course-actions a {
     padding: 0.6em;
+}
+
+.course-ended {
+  background-color: var(--light-red-color);
+  /* box-shadow: inset 0 0 0 0.1em var(--light-red-color); */
+}
+
+.course-started:not(.course-ended) {
+  background-color: var(--light-blue-color);
+  /* background-image: linear-gradient(#000, #000), linear-gradient(#0f0, #0f0); */
+  /* background-size: 100% 1em, 100%; */
+  /* box-shadow: inset 0 0 0 0.1em  var(--blue-color); */
 }

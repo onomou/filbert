@@ -116,7 +116,7 @@
     <span class="course-popup">
       <ul>
         {% for course in courses %}
-        <button class="copyto-button" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
+        <button class="copyto-button{{ ' course-ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' course-started' if today and course.start_at_date and course.start_at_date < today }}" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
         {% endfor %}
       </ul>
     </span>

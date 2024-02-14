@@ -225,7 +225,7 @@ input#id {
     border-radius: 6px;
     /* width: 105px; */
     border-width: thin;
-    background: var(--blue-color);
+    /* background: var(--blue-color); */
     margin-bottom: 0.1em;
 }
 
