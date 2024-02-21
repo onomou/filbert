@@ -6,14 +6,13 @@ Logfile
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static',filename='css/code_page.css') }}">
-
 <link rel="stylesheet" href="{{ url_for('static',filename='css/prism.css') }}">
 <script src="{{ url_for('static', filename='js/prism.js') }}"></script>
 {% endblock %}
 
 
 {% block body %}
-<div id="content">
+<div class="details">
     <h1>Log</h1>
     <div class="action-button small warning">
         <a href="{{url_for('clear_log')}}">Clear Log</a>

@@ -20,7 +20,7 @@
   <h1>
     <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
       target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
-    </a><span style="float: right;">&nbsp;</span>
+    </a><span class="switch-right"><a href="{{url_for('assignments_raw', course_id=active_course.id, assignment_id=assignment.id)}}">Switch to Raw 💱</a></span>
   </h1>
   {% else %}
   <h1 class="new-assignment">

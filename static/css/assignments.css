@@ -334,3 +334,16 @@ textarea#description {
   box-shadow: inset 0px 0px 2px 0px var(--background-color);
 }
 
+
+
+td a {
+    color: revert;
+}
+
+.switch-right {
+    float: right;
+}
+
+.switch-right a {
+    font-size: medium;
+}

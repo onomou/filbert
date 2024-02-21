@@ -1,12 +1,18 @@
 .content {
-    display: block;
-    margin: 1em;
+    display: flex;
+    /* margin: 0.5em; */
     /* overflow-x: clip; */
     width: 85vw;
     flex: 1;
     height: auto;
+    overflow-y: auto;
 }
 
 #code {
     border-radius: 6px;
+}
+
+
+pre#code2 {
+    margin-top: 0;
 }

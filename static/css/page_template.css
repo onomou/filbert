@@ -160,10 +160,10 @@ li.sidebar-item.published.active {
   margin: 0px;
   color: #000000;
   padding: 5px 0px;
-  text-align: center;
+  /* text-align: center; */
   font-weight: bold;
   height: 22px;
-  /* padding: 0; */
+  padding: 5px;
   cursor: pointer;
 }
 

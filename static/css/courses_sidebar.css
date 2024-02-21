@@ -36,9 +36,11 @@ span.points {
     background-color: var(--light-blue-color);
     font-weight: bold;
     /* font-size: unset; */
-    height: 1em;
+    height: 2em;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 #courses-refresh > a {
-    padding: 0;
 }

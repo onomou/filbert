@@ -1118,6 +1118,21 @@ def assignments_page(course_id, assignment_id=None):
         action='assignments',
     )
 
+@flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/raw', methods=['GET'])
+def assignments_raw(course_id, assignment_id):
+    the_details = get_assignment_details(course_id, assignment_id)
+    if the_details is None:
+        return redirect(url_for('index'))
+    elif the_details['assignment'] is None:
+        flash(f'Assignment {assignment_id} does not exist')
+        return redirect(url_for('new_assignment', course_id=course_id))
+    return render_template(
+        'assignment_raw.html',
+        **the_details,
+        assignment_raw=the_details['assignment'].__dict__,#{x: getattr(the_details['assignment'], x) for x in dir(the_details['assignment']) if not x.startswith('_')},
+        action='assignments',
+    )
+
 @flask_app.route('/courses/<int:course_id>/assignments/all')
 @flask_app.route('/courses/<int:course_id>/assignments/list')
 def assignments_list(course_id):
