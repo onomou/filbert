@@ -75,6 +75,8 @@ def handle_assignment(course_id, components, parameters=None):
             code_lines.append(f'assignment = course.get_assignment({assignment_id})')
             code_lines.append('if assignment.is_quiz_assignment:')
             code_lines.append('    quiz = course.get_quiz(assignment.quiz_id)')
+            code_lines.append('#submissions = assignment.get_submissions()')
+            code_lines.append('#submissions_d = {x.user_id: x for x in submissions}')
     else:
         print(f'View all assignments for course {course_id}')
     if parameters is not None:
@@ -133,6 +135,7 @@ def handle_rubric(course_id, components, parameters=None):
 def handle_user(course_id, components, parameters=None):
     code_lines = []
     code_lines.append('users = course.get_users()')
+    code_lines.append('#users_d = {x.id: x for x in users}')
     if len(components) > 0:
         user_id = components[0]
         code_lines.append(f'user = course.get_user({ user_id })')

@@ -18,6 +18,8 @@ function initTinyMCE() {
       { name: 'extra', items: ['code']}
     ],
     plugins: 'lists autolink link quickbars',
+    automatic_uploads: true,
+    images_upload_url: '/upload_image',
     default_link_target: '_blank',
     link_default_protocol: 'https',
     apply_source_formatting: true,

@@ -122,7 +122,7 @@ flask_app = Flask(__name__, static_folder='static')
 flask_app.static_folder = 'static'
 flask_app.static_url_path = '/static'
 flask_app.secret_key = 'fjeioaijcvmew908jcweio320'
-flask_app.config['UPLOAD_FOLDER'] = servers.get('Flask', 'TEMP_DIR', fallback='.\\temp') # TODO: handle missing config key
+flask_app.config['UPLOAD_FOLDER'] = servers.get('Flask', 'TEMP_DIR', fallback='temp') # TODO: handle missing config key
 flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 20MB
 
 # Ensure the upload folder exists; create it if necessary
@@ -583,6 +583,27 @@ def delete_profile():
     return redirect(request.referrer)
 
 
+@flask_app.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'file' not in request.files:
+        return jsonify({'message': 'no file posted'})
+    file = request.files['file']
+    if  file.filename == '':
+        return jsonify({'message': 'no file posted'})
+    filename = sanitize(file.filename)
+    the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
+    # print(the_filepath)
+    # file.save(the_filepath)
+    file.save(the_filepath)
+    return jsonify({ 'location' : url_for('temp_image', filename=filename) })
+
+
+@flask_app.route('/temp_image/<filename>')
+def temp_image(filename):
+    the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
+    return send_file(the_filepath, mimetype='image/png')
+
+
 @flask_app.route('/courses/<int:course_id>/settings', methods=['GET'])
 def course_settings(course_id=None):
     if course_id is None:
@@ -835,6 +856,26 @@ def update_assignment(course_id, assignment_id=0):
     fields = ['name', 'description', 'points_possible', 'due_at', 'published', 'assignment_group_id']
     response = {x: request.form.get(x) for x in fields}
     response['description'] = response['description'].replace('\r\n', '\n')
+
+    # handle image uploads in description
+    # if f'<img src="../../../temp_image/mceclip0.png">' in response['description']:
+    pattern = r'<img src="(.+?temp_image/)(.+?)">'
+    matches = re.findall(pattern, response['description'])
+    for match in matches:
+        filename = match[1]
+        the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
+        # upload file to canvas
+        result = course.upload(the_filepath, parent_folder_path='Uploaded Media', on_duplicate='rename')
+        if result[0] is True:
+            # replace local path with canvas path
+            canvas_file = result[1]
+            # preview_url looks like '/courses/{course_id}/files/{file_id}/file_preview?annotate=0&etc...
+            link_string = f'<img src="{canvas_file['preview_url'].split('?')[0].replace('file_preview','preview')}" alt="{canvas_file['display_name']}" />'
+            response['description'] = re.sub(pattern, link_string, response['description'], count=1)
+            
+
+    # raise Exception
+
     response['published'] = bool(response['published'])
     response['submission_types'] = request.form.getlist('submission_types') or ['none']
 
