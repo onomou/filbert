@@ -7,8 +7,8 @@
 {% endif %}
 <div id="topbar" class="topbar">
     <!-- <ul id="topbar-ul"> -->
-        <div><a href="/" title="Courses List">◰</a></div>
-        <div><a href="{{ url_for('parse_url', url=link_url) }}" title="Parse URL">📝</a></div>
+        <div><a href="/" title="List Courses - Show all courses">◰</a></div>
+        <div><a href="{{ url_for('parse_url', url=link_url) }}" title="Parse URL - Get Python setup code">📝</a></div>
         {% if active_course %}
         <div><a href="{{ base_url }}/courses/{{ active_course.id }}" target="_blank"
                 rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></div>
@@ -31,7 +31,7 @@
         <div><a href="https://canvas.instructure.com/courses/{{ active_course.id }}/modules" target="_blank"
                 rel="noopener noreferrer">🔗 Modules</a></div>
         {% endif %}
-        <div><a href="{{ url_for('log_page') }}" title="Log">📃</a></div>
-        <div><a href="{{ url_for('settings') }}" title="Settings">🛠️</a></div>
+        <div><a href="{{ url_for('log_page') }}" title="Action Log">📃</a></div>
+        <div><a href="{{ url_for('settings') }}" title="System Settings">🛠️</a></div>
     <!-- </ul> -->
 </div>
