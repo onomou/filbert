@@ -7,6 +7,7 @@ from flask import (
     url_for,
     send_from_directory,
     jsonify,
+    send_file,
 )
 from markupsafe import Markup
 from canvasapi import Canvas
@@ -18,19 +19,6 @@ import csv
 import os
 # from werkzeug.utils import secure_filename
 import re
-windows_badnames = (
-    'CON',
-    'AUX',
-    'COM1',
-    'COM2',
-    'COM3',
-    'COM4',
-    'LPT1',
-    'LPT2',
-    'LPT3',
-    'PRN',
-    'NUL',
-)
 user_fields = [
     'id',
     'name',
@@ -140,7 +128,7 @@ flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 
 # Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-from util import ListConverter, format_date, rename_section
+from util import ListConverter, format_date, rename_section, sanitize
 flask_app.url_map.converters['list'] = ListConverter
 flask_app.jinja_env.filters['format_date'] = format_date
 
@@ -876,16 +864,14 @@ def update_assignment(course_id, assignment_id=0):
         else:
             # filename = secure_filename(file.filename)
             # https://stackoverflow.com/a/71199182 -- of course I trust the regex
-            filename = re.sub(r"[/\\?%*:|\"<>\x7F\x00-\x1F]", '-', file.filename)
-            if filename in windows_badnames:
-                filename = filename + '_'
+            filename = sanitize(file.filename)
             print('filename: ' + filename)
             the_filepath = os.path.join(flask_app.config['UPLOAD_FOLDER'], filename)
             # print(the_filepath)
             # file.save(the_filepath)
             file.save(the_filepath)
             # print(url_for('download_file', name=filename))
-            result = course.upload(the_filepath, parent_folder_path='Uploaded Media')
+            result = course.upload(the_filepath, parent_folder_path='Uploaded Media', on_duplicate='rename')
             if result[0] is True:
                 canvas_file = result[1]
                 print('uploaded file ' + canvas_file['display_name'])
