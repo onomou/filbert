@@ -83,7 +83,7 @@ config_filename = 'config.ini'
 servers_filename = 'servers.ini'
 
 def log_action(*the_strings):
-    with open(log_filename, 'a') as file:
+    with open(log_filename, 'a', encoding='utf-8') as file:
         for string in the_strings:
             current_datetime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             file.write('[' + current_datetime + '] ' + string + '\n')
