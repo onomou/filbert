@@ -14,10 +14,6 @@ input[type="number"] {
   text-align: right;
 }
 
-input[type="file"] {
-  /* display: none; */
-}
-
 select {
   width: 100%;
   min-width: 40px;
@@ -37,7 +33,6 @@ select {
   display: flex;
   flex: 1;
 }
-
 
 .file-area:hover .file-placeholder {
   background: var(--blue-color);
@@ -89,8 +84,6 @@ border-color: var(--red-color);
   background-color: var(--lighter-red-color);
 } */
 
-
-
 #attach-zone.active {
   border: 5px solid blue;
 }
@@ -131,26 +124,18 @@ input[type=file]::file-selector-button:hover {
 
 .reset {
   display: none;
-}
-
-.styled-div {
-}
-
-.reset {
   position: absolute;
   right: 1em;
   color: black;
 }
 
+.styled-div.changed .reset {
+  display: block;
+}
+
 .break {
   flex-basis: 100%;
   height: 0em;
-}
-
-.break::after {}
-
-.styled-div.changed .reset {
-  display: block;
 }
 
 .details {
@@ -160,11 +145,6 @@ input[type=file]::file-selector-button:hover {
   /* width: auto; */
   margin: 5px;
   transition: opacity 0.1s ease-in-out;
-}
-
-div#assignments-list {
-    /* width: 100%; */
-    /* flex: 1; */
 }
 
 .changed {
@@ -229,7 +209,7 @@ input#id {
     margin-bottom: 0.1em;
 }
 
-.copyto-span:hover .course-popup, .course-popup:hover, .copyto-span:hover .course-popup:hover {
+.copyto-span:hover .course-popup, .course-popup:hover, .copyto-span:hover .course-popup:hover, .actions-span:hover .assignment-actions {
     display: block;
     opacity: unset;
     /* visibility: unset; */
@@ -237,13 +217,10 @@ input#id {
     /* transition: opacity 0.5s linear 1s; */
 }
 
-#duplicate-button {
-  background-color: var(--red-color);
-  /* float: left; */
-}
+.action-button.small {/* width: 100%; */margin: 5px 0;}
 
 #delete-button {
-  background-color: var(--red-color);
+  /* background-color: var(--red-color); */
   float: right;
 }
 
@@ -292,10 +269,7 @@ input#id {
     min-height: 15em;
 }
 
-div#due_at-box {
-}
-
-div#points_possible-box {
+#points_possible-box {
   flex: 0;
   min-width: 6em;
 }
@@ -334,16 +308,60 @@ textarea#description {
   box-shadow: inset 0px 0px 2px 0px var(--background-color);
 }
 
-
-
 td a {
     color: revert;
 }
 
 .switch-right {
     float: right;
+    font-weight: bold;
+    position: relative;
 }
 
 .switch-right a {
     font-size: medium;
+    white-space: nowrap;
+    padding: 1em;
+}
+
+.assignment-actions a {
+    /* padding: 6px; */
+    display: block;
+    /* width: 100%; */
+    margin: 6px;
+    /* border: 6px; */
+}
+
+.assignment-actions a:hover {
+    background-color: var(--light-red-color);
+    transition: 0.35s;
+}
+
+.assignment-actions {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 2em;
+    right: 0;
+    background: var(--sidebar-color);
+    z-index: 2;
+    transition: opacity 0.1s ease-in-out 0.3s;
+    border: 1px solid var(--background-color);
+    box-shadow: 0 0 3px 1px var(--background-color);
+    padding: 5px;
+    /* width: 222px; */
+}
+
+#submit-button.disabled {
+  /* pointer-events: none; */
+  cursor: not-allowed;
+  background: var(--lighter-red-color);
+  color: var(--red-color);
+}
+
+.assignment-actions ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
 }

@@ -6,17 +6,17 @@ tbody, th, td {
     padding: 0.3em;
   }
   
-  td:nth-child(2) {
-      text-align: center;
+  td:nth-child(5) {
+      background: var(--secondary-sidebar-text-color);
+      overflow-x: auto;
   }
   
   td:nth-child(3) {
       text-align: right;
   }
   
-  td:nth-child(5) {
-      background: var(--secondary-sidebar-text-color);
-      overflow-x: auto;
+  td:nth-child(2) {
+      text-align: center;
   }
   
   th {
@@ -36,7 +36,7 @@ th#assignment-group-column {
 }
   
   th#points-column {
-      width: 3em;
+      width: 10em;
   }
   
   th#date-column {
@@ -59,13 +59,23 @@ th#assignment-group-column {
   
   table.assignments-table {
       flex: 1;
-      width: 100%;
+      /* width: 100%; */
+      /* width: 98em; */
       table-layout: fixed;
+      box-sizing: border-box;
   }
   
   .assignments-table-div {
-    display: flex;
+    display: grid;
     padding: 0;
+    overflow: auto;
+    white-space: nowrap;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
   
   
+
+.page-content {
+    display: flex;
+    flex-direction: column;
+}

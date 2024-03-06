@@ -17,11 +17,34 @@
   enctype=multipart/form-data>
   <!-- Assignment Title -->
   {% if assignment is not none %}
-  <h1>
-    <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
-      target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
-    </a><span class="switch-right"><a href="{{url_for('assignments_raw', course_id=active_course.id, assignment_id=assignment.id)}}">Switch to Raw 💱</a></span>
-  </h1>
+  <div class="page-header">
+    <div>
+      <h1>
+        <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
+        target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
+      </a>
+    </h1>
+  </div>
+  <div class="switch-right">
+    <span class="actions-span">
+      <a href="{{ url_for('assignments_raw', course_id=active_course.id, assignment_id=assignment.id) }}">
+        Switch to Raw 💱
+      </a>
+      <div class="assignment-actions">
+        <ul>
+          <li>
+            <a href="{{ url_for('assignment_grades', course_id=active_course.id, assignment_id=assignment.id) }}">Grades</a>
+          </li>
+          <li>
+            <button id="reload-details" class="action-button small" type="button" value="Refresh (Button)" onclick="reloadPage('reload-details')" data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id, refresh=true) }}">
+              Refresh Assignment ↺
+            </button>
+          </li>
+        </ul>
+      </div>
+    </span>
+  </div>
+</div>
   {% else %}
   <h1 class="new-assignment">
     Creating New Assignment

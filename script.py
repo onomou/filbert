@@ -1067,6 +1067,37 @@ def update_assignment(course_id, assignment_id=0):
         flash('This feature is not yet implemented.')
         return redirect(request.referrer)
 
+
+@flask_app.route('/courses/<int:course_id>/assignments/<list:assignment_ids>/clear_grades', methods=['POST'])
+def clear_grades(course_id, assignment_ids):
+    flash('Clearing grades...')
+    assignment_ids = assignment_ids or []
+    for assignment_id in assignment_ids:
+        assignment = get_assignment(course_id, assignment_id)
+        # print('assignment', assignment.name)
+        submissions = assignment.get_submissions()
+        actions = ''
+        for y in submissions:
+            # print('submission', y.id)
+            changes = False
+            action = f'{assignment.course_id}, {assignment.id}, {y.user_id}: '
+            if y.late_policy_status is not None and y.late_policy_status != 'none':
+                action += f'late_policy_status {y.late_policy_status} -> none'
+                y.edit(submission={'late_policy_status': 'none'})
+                changes = True
+            if y.grade is not None:
+                action += f', grade {y.grade} -> blank'
+                y.edit(submission={'posted_grade': ''})
+                changes = True
+            if changes:
+                flash(action)
+                actions += action + '\n'
+        log_action(actions.strip())
+    # return jsonify({'message': 'Grades cleared successfully'})
+    flash('Grades cleared successfully')
+    return redirect(request.referrer)
+
+
 def get_assignment_details(course_id, assignment_id=None, refresh=False):
     the_details = {}
     course = get_course(course_id)
@@ -1260,6 +1291,41 @@ def assignments_bulk(course_id,assignment_ids=None):
         modules=modules,
         action='assignments_bulk',
         link_url=make_url(course_id, 'assignments'),
+    )
+
+
+@flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/grades', methods=['GET'])
+def assignment_grades(course_id, assignment_id):
+    the_details = get_assignment_details(course_id, assignment_id)
+    course = get_course(course_id)
+    assignment = get_assignment(course_id, assignment_id)
+    submissions = assignment.get_submissions()
+    submission_fields = [
+        'id',
+        'grade',
+        'score',
+        'late',
+        'missing',
+        'assignment_id',
+        'user_id',
+        'submission_type',
+        'excused',
+        'late_policy_status',
+        'points_deducted',
+        'posted_at',
+        'seconds_late',
+        'entered_grade',
+        'entered_score',
+        'html_url',
+        'preview_url',
+    ]
+    details = [{x: getattr(submission, x, None) for x in submission_fields} for submission in submissions]
+
+    return render_template(
+        'assignment_grades.html',
+        **the_details,
+        submissions=details,
+        action='assignments',
     )
 
 

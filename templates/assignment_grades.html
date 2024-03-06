@@ -1,0 +1,79 @@
+{% extends 'page_template.html' %}
+
+{% block title %}
+Canvas - Assignment Details
+{% endblock %}
+
+{% block header %}
+<link rel="stylesheet" href="{{ url_for('static',filename='css/assignments.css') }}">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/assignment_grades.css') }}">
+<script src="{{ url_for('static', filename='js/functions.js') }}"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css"> -->
+<script src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static',filename='css/jquery.datetimepicker.min.css') }}">
+<script src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+{% include 'assignments_sidebar.html' %}
+
+<div class="details" id="assignment-details">
+<div class="page-header">
+    <div>
+      <h1>
+        <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
+        target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
+      </a>
+    </h1>
+  </div>
+  <div class="switch-right">
+    <span class="actions-span">
+      <a href="{{ url_for('assignments_raw', course_id=active_course.id, assignment_id=assignment.id) }}">
+        Switch to Raw 💱
+      </a>
+      <div class="assignment-actions">
+        <a href="{{ url_for('assignment_grades', course_id=active_course.id, assignment_id=assignment.id) }}">Grades</a>
+        <button id="reload-details" class="action-button small" type="button" value="Refresh (Button)" onclick="reloadPage('reload-details')" data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id, refresh=true) }}">
+          Refresh Assignment ↺
+        </button>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-content">
+    <div class="assignments-table-div">
+        <table class="assignments-table">
+            <tr class="header" id="assignments-header">
+                {% for x in submissions[0].keys() %}
+                <th>{{x}}</th>
+                {% endfor %}
+            </tr>
+            {% for submission in submissions %}
+            <tr>
+                {% for y in submission.values() %}
+                <td>{{y}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div>
+        <button id="clear-grades-button" 
+                class="action-button small warning"
+                type="submit"
+                form="update"
+                formaction="{{ url_for('clear_grades', course_id=active_course.id, assignment_ids=[assignment.id]) }}"
+                title="Clears grades for all students for this assignment" >
+            Clear Grades
+        </button>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
