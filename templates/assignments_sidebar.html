@@ -26,12 +26,12 @@
         data-parseurl="{{ url_for('render_topbar',course_id=active_course.id,url=for_assignment.html_url) }}">
         <div class="secondary-sidebar-name" data-shortname="{{ for_assignment.name[:10] }}..."
           data-longname="{{ for_assignment.name }}"
-          title="{{ for_assignment.name }}&#13;Due: {{ for_assignment.due_at if for_assignment.short_date else 'Not set' }}">
+          title="{{ for_assignment.name }}&#13;Due: {{ for_assignment.due_at if for_assignment.due_at else 'Not set' }}">
           {{ for_assignment.name }}
         </div>
         <div class="secondary-sidebar-details">
           <span class="date">
-            {{ for_assignment.short_date }}
+            {{ for_assignment.due_at_date | short_date if for_assignment.due_at }}
           </span>
           <span class="points">
             {{ for_assignment.points_possible }}

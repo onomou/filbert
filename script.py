@@ -128,9 +128,10 @@ flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 
 # Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-from util import ListConverter, format_date, rename_section, sanitize
+from util import ListConverter, format_date, short_date, rename_section, sanitize
 flask_app.url_map.converters['list'] = ListConverter
 flask_app.jinja_env.filters['format_date'] = format_date
+flask_app.jinja_env.filters['short_date'] = short_date
 
 
 
@@ -265,12 +266,6 @@ def get_assignments(course_id, refresh=False):
         print('refresh assignments: ' + str(course_id))
         course = canvas_d['courses'][course_id]['course']
         canvas_d['courses'][course_id]['assignments'] = {x.id: {'assignment': x} for x in course.get_assignments()}
-
-        for x in [x['assignment'] for x in canvas_d['courses'][course_id]['assignments'].values()]:
-            x.safe_description = Markup(x.description)
-            if x.due_at is not None:
-                x.due_at_local = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d %H:%M')
-                x.short_date = dateutil.parser.parse(x.due_at).astimezone(pytz.timezone(course.time_zone)).strftime('%Y-%m-%d')
     assignments = [x['assignment'] for x in canvas_d['courses'][course_id]['assignments'].values()]
     # TODO: choose sort type
     return sorted(assignments, key=lambda x: getattr(x,'due_at','') or '')

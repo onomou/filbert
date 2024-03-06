@@ -157,3 +157,30 @@ function handleDescriptionChange(event) {
 }
 
 // handle file drag and drop for assignment attachment
+
+
+
+// silent reload page
+function reloadPage(elementId) {
+    var data_url = $('#'+elementId).data('dataurl');
+    // var history_url = $(this).attr('href');
+    // window.history.pushState(null,"",history_url);
+    fetch(data_url)
+    .then(response => {return response.text()})
+    .then(data => {
+      var details = document.getElementById('assignment-details')
+      if (data) {
+        details.innerHTML = data
+      } else {
+        details.innerHTML = ""
+      }
+    })
+    .then(() => {
+      // reinit interactive elements
+      initTinyMCE();
+      initDatePicker();
+      initChangeHandler();
+    });
+    // event.preventDefault();
+    return false;
+}

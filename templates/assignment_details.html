@@ -42,7 +42,7 @@
     {{ endblob() }}
 
     {{ blob("Due Date", id="due_at") }}
-    <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_local }}">
+    <input type="text" id="due_at" name="due_at" autocomplete="off" value="{{ assignment.due_at_date | format_date(time_zone=active_course.time_zone) if assignment.due_at }}">
     {{ endblob() }}
 
     {{ blob("Published", id="published") }}
