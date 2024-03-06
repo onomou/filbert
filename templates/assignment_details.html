@@ -132,7 +132,7 @@
 </form>
 <button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
 <span class="additional-actions">
-  <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Duplicate</button>
+  <button id="duplicate-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Duplicate</button>
   <button id="template-button" class="action-button" type="submit" form="update" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
   <span class="copyto-span">
     <button id="copyto-button" class="action-button">Copy To</button>
@@ -144,5 +144,32 @@
       </ul>
     </span>
   </span>
-  <button id="delete-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
+  <button id="delete-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
 </span>
+
+<script>
+  $(document).ready(function () {
+    $('#name-box').on('input', function() {
+        if ($(this).hasClass('changed')) {
+            $('#submit-button').addClass('disabled');
+            // $('#submit-button').prop('disabled', true);
+            $('#submit-button').attr('title', 'Click again to enable');
+            // $('#submit-wrapper').addClass('disabled');
+          } else {
+            $('#submit-button').removeClass('disabled');
+            // $('#submit-button').prop('disabled', false);
+            $('#submit-button').removeAttr('title');
+            // $('#submit-wrapper').removeClass('disabled');
+        }
+    });
+    $('#submit-button').on('click', function() {
+        if ($(this).hasClass('disabled')) {
+            // Handle click on disabled button here
+            $(this).removeClass('disabled');
+            return false;
+        } else {
+          return true;
+        }
+    });
+  })
+</script>
