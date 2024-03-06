@@ -929,7 +929,7 @@ def update_assignment(course_id, assignment_id=0):
         due_at = pytz.timezone(course.time_zone).localize(dateutil.parser.parse(due_at_text)).astimezone(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     except:
-        due_at = None
+        due_at = ''
     response['due_at'] = due_at
 
     # TODO: insert latex equations eg. https://canvas.instructure.com/equation_images/4n-1?scale=1
@@ -1051,12 +1051,7 @@ def update_assignment(course_id, assignment_id=0):
             except:
                 print('failed to delete module item')
         if len(created_module_items) + len(deleted_module_items) > 0:
-            # flash('<h3>Modules</h3>')
-            # flash('<b>Added to:</b>')
-            # flash(", ".join(module.name for module in created_module_items))
-            # flash('<b>Removed from:</b>')
-            # flash(','.join(module_name for module_name in deleted_module_items))
-
+            _ = get_modules(course_id, True)
             diff_message = ''
             diff_message += '<table class="diff-table" id="modules-diff">'
             diff_message += '<tr><th colspan="2">Modules</th></tr>'
