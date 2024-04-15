@@ -1078,23 +1078,23 @@ def clear_grades(course_id, assignment_ids):
         # print('assignment', assignment.name)
         submissions = assignment.get_submissions()
         actions = ''
-        for y in submissions:
+        for submission in submissions:
             # print('submission', y.id)
             changes = False
-            action = f'{assignment.course_id}, {assignment.id}, {y.user_id}: '
-            if y.late_policy_status is not None and y.late_policy_status != 'none':
-                action += f'late_policy_status {y.late_policy_status} -> none'
-                y.edit(submission={'late_policy_status': 'none'})
+            action = f'{assignment.course_id}, {assignment.id}, {submission.user_id}: '
+            if submission.late_policy_status is not None and submission.late_policy_status != 'none':
+                action += f'late_policy_status {submission.late_policy_status} -> none'
+                submission.edit(submission={'late_policy_status': 'none'})
                 changes = True
-            if y.grade is not None:
-                action += f', grade {y.grade} -> blank'
-                y.edit(submission={'posted_grade': ''})
+            if submission.grade is not None:
+                action += f', grade {submission.grade} -> blank'
+                submission.edit(submission={'posted_grade': ''})
                 changes = True
             if changes:
                 flash(action)
                 actions += action + '\n'
         log_action(actions.strip())
-    # return jsonify({'message': 'Grades cleared successfully'})
+    
     flash('Grades cleared successfully')
     return redirect(request.referrer)
 
