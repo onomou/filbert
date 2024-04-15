@@ -39,7 +39,7 @@
                     class="action-button small"
                     type="button"
                     value="Refresh (Button)"
-                    onclick="reloadPage('reload-details')"
+                    onclick="reloadPage()"
                     data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id, refresh=true) }}">
               Refresh Assignment ↺
             </button>
@@ -148,10 +148,3 @@
   </span>
   <button id="delete-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
 </span>
-
-<script>
-  $(document).ready(function () {
-    // loadPageFunctions();
-    // reloadPage('reload-details')
-  })
-</script>

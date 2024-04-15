@@ -56,7 +56,6 @@ function initDatePicker() {
 }
 
 function initChangeHandler() {
-  
   document.querySelectorAll('input').forEach(input => {
     // Gather initial values
     if(input.type == "checkbox") {
@@ -95,6 +94,18 @@ function initChangeHandler() {
         return true;
       }
   });
+
+  // enable external tool box if external tool is selected
+  var submission_types_element = document.getElementById("submission-types")
+  submission_types_element.addEventListener('change', function(event) {
+    //  document.getElementById("url").disabled = !([...event.target.selectedOptions].map(x => x.value).includes('external_tool'))
+    document.querySelectorAll(".external-tool-options").forEach(x => {
+      x.disabled = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
+      // x.style.display = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
+    })
+  });
+  // submission_types_element.dispatchEvent(new CustomEvent('change', {'target': {'selectedOptions': submission_types_element.selectedOptions}}))
+  submission_types_element.dispatchEvent(new CustomEvent('change', {}))
 }
 
 function isValidDate(dateString) {
@@ -182,9 +193,32 @@ function handleDescriptionChange(event) {
 
 
 
+function loadPage(data_url, history_url) {
+  if (data_url != history_url) {
+    window.history.pushState(null,"",history_url);
+  }
+  fetch(data_url)
+    .then(response => {return response.text()})
+    .then(data => {
+      var details = document.getElementById('assignment-details')
+      if (data) {
+        details.innerHTML = data
+      } else {
+        details.innerHTML = ""
+      }
+    })
+    .then(() => {
+      // reinit interactive elements
+      initTinyMCE();
+      initDatePicker();
+      initChangeHandler();
+    });
+}
+
 // silent reload page
-function reloadPage(elementId) {
-    var data_url = $('#'+elementId).data('dataurl');
+function reloadPage() {
+    // var data_url = $('#'+elementId).data('dataurl');
+    var data_url = $('#assignment-details').data('dataurl');
     // var history_url = $(this).attr('href');
     // window.history.pushState(null,"",history_url);
     fetch(data_url)

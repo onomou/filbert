@@ -49,6 +49,10 @@
     if( event.ctrlKey || event.shiftKey || !document.getElementById('assignment-details') ) return true;
     var data_url = $(this).data('dataurl');
     var history_url = $(this).attr('href');
+
+    loadPage(data_url, history_url)
+    return false
+
     window.history.pushState(null,"",history_url);
     fetch(data_url)
     .then(response => {return response.text()})

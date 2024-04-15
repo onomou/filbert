@@ -31,6 +31,86 @@ Canvas - Assignment Details
   }
   
   var default_times = {{ default_times | tojson | safe }}
+
+  $(document).ready(function () {
+    console.log("ready")
+    var details_element = $("#assignment-details")
+    var data_url = details_element.data('dataurl');
+    var data_url = $(details_element).data('dataurl');
+    // var history_url = $(details_element).attr('href');
+
+    loadPage(data_url, data_url)
+
+    
+    $(".additional-actions button").each(function() {
+      $(this).prop('disabled', '{{ assignment.id }}' == 0)
+    })
+    document.getElementById("submission-types").addEventListener('change', function(event) {
+      //  document.getElementById("url").disabled = !([...event.target.selectedOptions].map(x => x.value).includes('external_tool'))
+      document.querySelectorAll(".external-tool-options").forEach(x => {
+        x.disabled = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
+        // x.style.display = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
+      })
+    });
+
+    $('#toggle-assignments').click(function() {
+      var sidebar = $('#assignments-sidebar');
+      if( sidebar.hasClass('collapsed') ) {
+        // toggle collapsed
+        sidebar.removeClass('collapsed');
+        // replace all with longname
+        $('.secondary-sidebar-name').each(function() {
+          $(this).html($(this).data('longname'));
+        })
+      } else {
+        // toggle collapsed
+        sidebar.addClass('collapsed');
+        // replace all with shortname
+        $('.secondary-sidebar-name').each(function() {
+          $(this).html($(this).data('shortname'));
+        })
+      }
+    })
+
+    
+    // enable external tools if selected
+    var submission_types_element = document.getElementById("submission-types")
+    // submission_types_element.dispatchEvent(new CustomEvent('change', {'target': {'selectedOptions': submission_types_element.selectedOptions}}))
+    submission_types_element.dispatchEvent(new CustomEvent('change', {}))
+
+    // Validate points field to allow only nonnegative integers
+    $("#points_possible").on("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, '');
+      if (this.value < 0) {
+        this.value = '';
+      }
+    });
+
+    $("#assignment-attachment").change(function() {
+      if(this.files.length > 0) {
+          $(this).addClass('file-present')
+          $(this).parent().parent().addClass('changed')
+          $("#assignment-attachment-status").text(this.files[0].name)
+          console.log("File")
+      } else {
+          $(this).removeClass('file-present')
+          $(this).parent().parent().removeClass('changed')
+          $("#assignment-attachment-status").text("Drop a file here")
+          console.log("No file")
+      }
+    })
+
+    // Scroll to show selected assignment
+    const selectedAssignment = document.querySelector(".secondary-sidebar .item.active")
+
+    if (selectedAssignment) {
+      selectedAssignment.scrollIntoView({
+        behavior: "smooth", // Use "smooth" for smooth scrolling, or "auto" for instant scrolling
+        block: "nearest",   // Scroll block: "start", "center", "end", or "nearest"
+        inline: "nearest"   // Scroll inline: "start", "center", "end", or "nearest"
+      });
+    }
+  })
 </script>
 {% endblock %}
 
@@ -43,99 +123,6 @@ Canvas - Assignment Details
 
 {% block footer %}
 <script>
-  $(".additional-actions button").each(function() {
-    $(this).prop('disabled', '{{ assignment.id }}' == 0)
-  })
-  document.getElementById("submission-types").addEventListener('change', function(event) {
-    //  document.getElementById("url").disabled = !([...event.target.selectedOptions].map(x => x.value).includes('external_tool'))
-    document.querySelectorAll(".external-tool-options").forEach(x => {
-      x.disabled = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
-      // x.style.display = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
-     })
-  });
-
-  $('#toggle-assignments').click(function() {
-    var sidebar = $('#assignments-sidebar');
-    if( sidebar.hasClass('collapsed') ) {
-      // toggle collapsed
-      sidebar.removeClass('collapsed');
-      // replace all with longname
-      $('.secondary-sidebar-name').each(function() {
-        $(this).html($(this).data('longname'));
-      })
-    } else {
-      // toggle collapsed
-      sidebar.addClass('collapsed');
-      // replace all with shortname
-      $('.secondary-sidebar-name').each(function() {
-        $(this).html($(this).data('shortname'));
-      })
-    }
-  })
-
-  $(document).ready(function () {
-    var details_element = $("#assignment-details")
-    var data_url = details_element.data('dataurl');
-    // var history_url = details_element.attr('href');
-    // window.history.pushState(null,"",history_url);
-    fetch(data_url)
-    .then(response => {return response.text()})
-    .then(data => {
-      var details = document.getElementById('assignment-details')
-      if (data) {
-        details.innerHTML = data
-      } else {
-        details.innerHTML = ""
-      }
-    })
-    .then(() => {
-      // reinit interactive elements
-      initTinyMCE();
-      initDatePicker();
-      initChangeHandler();
-    });
-
-    initTinyMCE();
-    initDatePicker();
-    initChangeHandler();
-
-  // enable external tools if selected
-  var submission_types_element = document.getElementById("submission-types")
-  // submission_types_element.dispatchEvent(new CustomEvent('change', {'target': {'selectedOptions': submission_types_element.selectedOptions}}))
-  submission_types_element.dispatchEvent(new CustomEvent('change', {}))
-
-  // Validate points field to allow only nonnegative integers
-  $("#points_possible").on("input", function () {
-    this.value = this.value.replace(/[^0-9]/g, '');
-    if (this.value < 0) {
-      this.value = '';
-    }
-  });
-
-  $("#assignment-attachment").change(function() {
-    if(this.files.length > 0) {
-        $(this).addClass('file-present')
-        $(this).parent().parent().addClass('changed')
-        $("#assignment-attachment-status").text(this.files[0].name)
-        console.log("File")
-    } else {
-        $(this).removeClass('file-present')
-        $(this).parent().parent().removeClass('changed')
-        $("#assignment-attachment-status").text("Drop a file here")
-        console.log("No file")
-    }
-  })
-
-  // Scroll to show selected assignment
-  const selectedAssignment = document.querySelector(".secondary-sidebar .item.active")
-
-  if (selectedAssignment) {
-    selectedAssignment.scrollIntoView({
-      behavior: "smooth", // Use "smooth" for smooth scrolling, or "auto" for instant scrolling
-      block: "nearest",   // Scroll block: "start", "center", "end", or "nearest"
-      inline: "nearest"   // Scroll inline: "start", "center", "end", or "nearest"
-    });
-  }
-  });
+  
 </script>
 {% endblock %}

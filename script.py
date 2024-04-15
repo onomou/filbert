@@ -1163,7 +1163,7 @@ def push_page(course_id, assignment_id=0):
         assignment_id = None
     the_details = get_assignment_details(course_id, assignment_id, refresh)
     return render_template(
-        'assignment_details.html',
+        'assignment_template.html',
         **the_details,
     )
 
@@ -1192,7 +1192,7 @@ def assignments_page(course_id, assignment_id=None):
         flash(f'Assignment {assignment_id} does not exist')
         return redirect(url_for('new_assignment', course_id=course_id))
     return render_template(
-        'assignment.html',
+        'assignment_details.html',
         **the_details,
     )
 
