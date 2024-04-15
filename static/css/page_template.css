@@ -93,10 +93,6 @@ h1 {
   /* line-height: 0em; */
 }
 
-h1.new-assignment {
-    background: var(--red-color);
-}
-
 /* Styling for the container div */
 
 .parent-float {
