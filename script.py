@@ -819,6 +819,9 @@ def courses_page():
 @no_course_redirect
 @flask_app.route('/courses/<int:course_id>', methods=['GET'])
 def course_page(course_id):
+    action = request.args.get('action', None)
+    if action is not None:
+        return course_action(course_id, action)
     print(get_course(course_id))
     # if get_course(course_id) is None:
     #     return redirect(url_for('courses_page'))
