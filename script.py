@@ -124,6 +124,7 @@ flask_app.static_url_path = '/static'
 flask_app.secret_key = 'fjeioaijcvmew908jcweio320'
 flask_app.config['UPLOAD_FOLDER'] = servers.get('Flask', 'TEMP_DIR', fallback='temp') # TODO: handle missing config key
 flask_app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024 # maximum file upload 20MB
+flask_app.url_map.strict_slashes = False
 
 # Ensure the upload folder exists; create it if necessary
 os.makedirs(flask_app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -554,7 +555,7 @@ def clear_log():
     return redirect(request.referrer)
 
 
-@flask_app.route('/settings', strict_slashes=False)
+@flask_app.route('/settings')
 def settings():
     # my_config = config
     return render_template(
@@ -693,7 +694,7 @@ def make_url(course_id, action, id=None): # options = {'action': {}, 'id': #}
     return url
 
 
-@flask_app.route('/courses/<int:course_id>/users', strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/users')
 def users_page(course_id=None):
     if course_id is None:
         course = None
@@ -711,7 +712,7 @@ def users_page(course_id=None):
     )
 
 
-@flask_app.route('/courses/<int:course_id>/users/<int:user_id>', strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/users/<int:user_id>')
 def user_details(course_id=None, user_id=None):
     if course_id is None:
         course = None
@@ -735,7 +736,7 @@ def user_details(course_id=None, user_id=None):
     )
 
 
-@flask_app.route('/courses/<int:course_id>/users/refresh', strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/users/refresh')
 def refresh_users(course_id=None):
     _ = get_users(course_id, refresh=True)
     return redirect(request.referrer)
@@ -760,7 +761,7 @@ def enrollments_data(course_id=None):
     return response
 
 
-@flask_app.route('/courses/<int:course_id>/enrollments', strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/enrollments')
 def enrollments_page(course_id=None):
     if course_id is None:
         course = None
@@ -778,19 +779,19 @@ def enrollments_page(course_id=None):
     )
 
 
-@flask_app.route('/courses/<int:course_id>/enrollments/refresh', strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/enrollments/refresh')
 def refresh_enrollments(course_id=None):
     _ = get_enrollments(course_id, refresh=True)
     return redirect(request.referrer)
 
 
-@flask_app.route('/parse_form/', methods=['GET'])
+@flask_app.route('/parse_form', methods=['GET'])
 def parse_url_form():
     request_url = request.args.get('url') or None
     return redirect(url_for('parse_url', url=request_url))
 
 
-@flask_app.route('/parse_url', methods=['GET'], strict_slashes=False)
+@flask_app.route('/parse_url', methods=['GET'])
 @flask_app.route('/parse_url/<path:url>', methods=['GET'])
 def parse_url(url=None):
     from parse_url import parse_canvas_url
@@ -810,13 +811,13 @@ def parse_url(url=None):
     )
 
 
-@flask_app.route('/courses', methods=['GET'], strict_slashes=False)
+@flask_app.route('/courses', methods=['GET'])
 def courses_page():
     return redirect(url_for('index'))
 
 
 @no_course_redirect
-@flask_app.route('/courses/<int:course_id>/', methods=['GET'])
+@flask_app.route('/courses/<int:course_id>', methods=['GET'])
 def course_page(course_id):
     print(get_course(course_id))
     # if get_course(course_id) is None:
@@ -1161,7 +1162,7 @@ def push_page(course_id, assignment_id):
     )
 
 
-@flask_app.route('/courses/<int:course_id>/assignments/new', methods=['GET'], strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/assignments/new', methods=['GET', 'POST'])
 def new_assignment(course_id):
     the_details = get_assignment_details(course_id)
     if the_details is None:
@@ -1174,7 +1175,7 @@ def new_assignment(course_id):
     )
 
 
-@flask_app.route('/courses/<int:course_id>/assignments', methods=['GET'], strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/assignments', methods=['GET'])
 @flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>', methods=['GET'])
 def assignments_page(course_id, assignment_id=None):
     the_details = get_assignment_details(course_id, assignment_id)
@@ -1223,7 +1224,7 @@ def assignments_list(course_id):
     )
 
 
-@flask_app.route('/courses/<int:course_id>/assignments_bulk/intersect/')
+@flask_app.route('/courses/<int:course_id>/assignments_bulk/intersect')
 @flask_app.route('/courses/<int:course_id>/assignments_bulk/intersect/<list:assignment_ids>', methods=['GET'])
 def get_selected_assignments(course_id, assignment_ids=None):
     assignment_ids = assignment_ids or []
@@ -1262,7 +1263,7 @@ def assignments_bulk_delete(course_id,assignment_ids=None):
     return redirect(request.referrer)
 
 
-@flask_app.route('/courses/<int:course_id>/assignments_bulk', methods=['GET'], strict_slashes=False)
+@flask_app.route('/courses/<int:course_id>/assignments_bulk', methods=['GET'])
 @flask_app.route('/courses/<int:course_id>/assignments_bulk/<list:assignment_ids>', methods=['GET'])
 def assignments_bulk(course_id,assignment_ids=None):
     assignment_ids = assignment_ids or []
