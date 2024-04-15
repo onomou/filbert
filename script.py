@@ -1126,6 +1126,7 @@ def get_assignment_details(course_id, assignment_id=None, refresh=False):
                         'online_url', 'online_upload', 'media_recording', 
                         'student_annotation']
 
+    the_details['action'] = 'assignments'
     the_details['active_course'] = course
     the_details['assignment'] = assignment
     the_details['assignments'] = assignments
@@ -1152,13 +1153,15 @@ def render_topbar(course_id, url=None):
 
 
 @flask_app.route('/courses/<int:course_id>/assignments/<int:assignment_id>/silent')
-def push_page(course_id, assignment_id):
+def push_page(course_id, assignment_id=0):
     refresh = bool(request.args.get('refresh', False))
     print(f'refresh: {refresh}')
+    if assignment_id == 0:
+        assignment_id = None
     the_details = get_assignment_details(course_id, assignment_id, refresh)
     return render_template(
         'assignment_details.html',
-        **the_details
+        **the_details,
     )
 
 
@@ -1169,9 +1172,8 @@ def new_assignment(course_id):
         flash('Course not found')
         return redirect(url_for('index'))
     return render_template(
-        'assignments.html',
+        'assignment_new.html',
         **the_details,
-        action='assignments',
     )
 
 
@@ -1187,9 +1189,8 @@ def assignments_page(course_id, assignment_id=None):
         flash(f'Assignment {assignment_id} does not exist')
         return redirect(url_for('new_assignment', course_id=course_id))
     return render_template(
-        'assignments.html',
+        'assignment.html',
         **the_details,
-        action='assignments',
     )
 
 
@@ -1205,7 +1206,6 @@ def assignments_raw(course_id, assignment_id):
         'assignment_raw.html',
         **the_details,
         assignment_raw=the_details['assignment'].__dict__,#{x: getattr(the_details['assignment'], x) for x in dir(the_details['assignment']) if not x.startswith('_')},
-        action='assignments',
     )
 
 
@@ -1326,7 +1326,6 @@ def assignment_grades(course_id, assignment_id):
         'assignment_grades.html',
         **the_details,
         submissions=details,
-        action='assignments',
     )
 
 

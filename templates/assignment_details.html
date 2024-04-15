@@ -12,12 +12,11 @@
 </div>
 {%- endmacro %}
 
-
 <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
   enctype=multipart/form-data>
   <!-- Assignment Title -->
-  {% if assignment is not none %}
   <div class="page-header">
+  {% if assignment is not none %}
     <div>
       <h1>
         <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
@@ -36,7 +35,12 @@
             <a href="{{ url_for('assignment_grades', course_id=active_course.id, assignment_id=assignment.id) }}">Grades</a>
           </li>
           <li>
-            <button id="reload-details" class="action-button small" type="button" value="Refresh (Button)" onclick="reloadPage('reload-details')" data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id, refresh=true) }}">
+            <button id="reload-details"
+                    class="action-button small"
+                    type="button"
+                    value="Refresh (Button)"
+                    onclick="reloadPage('reload-details')"
+                    data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id, refresh=true) }}">
               Refresh Assignment ↺
             </button>
           </li>
@@ -44,12 +48,12 @@
       </div>
     </span>
   </div>
-</div>
   {% else %}
-  <h1 class="new-assignment">
+  <h1 id="new-assignment-header">
     Creating New Assignment
   </h1>
   {% endif %}
+</div>
 
   <div class="parent-float">
     {{ blob("Assignment Name", id="name") }}
@@ -127,12 +131,10 @@
     <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
   </div>
 </div>
-
-
 </form>
-<button id="submit-button" class="action-button" type="submit" form="update">Submit</button>
+<button id="submit-button" class="action-button warning" type="submit" form="update">Save</button>
 <span class="additional-actions">
-  <button id="duplicate-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Duplicate</button>
+  <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Save As New</button>
   <button id="template-button" class="action-button" type="submit" form="update" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
   <span class="copyto-span">
     <button id="copyto-button" class="action-button">Copy To</button>
@@ -149,27 +151,7 @@
 
 <script>
   $(document).ready(function () {
-    $('#name-box').on('input', function() {
-        if ($(this).hasClass('changed')) {
-            $('#submit-button').addClass('disabled');
-            // $('#submit-button').prop('disabled', true);
-            $('#submit-button').attr('title', 'Click again to enable');
-            // $('#submit-wrapper').addClass('disabled');
-          } else {
-            $('#submit-button').removeClass('disabled');
-            // $('#submit-button').prop('disabled', false);
-            $('#submit-button').removeAttr('title');
-            // $('#submit-wrapper').removeClass('disabled');
-        }
-    });
-    $('#submit-button').on('click', function() {
-        if ($(this).hasClass('disabled')) {
-            // Handle click on disabled button here
-            $(this).removeClass('disabled');
-            return false;
-        } else {
-          return true;
-        }
-    });
+    // loadPageFunctions();
+    // reloadPage('reload-details')
   })
 </script>

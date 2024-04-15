@@ -27,6 +27,7 @@ Canvas - Assignment Details
     var url = prompt('Paste MyOpenMath link here')
     var formattedURL = formatMyOpenMathURL(url)
     document.getElementById('url').value = formattedURL
+    $("#submission-types").val("external_tool")
   }
   
   var default_times = {{ default_times | tojson | safe }}
@@ -36,9 +37,8 @@ Canvas - Assignment Details
 
 {% block body %}
 {% include 'assignments_sidebar.html' %}
-<div class="details" id="assignment-details">
-{% include 'assignment_details.html' %}
-</div>
+{% block content %}
+{% endblock %}
 {% endblock %}
 
 {% block footer %}
@@ -74,12 +74,30 @@ Canvas - Assignment Details
   })
 
   $(document).ready(function () {
+    var details_element = $("#assignment-details")
+    var data_url = details_element.data('dataurl');
+    // var history_url = details_element.attr('href');
+    // window.history.pushState(null,"",history_url);
+    fetch(data_url)
+    .then(response => {return response.text()})
+    .then(data => {
+      var details = document.getElementById('assignment-details')
+      if (data) {
+        details.innerHTML = data
+      } else {
+        details.innerHTML = ""
+      }
+    })
+    .then(() => {
+      // reinit interactive elements
+      initTinyMCE();
+      initDatePicker();
+      initChangeHandler();
+    });
+
     initTinyMCE();
     initDatePicker();
     initChangeHandler();
-
-  
-  // initialValues['description'] = JSON.stringify(document.getElementById("description").innerHTML)
 
   // enable external tools if selected
   var submission_types_element = document.getElementById("submission-types")

@@ -151,8 +151,9 @@ input[type=file]::file-selector-button:hover {
   background-color: var(--lighter-red-color);
 }
 
-.new-assignment.inactive {
-  background-color: #aa7d7d;
+#new-assignment-header {
+  background: var(--red-color);
+  width: 100%;
 }
 
 input {

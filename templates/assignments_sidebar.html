@@ -3,16 +3,16 @@
     <h3 id="toggle-assignments">Assignments</h3>
     <ul>
       <li class="sidebar-item refresh-item" id="assignments-refresh">
-        <a href="/courses/{{ active_course.id }}/assignments/refresh">Refresh ↺</a>
+        <a href="{{ url_for('refresh_assignments', course_id=active_course.id) }}">Refresh ↺</a>
       </li>
       <li class="sidebar-item">
-        <a href="/courses/{{ active_course.id }}/assignments/list">List ≡</a>
+        <a href="{{ url_for('assignments_list', course_id=active_course.id) }}">List ≡</a>
       </li>
       <li class="sidebar-item" id="filter-item">
         <input type="search"  oninput="liveFilter()" id="filterbox" placeholder="Filter">
       </li>
       <li class="sidebar-item{{ ' active' if not assignment or not assignment['id'] }}" id="sidebar-new-assignment">
-        <a href="/courses/{{ active_course.id }}/assignments/new" class="sidebar-new-assignment">New Assignment</a>
+        <a href="{{ url_for('new_assignment', course_id=active_course.id) }}" class="sidebar-new-assignment">New Assignment</a>
       </li>
     </ul>
   </div>

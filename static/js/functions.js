@@ -73,6 +73,28 @@ function initChangeHandler() {
     // Add event listeners to input elements
     input.addEventListener('change', handleInputChange);
   });
+  
+  // Prevent accidental changes to assignment name
+  $('#name-box').on('input', function() {
+    if ($("#new-assignment-header").length == 0) {
+      if ($(this).hasClass('changed')) {
+        $('#submit-button').addClass('disabled');
+        $('#submit-button').attr('title', 'Click again to enable');
+      } else {
+          $('#submit-button').removeClass('disabled');
+          $('#submit-button').removeAttr('title');
+      }
+    }
+  });
+  $('#submit-button').on('click', function() {
+      if ($(this).hasClass('disabled')) {
+          // Handle click on disabled button here
+          $(this).removeClass('disabled');
+          return false;
+      } else {
+        return true;
+      }
+  });
 }
 
 function isValidDate(dateString) {
