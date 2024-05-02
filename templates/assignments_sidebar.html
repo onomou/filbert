@@ -19,7 +19,7 @@
 
   <ul>
     {% for for_assignment in assignments %}
-    <li class="assignment sidebar-item{{ ' active' if assignment and assignment['id'] == for_assignment.id }}{{ ' published' if for_assignment and for_assignment['published'] }}">
+    <li class="assignment sidebar-item{{ ' published' if for_assignment and for_assignment['published'] }}" id="{{ for_assignment.id}}">
       <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
         class="sidebar-assignment-link" id="sidebar-assignment-{{ for_assignment.id }}"
         data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
@@ -49,37 +49,9 @@
     if( event.ctrlKey || event.shiftKey || !document.getElementById('assignment-details') ) return true;
     var data_url = $(this).data('dataurl');
     var history_url = $(this).attr('href');
-
+    
     loadPage(data_url, history_url)
-    return false
-
-    window.history.pushState(null,"",history_url);
-    fetch(data_url)
-    .then(response => {return response.text()})
-    .then(data => {
-      var details = document.getElementById('assignment-details')
-      if (data) {
-        details.innerHTML = data
-      } else {
-        details.innerHTML = ""
-      }
-    })
-    .then(() => {
-      // reinit interactive elements
-      initTinyMCE();
-      initDatePicker();
-      initChangeHandler();
-
-      // change which item is active
-      $(".secondary-sidebar .sidebar-item").removeClass('active');
-      $(this).parent().addClass('active');
-
-      var parse_url = $(this).data('parseurl');
-      console.log(parse_url)
-      fetch(parse_url)
-      .then(response => {return response.text()})
-      .then(data => {$("#topbar-container").html(data)})
-    });
+    
     // event.preventDefault();
     return false;
   })

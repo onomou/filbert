@@ -139,9 +139,10 @@ input[type=file]::file-selector-button:hover {
 }
 
 .details {
-  left: 10px;
-  /* position: relative; */
-  overflow: auto;
+  /* left: 10px; */
+  position: relative;
+  overflow-y: auto;
+  overflow-x: clip;
   /* width: auto; */
   margin: 5px;
   transition: opacity 0.1s ease-in-out;

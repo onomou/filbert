@@ -3,6 +3,8 @@
 {% block content %}
 <div class="details"
      id="assignment-details"
+     data-courseid="{{ active_course.id }}"
+     data-assignmentid="{{ assignment.id }}"
      data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id) }}"
      data-parseurl="{{ url_for('render_topbar', course_id=active_course.id, url=assignment.html_url) }}">
 </div>

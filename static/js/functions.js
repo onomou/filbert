@@ -55,6 +55,79 @@ function initDatePicker() {
   $('#due_at').on('change.datetimepicker', handleInputChange);
 }
 
+function requiredFieldsValid() {
+  var form = $(this).closest('form');
+  var formValid = true;
+  $("form").each(function() {
+    // Check if all required fields within the form are filled in
+    var valid = true;
+    $(this).find(':input[required]').each(function() {
+      if ($(this).val() === '') {
+        valid = false;
+          return false;
+      }
+    });
+    formValid = valid;
+  })
+  return formValid; // Exit the loop early if any required field is empty
+}
+
+function initAssignmentDetails() {
+
+  // Prevent accidental changes to assignment name
+  $('#name-box').on('input', function() {
+    if ($("#new-assignment-header").length == 0) {
+      if ($(this).hasClass('changed')) {
+        $('#submit-button').addClass('disabled');
+        $('#submit-button').attr('title', 'Click again to enable');
+      } else {
+          $('#submit-button').removeClass('disabled');
+          $('#submit-button').removeAttr('title');
+      }
+    }
+  });
+
+  $('#submit-button').on('click', function() {
+      if ($(this).hasClass('disabled')) {
+          // Handle click on disabled button here
+          $(this).removeClass('disabled');
+          return false;
+      } else {
+        // $("#assignment-details-wrapper").addClass('disable-overlay')
+        if (requiredFieldsValid()) {
+          $(".disable-overlay").text('Saving')
+          $(".disable-overlay").css('display', 'flex')
+        }
+        return true;
+      }
+  });
+
+  $('.additional-actions button').each(function() {
+    $(this).on('click', function() {
+      if (requiredFieldsValid()) {
+        $(".disable-overlay").text('Please wait')
+        $(".disable-overlay").css('display', 'flex')
+      }
+    });
+  });
+  
+  // Validate points field to allow only nonnegative integers
+  $("#points_possible").on("input", function () {
+    this.value = this.value.replace(/[^0-9]/g, '');
+    if (this.value < 0) {
+      this.value = '';
+    }
+  });
+  
+  $(".additional-actions button").each(function() {
+    $(this).prop('disabled', $("#assignment-details-wrapper").data("assignmentid") == 0)
+  })
+
+  // highlight current assignment
+  $(".assignment.sidebar-item.active").removeClass("active")
+  $("#"+$("#assignment-details-wrapper").data("assignmentid")).addClass('active')
+}
+
 function initChangeHandler() {
   document.querySelectorAll('input').forEach(input => {
     // Gather initial values
@@ -73,27 +146,31 @@ function initChangeHandler() {
     input.addEventListener('change', handleInputChange);
   });
   
-  // Prevent accidental changes to assignment name
-  $('#name-box').on('input', function() {
-    if ($("#new-assignment-header").length == 0) {
-      if ($(this).hasClass('changed')) {
-        $('#submit-button').addClass('disabled');
-        $('#submit-button').attr('title', 'Click again to enable');
+// handle file drag and drop for assignment attachment
+    $("#assignment-attachment").change(function() {
+      if(this.files.length > 0) {
+          $(this).addClass('file-present')
+          $(this).parent().parent().addClass('changed')
+          $("#assignment-attachment-status").text(this.files[0].name)
+          console.log("File")
       } else {
-          $('#submit-button').removeClass('disabled');
-          $('#submit-button').removeAttr('title');
+          $(this).removeClass('file-present')
+          $(this).parent().parent().removeClass('changed')
+          $("#assignment-attachment-status").text("Drop a file here")
+          console.log("No file")
       }
+    })
+
+    // Scroll to show selected assignment
+    const selectedAssignment = document.querySelector(".secondary-sidebar .item.active")
+
+    if (selectedAssignment) {
+      selectedAssignment.scrollIntoView({
+        behavior: "smooth", // Use "smooth" for smooth scrolling, or "auto" for instant scrolling
+        block: "nearest",   // Scroll block: "start", "center", "end", or "nearest"
+        inline: "nearest"   // Scroll inline: "start", "center", "end", or "nearest"
+      });
     }
-  });
-  $('#submit-button').on('click', function() {
-      if ($(this).hasClass('disabled')) {
-          // Handle click on disabled button here
-          $(this).removeClass('disabled');
-          return false;
-      } else {
-        return true;
-      }
-  });
 
   // enable external tool box if external tool is selected
   var submission_types_element = document.getElementById("submission-types")
@@ -189,8 +266,6 @@ function handleDescriptionChange(event) {
   }
 }
 
-// handle file drag and drop for assignment attachment
-
 
 
 function loadPage(data_url, history_url) {
@@ -209,34 +284,37 @@ function loadPage(data_url, history_url) {
     })
     .then(() => {
       // reinit interactive elements
+      $("#assignment-details").data("assignmentid", )
       initTinyMCE();
       initDatePicker();
       initChangeHandler();
-    });
+      initAssignmentDetails();
+    }).then(() => {console.log("DONE!")});
 }
 
 // silent reload page
 function reloadPage() {
     // var data_url = $('#'+elementId).data('dataurl');
     var data_url = $('#assignment-details').data('dataurl');
+    loadPage(data_url, data_url);
     // var history_url = $(this).attr('href');
     // window.history.pushState(null,"",history_url);
-    fetch(data_url)
-    .then(response => {return response.text()})
-    .then(data => {
-      var details = document.getElementById('assignment-details')
-      if (data) {
-        details.innerHTML = data
-      } else {
-        details.innerHTML = ""
-      }
-    })
-    .then(() => {
-      // reinit interactive elements
-      initTinyMCE();
-      initDatePicker();
-      initChangeHandler();
-    });
+    // fetch(data_url)
+    // .then(response => {return response.text()})
+    // .then(data => {
+    //   var details = document.getElementById('assignment-details')
+    //   if (data) {
+    //     details.innerHTML = data
+    //   } else {
+    //     details.innerHTML = ""
+    //   }
+    // })
+    // .then(() => {
+    //   // reinit interactive elements
+    //   initTinyMCE();
+    //   initDatePicker();
+    //   initChangeHandler();
+    // });
     // event.preventDefault();
     return false;
 }

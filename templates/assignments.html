@@ -29,30 +29,20 @@ Canvas - Assignment Details
     document.getElementById('url').value = formattedURL
     $("#submission-types").val("external_tool")
   }
+
+  window.addEventListener('popstate', function(event) {
+    location.reload()
+  })
   
   var default_times = {{ default_times | tojson | safe }}
 
   $(document).ready(function () {
-    console.log("ready")
     var details_element = $("#assignment-details")
     var data_url = details_element.data('dataurl');
     var data_url = $(details_element).data('dataurl');
     // var history_url = $(details_element).attr('href');
-
     loadPage(data_url, data_url)
-
     
-    $(".additional-actions button").each(function() {
-      $(this).prop('disabled', '{{ assignment.id }}' == 0)
-    })
-    document.getElementById("submission-types").addEventListener('change', function(event) {
-      //  document.getElementById("url").disabled = !([...event.target.selectedOptions].map(x => x.value).includes('external_tool'))
-      document.querySelectorAll(".external-tool-options").forEach(x => {
-        x.disabled = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
-        // x.style.display = !([...event.target.selectedOptions].map(y => y.value).includes('external_tool'))
-      })
-    });
-
     $('#toggle-assignments').click(function() {
       var sidebar = $('#assignments-sidebar');
       if( sidebar.hasClass('collapsed') ) {
@@ -71,45 +61,6 @@ Canvas - Assignment Details
         })
       }
     })
-
-    
-    // enable external tools if selected
-    var submission_types_element = document.getElementById("submission-types")
-    // submission_types_element.dispatchEvent(new CustomEvent('change', {'target': {'selectedOptions': submission_types_element.selectedOptions}}))
-    submission_types_element.dispatchEvent(new CustomEvent('change', {}))
-
-    // Validate points field to allow only nonnegative integers
-    $("#points_possible").on("input", function () {
-      this.value = this.value.replace(/[^0-9]/g, '');
-      if (this.value < 0) {
-        this.value = '';
-      }
-    });
-
-    $("#assignment-attachment").change(function() {
-      if(this.files.length > 0) {
-          $(this).addClass('file-present')
-          $(this).parent().parent().addClass('changed')
-          $("#assignment-attachment-status").text(this.files[0].name)
-          console.log("File")
-      } else {
-          $(this).removeClass('file-present')
-          $(this).parent().parent().removeClass('changed')
-          $("#assignment-attachment-status").text("Drop a file here")
-          console.log("No file")
-      }
-    })
-
-    // Scroll to show selected assignment
-    const selectedAssignment = document.querySelector(".secondary-sidebar .item.active")
-
-    if (selectedAssignment) {
-      selectedAssignment.scrollIntoView({
-        behavior: "smooth", // Use "smooth" for smooth scrolling, or "auto" for instant scrolling
-        block: "nearest",   // Scroll block: "start", "center", "end", or "nearest"
-        inline: "nearest"   // Scroll inline: "start", "center", "end", or "nearest"
-      });
-    }
   })
 </script>
 {% endblock %}
@@ -117,6 +68,7 @@ Canvas - Assignment Details
 
 {% block body %}
 {% include 'assignments_sidebar.html' %}
+<div class="disable-overlay"></div>
 {% block content %}
 {% endblock %}
 {% endblock %}

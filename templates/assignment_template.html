@@ -11,6 +11,12 @@
 {% macro endblob() -%}
 </div>
 {%- endmacro %}
+<div 
+     id="assignment-details-wrapper"
+     data-courseid="{{ active_course.id }}"
+     data-assignmentid="{{ assignment.id }}"
+     data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id if assignment else 0) }}"
+     data-parseurl="{{ url_for('render_topbar', course_id=active_course.id, url=assignment.html_url) }}">
 
 <form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
   enctype=multipart/form-data>
@@ -132,19 +138,21 @@
   </div>
 </div>
 </form>
-<button id="submit-button" class="action-button warning" type="submit" form="update">Save</button>
-<span class="additional-actions">
-  <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Save As New</button>
-  <button id="template-button" class="action-button" type="submit" form="update" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
-  <span class="copyto-span">
-    <button id="copyto-button" class="action-button">Copy To</button>
-    <span class="course-popup">
-      <ul>
-        {% for course in courses %}
-        <button class="copyto-button{{ ' course-ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' course-started' if today and course.start_at_date and course.start_at_date < today }}" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
-        {% endfor %}
-      </ul>
+<div class="action-buttons">
+  <button id="submit-button" class="action-button warning" type="submit" form="update">Save</button>
+  <span class="additional-actions">
+    <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Save As New</button>
+    <button id="template-button" class="action-button" type="submit" form="update" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
+    <span class="copyto-span">
+      <button id="copyto-button" class="action-button">Copy To</button>
+      <span class="course-popup">
+        <ul>
+          {% for course in courses %}
+          <button class="copyto-button{{ ' course-ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' course-started' if today and course.start_at_date and course.start_at_date < today }}" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
+          {% endfor %}
+        </ul>
+      </span>
     </span>
+    <button id="delete-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
   </span>
-  <button id="delete-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
-</span>
+</div>
