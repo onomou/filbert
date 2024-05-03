@@ -131,6 +131,7 @@ input[type=file]::file-selector-button:hover {
 
 .styled-div.changed .reset {
   display: block;
+  cursor: pointer;
 }
 
 .break {
@@ -139,12 +140,12 @@ input[type=file]::file-selector-button:hover {
 }
 
 .details {
-  /* left: 10px; */
   position: relative;
   overflow-y: auto;
   overflow-x: clip;
+  height: 100%;
   /* width: auto; */
-  margin: 5px;
+  /* margin: 5px; */
   transition: opacity 0.1s ease-in-out;
 }
 
@@ -153,7 +154,7 @@ input[type=file]::file-selector-button:hover {
 }
 
 #new-assignment-header {
-  background: var(--red-color);
+  background: #c97a7a;
   width: 100%;
 }
 
@@ -233,7 +234,7 @@ input#id {
 }
 
 #update {
-  margin-bottom: 7px;
+  /* margin: 1ex; */
 }
 
 .child-float {
@@ -245,6 +246,7 @@ input#id {
   /* flex-wrap: nowrap; */
   /* justify-content: flex-start; */
   align-items: center;
+  position: relative;
 }
 
 #name-box {
@@ -366,4 +368,9 @@ td a {
     list-style-type: none;
     padding: 0;
     margin: 0;
+}
+
+
+.assignment-details {
+    margin: 1ex;
 }

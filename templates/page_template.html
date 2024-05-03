@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/overlay.css') }}">
     <link rel="stylesheet" href="{{ url_for('static',filename='css/page_template.css') }}">
     <script src="{{ url_for('static',filename='js/jquery-3.7.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/functions.js') }}"></script>
     {% block header %}{% endblock %}
 </head>
 
@@ -24,29 +25,30 @@
             {% block sidebars %}{% endblock %}
 
             <div class="content">
+                <div class="disable-overlay"></div>
                 {% block body %}{% endblock %}
             </div>
             {% block footer %}{% endblock %}
             <script>
                 // Courses sidebar
-                $("#toggle-courses").click(function() {
-                    var sidebar = $('#courses-sidebar');
-                    if( sidebar.hasClass('collapsed') ) {
-                        // toggle collapsed
-                        sidebar.removeClass('collapsed');
-                        // replace all with longname
-                        $('.sidebar-link').each(function() {
-                            $(this).html($(this).data('longname'));
-                        })
-                    } else {
-                        // toggle collapsed
-                        sidebar.addClass('collapsed');
-                        // replace all with shortname
-                        $('.sidebar-link').each(function() {
-                            $(this).html($(this).data('shortname'));
-                        })
-                    }
-                })
+                // $("#toggle-courses").click(function() {
+                //     var sidebar = $('#courses-sidebar');
+                //     if( sidebar.hasClass('collapsed') ) {
+                //         // toggle collapsed
+                //         sidebar.removeClass('collapsed');
+                //         // replace all with longname
+                //         $('.sidebar-link').each(function() {
+                //             $(this).html($(this).data('longname'));
+                //         })
+                //     } else {
+                //         // toggle collapsed
+                //         sidebar.addClass('collapsed');
+                //         // replace all with shortname
+                //         $('.sidebar-link').each(function() {
+                //             $(this).html($(this).data('shortname'));
+                //         })
+                //     }
+                // })
 
                 // Overlay
                 var overlay = document.getElementById('overlay');
@@ -78,6 +80,14 @@
                         overlay.style.display = 'none';
                     }
                 });
+
+                $(document).ready(function () {
+                    $(".sidebar-course a").each((index, element) => {
+                        $(element).click(() => {
+                            assignmentOverlay('Please wait');
+                        });
+                    });
+                })
             </script>
 
         </div>

@@ -6,7 +6,6 @@ Canvas - Assignment Details
 
 {% block header %}
 <link rel="stylesheet" href="{{ url_for('static',filename='css/assignments.css') }}">
-<script src="{{ url_for('static', filename='js/functions.js') }}"></script>
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css"> -->
 <script src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
@@ -43,24 +42,24 @@ Canvas - Assignment Details
     // var history_url = $(details_element).attr('href');
     loadPage(data_url, data_url)
     
-    $('#toggle-assignments').click(function() {
-      var sidebar = $('#assignments-sidebar');
-      if( sidebar.hasClass('collapsed') ) {
-        // toggle collapsed
-        sidebar.removeClass('collapsed');
-        // replace all with longname
-        $('.secondary-sidebar-name').each(function() {
-          $(this).html($(this).data('longname'));
-        })
-      } else {
-        // toggle collapsed
-        sidebar.addClass('collapsed');
-        // replace all with shortname
-        $('.secondary-sidebar-name').each(function() {
-          $(this).html($(this).data('shortname'));
-        })
-      }
-    })
+    // $('#toggle-assignments').click(function() {
+    //   var sidebar = $('#assignments-sidebar');
+    //   if( sidebar.hasClass('collapsed') ) {
+    //     // toggle collapsed
+    //     sidebar.removeClass('collapsed');
+    //     // replace all with longname
+    //     $('.secondary-sidebar-name').each(function() {
+    //       $(this).html($(this).data('longname'));
+    //     })
+    //   } else {
+    //     // toggle collapsed
+    //     sidebar.addClass('collapsed');
+    //     // replace all with shortname
+    //     $('.secondary-sidebar-name').each(function() {
+    //       $(this).html($(this).data('shortname'));
+    //     })
+    //   }
+    // })
   })
 </script>
 {% endblock %}
@@ -68,7 +67,6 @@ Canvas - Assignment Details
 
 {% block body %}
 {% include 'assignments_sidebar.html' %}
-<div class="disable-overlay"></div>
 {% block content %}
 {% endblock %}
 {% endblock %}

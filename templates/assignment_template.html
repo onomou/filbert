@@ -4,8 +4,8 @@
   id="{{ id }}-box"
 {% endif %}
 >
-  <span class="reset">✘</span>
-  <h2>{{ title }}</h2>
+<h2>{{ title }}</h2>
+<a class="reset" onclick="resetElement($(this)[0].nextElementSibling.id)">✘</a>
 {%- endmacro %}
 
 {% macro endblob() -%}
@@ -18,15 +18,16 @@
      data-dataurl="{{ url_for( 'push_page', course_id=active_course.id, assignment_id=assignment.id if assignment else 0) }}"
      data-parseurl="{{ url_for('render_topbar', course_id=active_course.id, url=assignment.html_url) }}">
 
-<form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update" method="POST"
-  enctype=multipart/form-data>
-  <!-- Assignment Title -->
-  <div class="page-header">
+<!-- Assignment Title -->
+<div class="page-header">
   {% if assignment is not none %}
-    <div>
-      <h1>
-        <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
-        target="_blank" rel="noopener noreferrer" style="display: inline-block;"><span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
+  <div>
+    <h1>
+      <a href="https://canvas.instructure.com/courses/{{ active_course.id }}/assignments/{{ assignment.id }}"
+         target="_blank"
+         rel="noopener noreferrer"
+         style="display: inline-block;">
+        <span style="float:left;">🔗 </span><span style="vertical-align: middle;">{{ assignment.name }}</span>
       </a>
     </h1>
   </div>
@@ -56,17 +57,19 @@
   </div>
   {% else %}
   <h1 id="new-assignment-header">
-    Creating New Assignment
+    📄 Creating New Assignment
   </h1>
   {% endif %}
 </div>
-
+<div class="assignment-details">
+<form id="update" action="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/update"
+      method="POST" enctype=multipart/form-data>
   <div class="parent-float">
     {{ blob("Assignment Name", id="name") }}
     <input type="text" id="name" name="name" autofocus="autofocus" value="{{ assignment.name }}" required>
     <label id="id-label" for="id">ID: </label>
     <input type="text" id="id" name="id"
-      value="{{ 'Creating New Assignment' if assignment is none else assignment.id }}" disabled>
+      value="{{ '📄 Creating New Assignment' if assignment is none else assignment.id }}" disabled>
     {{ endblob() }}
 
     {{ blob("Points", id="points_possible") }}
@@ -131,28 +134,28 @@
     {{ blob("Description", id="description") }}
     <textarea id="description" name="description"></textarea>
     {{ endblob() }}
-  
-  <div id="raw-description-container" class="styled-div child-float">
-    <h2>Description</h2>
-    <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
+    <div id="raw-description-container" class="styled-div child-float">
+      <h2>Description</h2>
+      <pre id="raw-description" name="raw-description">{{ assignment.description | safe }}</pre>
+    </div>
   </div>
-</div>
-</form>
 <div class="action-buttons">
-  <button id="submit-button" class="action-button warning" type="submit" form="update">Save</button>
+  <button id="submit-button" class="action-button warning" type="submit">Save</button>
   <span class="additional-actions">
-    <button id="duplicate-button" class="action-button" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Save As New</button>
-    <button id="template-button" class="action-button" type="submit" form="update" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
+    <button id="duplicate-button" class="action-button" type="submit" formaction="/courses/{{ active_course.id }}/assignments/{{ 0 }}/update" title="Creates a new assignment with the details shown on this screen">Save As New</button>
+    <button id="template-button" class="action-button" type="submit" formaction="{{ url_for('new_assignment', course_id=active_course.id) }}" title="Opens the new assignment page with the details filled in as shown on this screen" >Template</button>
     <span class="copyto-span">
       <button id="copyto-button" class="action-button">Copy To</button>
       <span class="course-popup">
         <ul>
           {% for course in courses %}
-          <button class="copyto-button{{ ' course-ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' course-started' if today and course.start_at_date and course.start_at_date < today }}" type="submit" form="update" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
+          <button class="copyto-button{{ ' course-ended' if today and course.end_at_date and course.end_at_date < today }}{{ ' course-started' if today and course.start_at_date and course.start_at_date < today }}" type="submit" formaction="/courses/{{ course.id }}/assignments/{{ 0 }}/update">{{ course.name }}</button>
           {% endfor %}
         </ul>
       </span>
     </span>
-    <button id="delete-button" class="action-button warning" type="submit" form="update" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
+    <button id="delete-button" class="action-button warning" type="submit" formaction="/courses/{{ active_course.id }}/assignments/{{ assignment.id or 0 }}/delete">Delete</button>
   </span>
+</div>
+</form>
 </div>

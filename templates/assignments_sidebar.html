@@ -1,24 +1,21 @@
 <div id="assignments-sidebar" class="sidebar secondary-sidebar">
   <div class="assignments-sticky">
-    <h3 id="toggle-assignments">Assignments</h3>
+    <h3 id="toggle-assignments"><a href="{{ url_for('assignments_list', course_id=active_course.id) }}" title="List all assignments">Assignments</a></h3>
     <ul>
       <li class="sidebar-item refresh-item" id="assignments-refresh">
-        <a href="{{ url_for('refresh_assignments', course_id=active_course.id) }}">Refresh ↺</a>
-      </li>
-      <li class="sidebar-item">
-        <a href="{{ url_for('assignments_list', course_id=active_course.id) }}">List ≡</a>
+        <a href="{{ url_for('refresh_assignments', course_id=active_course.id) }}" onclick="assignmentOverlay('Refreshing assignments')">Refresh ↺</a>
       </li>
       <li class="sidebar-item" id="filter-item">
         <input type="search"  oninput="liveFilter()" id="filterbox" placeholder="Filter">
       </li>
-      <li class="sidebar-item{{ ' active' if not assignment or not assignment['id'] }}" id="sidebar-new-assignment">
+      <li class="assignment sidebar-item{{ ' active' if not assignment or not assignment['id'] }}" id="sidebar-new-assignment">
         <a href="{{ url_for('new_assignment', course_id=active_course.id) }}" class="sidebar-new-assignment">New Assignment</a>
       </li>
     </ul>
   </div>
 
   <ul>
-    {% for for_assignment in assignments %}
+    {% for for_assignment in assignments|reverse %}
     <li class="assignment sidebar-item{{ ' published' if for_assignment and for_assignment['published'] }}" id="{{ for_assignment.id}}">
       <a href="{{ url_for('assignments_page', course_id=active_course.id, assignment_id=for_assignment.id) }}"
         class="sidebar-assignment-link" id="sidebar-assignment-{{ for_assignment.id }}"

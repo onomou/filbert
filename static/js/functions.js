@@ -72,6 +72,13 @@ function requiredFieldsValid() {
   return formValid; // Exit the loop early if any required field is empty
 }
 
+function assignmentOverlay(text="") {
+  $(".disable-overlay").text(text)
+  // $(".disable-overlay").css('display', 'flex')
+  $(".disable-overlay").css('visibility', 'visible')
+  $(".disable-overlay").css('opacity', '100%')
+}
+
 function initAssignmentDetails() {
 
   // Prevent accidental changes to assignment name
@@ -95,8 +102,7 @@ function initAssignmentDetails() {
       } else {
         // $("#assignment-details-wrapper").addClass('disable-overlay')
         if (requiredFieldsValid()) {
-          $(".disable-overlay").text('Saving')
-          $(".disable-overlay").css('display', 'flex')
+          assignmentOverlay("Saving")
         }
         return true;
       }
@@ -105,8 +111,7 @@ function initAssignmentDetails() {
   $('.additional-actions button').each(function() {
     $(this).on('click', function() {
       if (requiredFieldsValid()) {
-        $(".disable-overlay").text('Please wait')
-        $(".disable-overlay").css('display', 'flex')
+        assignmentOverlay('Please wait')
       }
     });
   });
@@ -125,7 +130,12 @@ function initAssignmentDetails() {
 
   // highlight current assignment
   $(".assignment.sidebar-item.active").removeClass("active")
-  $("#"+$("#assignment-details-wrapper").data("assignmentid")).addClass('active')
+  var assignmentID = $("#assignment-details-wrapper").data("assignmentid")
+  if (assignmentID == "") {
+    $("#sidebar-new-assignment").addClass("active")
+  } else {
+    $("#"+assignmentID).addClass('active')
+  }
 }
 
 function initChangeHandler() {
@@ -214,7 +224,7 @@ function valuesEqual(value1, value2) {
 }
 
 function handleInputChange(event) {
-  // console.log("another input handled")
+  console.log("another input handled")
   var newValue;
   if (event.target.type == "checkbox") {
     newValue = event.target.checked;
@@ -266,6 +276,30 @@ function handleDescriptionChange(event) {
   }
 }
 
+function resetElement(elementId) {
+  element = $("#" + elementId)
+  element2 = document.getElementById(elementId)
+  
+  if (element2.type == 'checkbox') {
+    element.prop('checked', initialValues[elementId])
+    // element.checked = initialValues[elementId]
+    // } else if (element.type == 'select') {
+    //   element.val(initialValues[elementId])
+  } else if (elementId == 'description') {
+    tinyMCE.get("description").setContent(initialValues['description'])
+    handleDescriptionChange()
+  } else {
+    // element.value = initialValues[elementId]
+    element.val(initialValues[elementId])
+  }
+
+  if (element2.type.includes('select')) {
+    element2.dispatchEvent(new Event("change"))
+  } else {
+    element2.dispatchEvent(new Event("input"))
+  }
+  // element.trigger('input')
+}
 
 
 function loadPage(data_url, history_url) {

@@ -7,14 +7,12 @@
 {% endif %}
 <div id="topbar" class="topbar">
     <!-- <ul id="topbar-ul"> -->
-        <div><a href="/" title="List Courses - Show all courses">◰</a></div>
+        <!-- <div><a href="/" title="List Courses - Show all courses">◰</a></div> -->
         <div><a href="{{ url_for('parse_url', url=link_url) }}" title="Parse URL - Get Python setup code">📝</a></div>
         {% if active_course %}
         <div><a href="{{ base_url }}/courses/{{ active_course.id }}" target="_blank"
                 rel="noopener noreferrer">🔗 {{ active_course.course_code }}</a></div>
-        <div><a href="/courses/{{ active_course.id }}/assignments/new">New Assignment</a></div>
         <div><a href="/courses/{{ active_course.id }}/assignments_bulk">Bulk</a></div>
-        <div><a href="/courses/{{ active_course.id }}/quizzes">Quizzes</a></div>
         {% endif %}
         <!-- <div>Grade Quiz</div> -->
         <!-- <div>Quiz Editor</div> -->

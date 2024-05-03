@@ -84,10 +84,13 @@ a {
 }
 
 h1 {
+  /* height: 32px; */
+  margin: 0px;
+  padding: 5px;
   margin: 0px 0px 7px;
   padding-left: 8px;
   /* text-align: center; */
-  background: var(--blue-color);
+  /* background: var(--blue-color); */
   font-size: x-large;
   /* height: 1.4em; */
   /* line-height: 0em; */
@@ -224,6 +227,11 @@ li.sidebar-item.published.active {
   padding-bottom: 12px;
 }
 
+.primary-sidebar a:hover {
+  background-color: var(--light-red-color);
+  box-shadow: 0px 0px 2px 2px var(--light-red-color);
+}
+
 .primary-sidebar h3 {
   background: #c97a7a;
   position: sticky;
@@ -269,19 +277,6 @@ li.sidebar-item.published.active {
   /* top: 0; */
 }
 
-.primary-sidebar a {
-  display: block;
-  /* padding: 0.5em 0.2em; */
-  /* text-decoration: none; */
-  color: var(--sidebar-text-color);
-  /* font-family: math; */
-}
-
-.primary-sidebar a:hover {
-    background-color: var(--light-red-color);
-    box-shadow: 0px 0px 2px 2px var(--light-red-color);
-}
-
 .sidebar-item.active {
   /* font-weight: bold; */
   background-color: var(--background-color) !important;
@@ -300,7 +295,7 @@ li.sidebar-item.published.active {
   /* top: 0px; */
   /* left: 0px; */
   width: var(--secondary-sidebar-width);
-  height: 100%;
+  /* height: 100%; */
   background-color: var(--secondary-sidebar-color);
   padding: 0px;
   display: block;
@@ -335,7 +330,7 @@ li.sidebar-item.published.active {
   /* top: 0px; */
   /* left: 0px; */
   width: var(--secondary-sidebar-width);
-  height: 100%;
+  /* height: 100%; */
   background-color: var(--secondary-sidebar-color);
   padding: 0px;
   display: block;
@@ -398,7 +393,10 @@ li.sidebar-item.published.active {
     justify-content: space-between;
     background-color: var(--blue-color);
     align-items: center;
-    margin-bottom: 1ex;
+    /* margin-bottom: 1ex; */
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .page-header h1 {
@@ -413,13 +411,15 @@ li.sidebar-item.published.active {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
   z-index: 999; /* Ensure it's on top of other content */
-  display: none; /* Initially hide overlay */
+  display: flex; /* Initially hide overlay */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.95, 0, 0.58, 1);
   align-content: center;
   color: white;
   text-shadow: 0 0 5px black;
   font-size: xx-large;
   vertical-align: middle;
-  /* display: block; */
   /* line-height: 90px; */
   /* display: flex; */
   justify-content: center;
@@ -452,4 +452,8 @@ li.sidebar-item.published.active {
     content: '...';
     /* opacity: 0; Fade out the last dot */
   }
+}
+
+.sidebar h3 a {
+    padding: 0;
 }
