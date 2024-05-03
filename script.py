@@ -1128,6 +1128,8 @@ def get_assignment_details(course_id, assignment_id=None, refresh=False):
                         'external_tool', 'online_text_entry', 
                         'online_url', 'online_upload', 'media_recording', 
                         'student_annotation']
+    if assignment is not None and assignment.points_possible is not None:
+        assignment.points_possible = int(assignment.points_possible)
 
     the_details['action'] = 'assignments'
     the_details['active_course'] = course
