@@ -915,7 +915,9 @@ def update_assignment(course_id, assignment_id=0):
             # replace local path with canvas path
             canvas_file = result[1]
             # preview_url looks like '/courses/{course_id}/files/{file_id}/file_preview?annotate=0&etc...
-            link_string = f'<img src="{canvas_file['preview_url'].split('?')[0].replace('file_preview','preview')}" alt="{canvas_file['display_name']}" />'
+            preview_url = canvas_file['preview_url'].split('?')[0].replace('file_preview','preview')
+            alt_name = canvas_file['display_name']
+            link_string = f'<img src="{preview_url}" alt="{alt_name}" />'
             response['description'] = re.sub(pattern, link_string, response['description'], count=1)
             
 
