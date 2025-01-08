@@ -15,6 +15,11 @@ This is a Flask app for quickly adding and changing information in Canvas. The p
 ## Getting Started
 
 1. Clone this repository
+1. Create virtual environment (Windows commands below)
+    ```bash
+    > py -m venv venv
+    > venv\Scripts\activate.bat
+    ```
 1. Install requirements
 `pip install -r requirements `
 1. Generate an API token (go to https://yourinstitution.instructure.com/profile/settings and generate a new token)
